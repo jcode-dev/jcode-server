@@ -1,0 +1,22 @@
+<link rel="stylesheet" href="/jotted/jotted.css">
+<script src="/jotted/jotted.js"></script>
+
+<div id="editor"></div>
+<script>
+  new Jotted(document.querySelector('#editor'), {
+    files: [{
+      type: 'html',
+      url: "/jotted/demo.html"
+    }],
+    showBlank: true,
+    plugins: [
+        'stylus',
+        {
+        name: 'codemirror',
+        options: {
+            lineNumbers: false
+        }
+        }
+    ]
+    })
+</script>

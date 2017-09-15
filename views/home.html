@@ -105,7 +105,7 @@
 
         document.getElementById('insecure').onclick = () => makeRequest('/api/insecure');
         document.getElementById('secure').onclick = () => makeRequest('/api/secure');
-        document.getElementById('google').onclick = () => authenticate('google');
+        document.getElementById('google').onclick = () => window.open('/auth/google');
         document.getElementById('facebook').onclick = () => authenticate('facebook');
     </script>
 

@@ -1,11 +1,11 @@
 const passport = require('passport');
 const passportGoogle = require('passport-google-oauth');
-const config = require('../config');
-const users = require('../users');
+const config = require('config');
+const users = require('./users.js');
 
 const passportConfig = {
-    clientID: config.get('authentication.google.clientId'),
-    clientSecret: config.get('authentication.google.clientSecret'),
+    clientID: config.google.client_id,
+    clientSecret: config.google.client_secret,
     callbackURL: 'http://localhost:3000/api/authentication/google/redirect'
 };
 

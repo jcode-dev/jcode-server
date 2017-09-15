@@ -1,3 +1,15 @@
 {
-	"port": 80
+	"port": 3000 ,
+	"mongodb" : "mongodb://localhost/test",
+	"google":{
+		"client_id":"154150930393-psrjmru8296alaps3ekgrt3q4lmsqcjs.apps.googleusercontent.com",
+		"project_id":"welcome-168712",
+		"auth_uri":"https://accounts.google.com/o/oauth2/auth",
+		"token_uri":"https://accounts.google.com/o/oauth2/token",
+		"auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs",
+		"client_secret":"RmrXGfoZB_-h86o3sWFAsz61",
+		"redirect_uris":["http://localhost:3000/api/authentication/google/redirect"],
+		"javascript_origins":["http://localhost:3000"]
+	}
+
 }

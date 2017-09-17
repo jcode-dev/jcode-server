@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Social Logins for Single Page Applications</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Editor</title>
+    <style type="text/css" media="screen">
+        body {
+            overflow: hidden;
+        }
+     </style>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    </head>
+<body>
+	<nav>
+		<div class="nav-wrapper">
+			<a href="#" class="brand-logo">エディター　{{displayName}}　さん。</a>
+			
+		</div>
+	</nav>
+    <div id="output">
+    </div>
+
+    <div>
+        <table>
+            <tr>
+                <td>userid</td>
+                <td>filename</td>
+            </tr>
+            {{#documents}}
+            <tr>
+                <td>{{_id}}</td>
+                <td>{{filename}}</td>
+                <td><button onclick="edit( '{{_id}}' );">編集</button></td>
+            </tr>
+            {{/documents}}
+        <tr>
+            <td>you</td>
+            <td><input id="newfile"></input><button id="add">add</button></td>
+        </tr>
+       </table>
+    </div>
+
+    <script src="/ace/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script>
+        function makeRequest2(url) {
+            fetch(url, {credentials: "include"})
+                .then((response) => {
+                    $('#status').val(response.statusText);
+                    response.text()
+                        .then((text) => {
+                            $('#output').val(text);
+
+                        });
+
+                });
+        }
+        function makeRequest(url) {
+            fetch(url, {credentials: "include"})
+                .then((response) => {
+                    fetch("/doc/list", {credentials: "include"})
+                        .then((response) => {
+                            $('#output').val(response);
+                        });
+                });
+        }
+        function edit(id) {
+            var url = "/edit?_id="+id;
+            widnow.open(url);
+        }
+
+        $(function() {
+            $("#add").click(function() {
+                makeRequest("/doc/add?filename="+$("#newfile").val());
+            });
+        });
+    </script>
+</body>
+</html>

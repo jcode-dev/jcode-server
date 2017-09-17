@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Social Logins for Single Page Applications</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.99.0/css/materialize.min.css"  media="screen,projection"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Editor</title>
+    <style type="text/css" media="screen">
+        body {
+            overflow: hidden;
+        }
+
+        #editor22 {
+            margin: 0;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+    </style>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+</head>
+<body>
+	<nav>
+		<div class="nav-wrapper">
+			<a href="#" class="brand-logo">エディター　{{displayName}}　さん。</a>
+			<button id="read">読み込み<button><button id="write">書き込み</button>
+		</div>
+	</nav>
+    <div>
+        <pre id="editor">function foo(items) {
+            var i;
+            for (i = 0; i &lt; items.length; i++) {
+                alert("Ace Rocks " + items[i]);
+            }
+        }</pre>
+    </div>
+    <script src="/ace/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script>
+        var editor = ace.edit("editor");
+        editor.setTheme("ace/theme/twilight");
+        editor.session.setMode("ace/mode/javascript");
+        editor.setAutoScrollEditorIntoView(true);
+        editor.setOption("maxLines", 30);
+        editor.setOption("minLines", 2);
+
+        var QueryString = {  
+            parse: function(text, sep, eq, isDecode) {
+                text = text || location.search.substr(1);
+                sep = sep || '&';
+                eq = eq || '=';
+                var decode = (isDecode) ? decodeURIComponent : function(a) { return a; };
+                return text.split(sep).reduce(function(obj, v) {
+                var pair = v.split(eq);
+                obj[pair[0]] = decode(pair[1]);
+                return obj;
+                }, {});
+            },
+            stringify: function(value, sep, eq, isEncode) {
+                sep = sep || '&';
+                eq = eq || '=';
+                var encode = (isEncode) ? encodeURIComponent : function(a) { return a; };
+                return Object.keys(value).map(function(key) {
+                return key + eq + encode(value[key]);
+                }).join(sep);
+            },
+        };
+        $(function(){
+
+
+        $("#read").click(function() {
+            var qs = QueryString.parse();
+            var uri = "/doc/read?_id="+qs._id;
+            fetch(uri)
+            .then(function(response){
+                return response.text();
+            })
+            .then(function(text){
+                editor.setValue(text, -1);
+            });
+        });
+        $("#write").click(function(){
+            var qs = QueryString.parse();
+            var body = editor.getValue();
+            var uri = "/doc/write?_id="+qs._id;
+            const myHeaders = new Headers();
+            myHeaders.append('Content-Type', 'application/json');
+            //alert(uri);
+            fetch(uri, {
+                mode: 'cors',
+                method: 'POST',
+                //header: myHeaders,
+                //credentials: 'include',
+                body: JSON.stringify({content: "body"})
+            }).then(function(response) {
+                return response.json();
+            }).then(function(data) {
+                console.log('Created Gist:', data.html_url);
+            });
+        });
+    });
+
+    </script>
+    
+</body>
+</html>

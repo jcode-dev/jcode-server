@@ -5,9 +5,6 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-//require('./authentication/google');
-//require('./authentication/facebook');
-var GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 var config = require('config');
 var mongoose = require('mongoose');
@@ -31,7 +28,7 @@ app.set('view engine', 'mustache');
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 //app.use(express.static(path.join(__dirname, 'public')));
@@ -39,6 +36,7 @@ app.use('/blockly', express.static(path.join(__dirname, '../blockly')));
 app.use('/three', express.static(path.join(__dirname, '../three.js')));
 app.use('/jcode', express.static(path.join(__dirname, '../jcode')));
 app.use('/physics', express.static(path.join(__dirname, '../physics')));
+app.use('/ace', express.static(path.join(__dirname, '../ace-builds')));
 
 // Configuring Passport
 var passport = require('passport');
@@ -51,99 +49,41 @@ app.use(expressSession(
   }));
 app.use(passport.initialize());
 app.use(passport.session());
+// Serialize/desirialize Passport
+require('./passport/init')(passport);
 
 // Using the flash middleware provided by connect-flash to store messages in session
 // and displaying in templates
 var flash = require('connect-flash');
 app.use(flash());
 
-// Initialize Passport
-var initPassport = require('./passport/init');
-initPassport(passport);
-
-var routes = require('./routes/index')(passport);
-app.use('/', routes);
-//app.use('/users', users);
 
 // アプリのホーム
-app.get('/test', function (req, res) {
-  //console.log(req.user);
-  var username = (req.user) ? req.user.username : "<guest>";
-  res.render('home.html', { title: 'Hey', username: username});
-});
+var home = '/home';
 
-var User = require('./models/user');
-var findOrCreate = function(profile, done) {
-  var username = profile.id;
-  // find a user in Mongo with provided username
-  User.findOne({ 'username' :  username }, function(err, user) {
-      // In case of any error, return using the done method
-      if (err){
-          console.log('Error in SignUp: '+err);
-          return done(err);
-      }
-      // already exists
-      if (user) {
-          console.log('User already exists with username: '+username);
-          return done(null, user);
-      } else {
-          // if there is no user with that email
-          // create the user
-          var newUser = new User();
+var routesHome = require('./routes/home');
+app.use('/home', routesHome);
 
-          // set the user's local credentials
-          newUser.username = username;
-          newUser.password = ("password");
-          newUser.email = ('email');
-          newUser.firstName = ('firstName');
-          newUser.lastName = ('lastName');
+var routesHome = require('./routes/editor');
+app.use('/editor', routesHome);
 
-          // save the user
-          newUser.save(function(err) {
-              if (err){
-                  console.log('Error in Saving user: '+err);  
-                  throw err;  
-              }
-              console.log('User Registration succesful');    
-              return done(null, newUser);
-          });
-      }
-  });
-};
+var doc = require('./routes/document');
+app.use('/doc', doc);
 
-passport.use(new GoogleStrategy({
-  clientID: config.google.client_id,
-  clientSecret: config.google.client_secret,
-  callbackURL: 'http://localhost:3000/api/authentication/google/redirect'
-  },
-  function(accessToken, refreshToken, profile, cb) {
-    console.log("accessToken:", accessToken);
-    findOrCreate(profile, function (err, user) {
-    //User.findOrCreate({ googleId: profile.id }, function (err, user) {
-      return cb(err, user);
-    });
-  }
-));
-app.get('/auth/google',
-passport.authenticate('google', { scope: ['profile'] }));
 
-app.get('/api/authentication/google/redirect',
-passport.authenticate('google', { failureRedirect: '/login' }),
-function(req, res) {
-  console.log("successful authentication:", req.user);
-  // Successful authentication, redirect home.
-  res.redirect('/test');
-});
+// Google Strategy
+//  https://developers.google.com/identity/sign-in/web/devconsole-project?hl=ja
+require('./passport/google')(passport);
+
+// Local Strategy
+require('./passport/login')(passport);
+require('./passport/signup')(passport);
+
+var routes = require('./routes/authentication')(home, passport);
+app.use('/auth', routes);
+
+
 /*
-app.get('/api/authentication/google/start',
-  //passport.authenticate('google', { session: true, scope: ['openid', 'profile', 'email'] }));
-  passport.authenticate('google'));
-app.get('/api/authentication/google/redirect',
-  //passport.authenticate('google', { session: true }),
-  //generateUserToken);
-  passport.authenticate('google', { successRedirect: '/test',
-  failureRedirect: '/test' }));
-
 app.get('/api/authentication/facebook/start',
   passport.authenticate('facebook', { session: false }));
 app.get('/api/authentication/facebook/redirect',
@@ -155,15 +95,9 @@ app.get('/api/insecure', (req, res) => {
   res.send('Insecure response');
 });
 
-app.get('/api/secure',
-passport.authenticate(['jwt'], { session: false }),
-(req, res) => {
-    res.send('Secure response from ' + JSON.stringify(req.user));
+app.get('/api/secure', (req, res) => {
+  res.send('Secure response from ' + JSON.stringify(req.user));
 });
-
-
-
-
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -181,7 +115,7 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.render('error.html', {message: res.locals.message, error: res.locals.error});
 });
 
 module.exports = app;

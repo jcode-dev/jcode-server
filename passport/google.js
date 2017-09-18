@@ -1,3 +1,4 @@
+// google 認証ストラテジー
 var GoogleStrategy = require('passport-google-oauth20').Strategy;
 var User = require('../models/user');
 const config = require('config');

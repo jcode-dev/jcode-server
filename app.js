@@ -64,11 +64,11 @@ var home = '/home';
 var routesHome = require('./routes/home');
 app.use('/home', routesHome);
 
-var routesHome = require('./routes/editor');
-app.use('/editor', routesHome);
+var editor = require('./routes/editor');
+app.use('/editor', editor);
 
-var doc = require('./routes/document');
-app.use('/doc', doc);
+//var doc = require('./routes/document');
+//app.use('/doc', doc);
 
 
 // Google Strategy
@@ -79,8 +79,8 @@ require('./passport/google')(passport);
 require('./passport/login')(passport);
 require('./passport/signup')(passport);
 
-var routes = require('./routes/authentication')(home, passport);
-app.use('/auth', routes);
+var authentication = require('./routes/authentication')(home, passport);
+app.use('/auth', authentication);
 
 
 /*
@@ -111,8 +111,9 @@ app.use(function(err, req, res, next) {
   // set locals, only providing error in development
   console.log("ERROR!!!!",err.message)
   res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
+  //res.locals.error = req.app.get('env') === 'development' ? err : {};
+  res.locals.error = {};
+  console.log(err);
   // render the error page
   res.status(err.status || 500);
   res.render('error.html', {message: res.locals.message, error: res.locals.error});

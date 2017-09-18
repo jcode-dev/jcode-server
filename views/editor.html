@@ -26,16 +26,12 @@
 	<nav>
 		<div class="nav-wrapper">
 			<a href="#" class="brand-logo">エディター　{{displayName}}　さん。</a>
-			<button id="read">読み込み<button><button id="write">書き込み</button>
+<div id="_id">{{doc._id}}</div>
+            <button id="read">読み込み<button><button id="write">書き込み</button>
 		</div>
 	</nav>
     <div>
-        <pre id="editor">function foo(items) {
-            var i;
-            for (i = 0; i &lt; items.length; i++) {
-                alert("Ace Rocks " + items[i]);
-            }
-        }</pre>
+        <pre id="editor">{{doc.content}}</pre>
     </div>
     <script src="/ace/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
     <script>
@@ -43,9 +39,9 @@
         editor.setTheme("ace/theme/twilight");
         editor.session.setMode("ace/mode/javascript");
         editor.setAutoScrollEditorIntoView(true);
-        editor.setOption("maxLines", 30);
-        editor.setOption("minLines", 2);
-
+        editor.setOption("maxLines", 80);
+        editor.setOption("minLines", 10);
+/*
         var QueryString = {  
             parse: function(text, sep, eq, isDecode) {
                 text = text || location.search.substr(1);
@@ -67,9 +63,12 @@
                 }).join(sep);
             },
         };
+        var qs = QueryString.parse();
+        */
+
         $(function(){
 
-
+        // 読み込み直し
         $("#read").click(function() {
             var qs = QueryString.parse();
             var uri = "/doc/read?_id="+qs._id;
@@ -81,25 +80,24 @@
                 editor.setValue(text, -1);
             });
         });
+
         $("#write").click(function(){
-            var qs = QueryString.parse();
             var body = editor.getValue();
-            var uri = "/doc/write?_id="+qs._id;
-            const myHeaders = new Headers();
-            myHeaders.append('Content-Type', 'application/json');
-            //alert(uri);
-            fetch(uri, {
-                mode: 'cors',
-                method: 'POST',
-                //header: myHeaders,
-                //credentials: 'include',
-                body: JSON.stringify({content: "body"})
-            }).then(function(response) {
-                return response.json();
-            }).then(function(data) {
-                console.log('Created Gist:', data.html_url);
-            });
+            var hostUrl = "/editor/update";
+            var _id = $("#_id").text();
+            $.ajax({
+                url: hostUrl,
+                type:'POST',
+                dataType: 'json',
+                data : {_id: _id, content : body },
+                timeout:10000,
+            }).done(function(data) {
+                ;
+            }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                alert("書き込みに失敗しました。");
+            })
         });
+
     });
 
     </script>

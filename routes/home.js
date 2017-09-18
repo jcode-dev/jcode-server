@@ -1,22 +1,23 @@
+
 var express = require('express');
 var router = express.Router();
+var Document = require('../models/document');
+var mongoose = require('mongoose');
 
-router.get('/', function(req, res, next) {
-  console.log(req.params);
+router.get('*', function(req, res, next) {
+  //console.log(req.params, req.query);
   var displayName = (req.user) ? req.user.displayName : "<guest>";
-  res.render('home.html', { title: 'Hey', displayName: displayName});
-});
+  var item = req.params[0].split('/');
+  var filename = item[1];
+  console.log(filename);
 
-router.get('/:id/:section.:no', function(req, res, next) {
-  console.log(req.params);
-  var displayName = (req.user) ? req.user.displayName : "<guest>";
-  res.render('home.html', { title: 'Hey', displayName: displayName});
-});
-
-router.get('/:id/:no/', function(req, res, next) {
-  console.log(req.params);
-  var displayName = (req.user) ? req.user.displayName : "<guest>";
-  res.render('home.html', { title: 'Hey', displayName: displayName});
+  Document.findOne({ 'filename' : filename }, function(err, result) {
+    if (result) {
+      res.send(result.content);
+    } else {
+      res.render('./jcode/index.html', { title: 'Hey', displayName: displayName});
+    }
+  });
 });
 
 module.exports = router;

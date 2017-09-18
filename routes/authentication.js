@@ -8,7 +8,7 @@ module.exports = function(home, passport) {
 		res.render('login.html',{loginUrl: 'login', signupUrl: 'signup'});
 	});
 
-	router.post('/login', passport.authenticate('login', {
+	router.post('/login',	passport.authenticate('login', {
 		successRedirect: home,
 		failureRedirect: 'login',
 		failureFlash : false  
@@ -38,9 +38,9 @@ module.exports = function(home, passport) {
 	// Google Reirect page - developers.gooogle.com
 	router.get('/google/redirect',
 		passport.authenticate('google', { failureRedirect: 'login' }), function(req, res) {
-			console.log("successful authentication:", req.user);
+			console.log("google login :", req.user);
 			// Successful authentication, redirect home.
-			res.redirect(home);
+			res.redirect(req.headers.referer); // redirect to 呼び出し元
 	});
 
 	return router;

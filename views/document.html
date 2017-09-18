@@ -31,7 +31,7 @@
             <tr>
                 <td>{{_id}}</td>
                 <td>{{filename}}</td>
-                <td><button onclick="edit( '{{_id}}' );">編集</button></td>
+                <td><button onclick="window.open('/editor/edit/{{_id}}');">編集</button></td>
             </tr>
             {{/documents}}
         <tr>
@@ -64,14 +64,15 @@
                         });
                 });
         }
+/*
         function edit(id) {
-            var url = "/edit?_id="+id;
-            widnow.open(url);
+            var url = "/editor/="+{{doc_id}};
+            window.open(url);
         }
-
+*/
         $(function() {
             $("#add").click(function() {
-                makeRequest("/doc/add?filename="+$("#newfile").val());
+                makeRequest("/editor/add?filename="+$("#newfile").val());
             });
         });
     </script>

@@ -1,17 +1,17 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-		<title>Percent horizontal</title>
-		<link rel="stylesheet" href="./split-pane/split-pane.css" />
-		<link rel="stylesheet" href="./split-pane/pretty-split-pane.css" />
+		<title>Jcode Educational</title>
+		<link rel="stylesheet" href="/jcode/split-pane/split-pane.css" />
+		<link rel="stylesheet" href="/jcode/split-pane/pretty-split-pane.css" />
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-		<script src="./split-pane/split-pane.js"></script>
+		<script src="/jcode/split-pane/split-pane.js"></script>
 		<script src="https://use.fontawesome.com/3d297e537a.js"></script>		
 		
-		<link rel="stylesheet" href="style.css">
-		<script src="storage.js"></script>
+		<link rel="stylesheet" href="/jcode/style.css">
+		<script src="/jcode/storage.js"></script>
 		<script src="/blockly/blockly_compressed.js"></script>
 		<script src="/blockly/blocks_compressed.js"></script>
 		<script src="/blockly/javascript_compressed.js"></script>
@@ -23,11 +23,11 @@
 		<script src="/three/build/three.js"></script>
 		<script src="/three/examples/js/controls/OrbitControls.js"></script>
 
-		<script src="./jcode-lib/TextBoardObject.js"></script>
-		<script src="code.js"></script>
-		<script src="jcode.js"></script>
-		<script src="./jcode-lib/obj.js"></script>
-		<script src="./jcode-lib/instructions.js"></script>
+		<script src="/jcode/jcode-lib/TextBoardObject.js"></script>
+		<script src="/jcode/code.js"></script>
+		<script src="/jcode/jcode.js"></script>
+		<script src="/jcode/jcode-lib/obj.js"></script>
+		<script src="/jcode/jcode-lib/instructions.js"></script>
 	  
 		<style type="text/css">
 
@@ -95,7 +95,8 @@
 							</td>
 							<td>
 								<div id="JCODE-instruction" width="100%">
-										こんにちは、プログラミング<ruby>教育研究所<rp>(</rp><rt>きょういくけんきゅうじょ</rt><rp>)</rp></ruby>にようこそ。<br />
+                    こんにちは、プログラミング<ruby>教育研究所<rp>(</rp><rt>きょういくけんきゅうじょ</rt><rp>)</rp></ruby>にようこそ。<br />
+                    このページには、何もないから、はじめての人は、<a href="/home">ここを開いてくださいね。</a>
 								</div>
 							</td>
 						</tr>
@@ -145,7 +146,15 @@
 				</div>
 			</div>
 		</div>
-		<div id="content_blocks" class="content"></div>
+
+<script>
+window.addEventListener("load", function(event) {
+  console.log("Start instruction!");
+  JCODE.runInstServer("test1.js");
+});
+</script>
+
+    <div id="content_blocks" class="content"></div>
 		<pre id="content_javascript" class="content"></pre>
 		<pre id="content_python" class="content"></pre>
 		<pre id="content_php" class="content"></pre>

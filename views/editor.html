@@ -2,9 +2,8 @@
 <html>
 <head>
     <title>Social Logins for Single Page Applications</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.99.0/css/materialize.min.css"  media="screen,projection"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="/jcode/style.css">
     <title>Editor</title>
     <style type="text/css" media="screen">
         body {
@@ -23,21 +22,24 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 </head>
 <body>
-	<nav>
-		<div class="nav-wrapper">
-			<a href="#" class="brand-logo">エディター　{{displayName}}　さん。</a>
-<div id="_id">{{doc._id}}</div>
-            <button id="read">読み込み<button><button id="write">書き込み</button>
-		</div>
-	</nav>
+	<div class="title" width="100%">
+        <a href="#" class="brand-logo">エディター　{{displayName}}　さん。</a>
+        <div id="_id">{{doc._id}}</div>
+        <span id="filename">{{doc.filename}}</span><button="changeFilename">へんこう</button>
+        <input value="{{doc.filename}}"></input><button="changeFilename">OK</button>
+    </div>
+	<div class="" width="100%">
+        <button id="read">読み込み</button><button id="write">書き込み</button>
+    </div>
     <div>
-        <pre id="editor">{{doc.content}}</pre>
+        <pre id="editor" style="font-size: 18px">{{doc.content}}</pre>
     </div>
     <script src="/ace/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
     <script>
         var editor = ace.edit("editor");
-        editor.setTheme("ace/theme/twilight");
+        editor.setTheme("ace/theme/monokai");
         editor.session.setMode("ace/mode/javascript");
+        //document.getElementById('editor').style.fontSize='18px';
         editor.setAutoScrollEditorIntoView(true);
         editor.setOption("maxLines", 80);
         editor.setOption("minLines", 10);

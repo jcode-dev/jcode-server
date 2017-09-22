@@ -15,7 +15,7 @@ router.get('*', function(req, res, next) {
     if (result) {
       res.send(result.content);
     } else {
-      res.render('./jcode/index.html', { title: 'Hey', displayName: displayName});
+      res.render('./jcode/index.html', { title: 'Hey', displayName: displayName, filename: filename });
     }
   });
 });

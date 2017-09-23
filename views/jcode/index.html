@@ -98,18 +98,6 @@
 								</div>
 							</td>
 						</tr>
-						<tr>
-								<td align="center">
-										<div class="controls">
-											<button><i class="fa fa-fast-backward" aria-hidden="true"></i></button>
-											<button><i class="fa fa-stop" aria-hidden="true"></i></button>
-											<button><i class="fa fa-pause" aria-hidden="true"></i></button>
-											<button id="runButton" ><i class="fa fa-play" aria-hidden="true"></i></button>
-											<button><i class="fa fa-forward" aria-hidden="true"></i></button>
-											<button><i class="fa fa-fast-forward" aria-hidden="true"></i></button>
-										</div>
-							</td>
-						</tr>
 					</table>
 				
 
@@ -127,20 +115,33 @@
 							  <td class="tabmin">&nbsp;</td>
 							  <td id="tab_xml" class="taboff">XML</td>
 							  <td class="tabmax">
-								<button id="trashButton" class="notext" title="...">
-								  <img src='/blockly/media/1x1.gif' class="trash icon21">
+								<button id="runButton" class="notext primary" title="...">
+									<img src='/blockly/media/1x1.gif' class="run icon21">
 								</button>
 								<button id="linkButton" class="notext" title="...">
-								  <img src='/blockly/media/1x1.gif' class="link icon21">
+										<img src='/blockly/media/1x1.gif' class="link icon21">
+									</button>
+									<button id="trashButton" class="notext" title="...">
+								  <img src='/blockly/media/1x1.gif' class="trash icon21">
 								</button>
-
 							  </td>
 							</tr>
 						</table>
-					  <div id="content_area">
+
+						<div id="content_area">
 					  </div>
 					  <div id="blocklyDiv">
-							</div>
+						</div>
+
+
+						<div id="content_blocks" class="content"></div>
+						<pre id="content_javascript" class="content"></pre>
+						<pre id="content_python" class="content"></pre>
+						<pre id="content_php" class="content"></pre>
+						<pre id="content_lua" class="content"></pre>
+						<pre id="content_dart" class="content"></pre>
+						<textarea id="content_xml" class="content" wrap="off"></textarea>
+
 						</div>
 				</div>
 			</div>
@@ -162,56 +163,6 @@ window.addEventListener("load", function(event) {
 	});
 });	
 
-/*
-window.addEventListener("load", function(event) {
-  console.log("Start User instruction!");
-	var filename = "{{filename}}.json";
-	var hostUrl = "/editor/getJsonByName/"+filename;
-	$.ajax({
-			url: hostUrl,
-			type:'GET',
-			timeout:10000,
-	}).done(function(jsonData) {
-
-		// start instruction
-		JCODE.runScript(jsonData.start_js);
-		// setup Toolbox
-		Code.initBlockly(jsonData.toolbox_xml);
-
-	}).fail(function(XMLHttpRequest, textStatus, errorThrown) {
-		alert("読み込みに失敗しました。");
-})
-*/
-
-
-/*
-	JCODE.runInstServer("{{scriptName}}");
-
-	var toolbox = '<xml>';
-  toolbox += '  <block type="controls_if"></block>';
-  toolbox += '  <block type="controls_whileUntil"></block>';
-  toolbox += '</xml>';
-
-// Inject Blockly and Construct the toolbox XML.
-  var toolboxText = document.getElementById('toolbox').outerHTML;
-  Code.initBlockly(toolboxText);
-*/
-
 </script>
-
-<div id="content_blocks" class="content"></div>
-<pre id="content_javascript" class="content"></pre>
-<pre id="content_python" class="content"></pre>
-<pre id="content_php" class="content"></pre>
-<pre id="content_lua" class="content"></pre>
-<pre id="content_dart" class="content"></pre>
-<textarea id="content_xml" class="content" wrap="off"></textarea>
-
-<xml id="toolbox" style="display: none">
-	<category name="オブジェクト" colour="%{BKY_COLOUR_HUE}" custom="JCODE_OBJECT"></category>>
-	<category name="インストラクション" colour="%{BKY_COLOUR_HUE}" custom="JCODE_INSTRUCTION"></category>>
-</xml>
-
-
 </body>
 </html>

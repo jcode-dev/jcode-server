@@ -294,7 +294,43 @@
   <category name="%{BKY_CATVARIABLES}" colour="%{BKY_VARIABLES_HUE}" custom="VARIABLE"></category>
   <category name="%{BKY_CATFUNCTIONS}" colour="%{BKY_PROCEDURES_HUE}" custom="PROCEDURE"></category>
 
-  <category name="オブジェクト" colour="%{BKY_COLOUR_HUE}" custom="JCODE_OBJECT"></category>>
-  <category name="THREE" colour="%{BKY_VARIABLES_HUE}" custom="JCODE_THREE"></category>>
-  <category name="インストラクション" colour="%{BKY_COLOUR_HUE}" custom="JCODE_INSTRUCTION"></category>>
+  <sep></sep>
+   <category name="インストラクション" colour="%{BKY_COLOUR_HUE}" custom="JCODE_INSTRUCTION"></category>>
+
+  <category name="3D全部" colour="#abcc52" custom="JCODE_THREE"></category>>
+  <category name="3Dオブジェクト" colour="#abcc52">
+    <block type="three_createNew" id="iIe)+8=R%4^l4V-bIA[R" x="38" y="38">
+      <field name="VAR" id="rb?mJHxUX+KBy5N)DPD+" variabletype="">obj</field>
+      <value name="VALUE">
+        <block type="three_typeName" id="[{M)=YVi9L`KvYdNaQ0.">
+          <field name="FIELDNAME">box</field>
+        </block>
+      </value>
+    </block>
+    <block type="three_moveForward" id="D-_pM5U9c8JrL%WEld?+" x="238" y="88">
+      <field name="VAR" id="rb?mJHxUX+KBy5N)DPD+" variabletype="">obj</field>
+      <value name="VALUE">
+        <block type="math_number" id="$i#%a=5{,|;p`lsL(W#|">
+          <field name="NUM">10</field>
+        </block>
+      </value>
+    </block>
+    <block type="three_turnRight" id="X:Le5^gVu[{Aan}]e4=J" x="287" y="137">
+      <field name="VAR" id="rb?mJHxUX+KBy5N)DPD+" variabletype="">obj</field>
+      <value name="VALUE">
+                       <block type="three_angle" id="?)cfixviBf1f_+~x2t;D">
+                        <field name="FIELDNAME">90</field>
+                      </block>
+      </value>
+    </block>
+    <block type="three_lookUpward" id="kI#I|X6C5o7S2S2#[[vw" x="212" y="187">
+      <field name="VAR" id="rb?mJHxUX+KBy5N)DPD+" variabletype="">obj</field>
+      <value name="VALUE">
+                      <block type="three_angle" id="?)cfixviBf1f_+~x2t;D">
+                        <field name="FIELDNAME">45</field>
+                      </block>
+      </value>
+    </block>
+  </category>>
+
 </xml>

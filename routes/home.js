@@ -3,6 +3,14 @@ var express = require('express');
 var router = express.Router();
 var Document = require('../models/document');
 var mongoose = require('mongoose');
+var fs = require("fs");
+
+router.get('/start.js', function(req, res, next) {
+  res.render('./jcode/start.js',{});
+});
+router.get('/toolbox.xml', function(req, res, next) {
+  res.render('./jcode/toolbox.xml',{});
+});
 
 router.get('*', function(req, res, next) {
   //console.log(req.params, req.query);

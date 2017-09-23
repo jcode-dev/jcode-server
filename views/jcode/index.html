@@ -149,6 +149,22 @@
 <script>
 window.addEventListener("load", function(event) {
   console.log("Start User instruction!");
+	var hostUrl = "/home/start.js";
+	$.ajax({
+			url: hostUrl,
+			type:'GET',
+			timeout:10000,
+	}).done(function(js) {
+		// start instruction
+		JCODE.runScript(js);
+	}).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+		alert("読み込みに失敗しました。");
+	});
+});	
+
+/*
+window.addEventListener("load", function(event) {
+  console.log("Start User instruction!");
 	var filename = "{{filename}}.json";
 	var hostUrl = "/editor/getJsonByName/"+filename;
 	$.ajax({
@@ -165,6 +181,8 @@ window.addEventListener("load", function(event) {
 	}).fail(function(XMLHttpRequest, textStatus, errorThrown) {
 		alert("読み込みに失敗しました。");
 })
+*/
+
 
 /*
 	JCODE.runInstServer("{{scriptName}}");
@@ -179,7 +197,6 @@ window.addEventListener("load", function(event) {
   Code.initBlockly(toolboxText);
 */
 
-});
 </script>
 
 <div id="content_blocks" class="content"></div>

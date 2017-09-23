@@ -20,6 +20,8 @@ mongoose.connect(config.mongodb, {}, function(error) {
 var app = express();
 // view engine setup
 app.engine('html', mustacheExpress());
+app.engine('js', mustacheExpress());
+app.engine('xml', mustacheExpress());
 app.set('views', path.join(__dirname, 'views'));
 //app.set('view engine', 'jade');
 app.set('view engine', 'mustache');

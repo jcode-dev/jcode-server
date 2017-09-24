@@ -13,7 +13,7 @@ $.ajax({
   alert("読み込みに失敗しました。");
 });
 
-var obj = new JCODE.obj("sphere");
+var obj = new JCODE.object3d("sphere");
 for (var count = 0; count < 4; count++) {
   obj.moveForward(10);
   obj.turnRight(90);

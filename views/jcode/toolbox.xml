@@ -295,9 +295,9 @@
   <category name="%{BKY_CATFUNCTIONS}" colour="%{BKY_PROCEDURES_HUE}" custom="PROCEDURE"></category>
 
   <sep></sep>
-   <category name="インストラクション" colour="%{BKY_COLOUR_HUE}" custom="JCODE_INSTRUCTION"></category>>
+  <category name="3D全部list" colour="#abcc52" custom="JCODE_THREE"></category>
+  <category name="インストラクション" colour="%{BKY_COLOUR_HUE}" custom="JCODE_INSTRUCTION"></category>
 
-  <category name="3D全部" colour="#abcc52" custom="JCODE_THREE"></category>>
   <category name="3Dオブジェクト" colour="#abcc52">
     <block type="three_createNew" id="iIe)+8=R%4^l4V-bIA[R" x="38" y="38">
       <field name="VAR" id="rb?mJHxUX+KBy5N)DPD+" variabletype="">obj</field>

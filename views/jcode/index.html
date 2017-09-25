@@ -160,7 +160,7 @@
 	<script>
 		window.addEventListener("load", function(event) {
 			console.log("Start User instruction!");
-			var hostUrl = "{{{start_filename}}}";
+			var hostUrl = "/home/start.js";
 			$.ajax({
 					url: hostUrl,
 					type:'GET',
@@ -169,7 +169,7 @@
 				// start instruction
 				JCODE.runScript(js);
 			}).fail(function(XMLHttpRequest, textStatus, errorThrown) {
-				alert("読み込みに失敗しました。");
+				alert(hostUrl + "読み込みに失敗しました。");
 			});
 		});	
 	</script>

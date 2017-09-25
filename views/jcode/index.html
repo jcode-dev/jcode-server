@@ -4,6 +4,9 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 		<title>Jcode Educational</title>
+    <!-- Bootstrap -->
+    <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
 		<link rel="stylesheet" href="/jcode/split-pane/split-pane.css" />
 		<link rel="stylesheet" href="/jcode/split-pane/pretty-split-pane.css" />
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
@@ -51,6 +54,16 @@
 				height: 60%;
 				min-height: 5em;
 			}
+			#left-component	{
+				display: inline-block;
+			}
+			p {
+				margin-left: 1em;
+			}
+			#right-component	{
+				display: inline-block;
+				vertical-align: top;
+			}
 
 		</style>
 
@@ -61,6 +74,7 @@
 		</script>
 	</head>
 	<body>
+
 		<table class="title" width="100%">
 			<tr>
 			  <td>
@@ -72,38 +86,37 @@
 				</td>
 			</tr>
 		</table>
+
 		<div class="pretty-split-pane-frame"><!-- This div is added for styling purposes only. It's not part of the split-pane plugin. -->
 			<div class="split-pane horizontal-percent">
+
 				<div class="split-pane-component" id="top-component">
 					<div class="pretty-split-pane-component-inner"><!-- This div is added for styling purposes only. It's not part of the split-pane plugin. -->
 
-					<table>
-						<tr>
-
-							<td>
-								<div id="WebGL-output">
+								<div id="left-component">
+									<div id="WebGL-output">
+									</div>
+									<div id="WebGL-ui">
+											<div id="vr-button"></div>
+											<a id="magic-window" href="#" class="balloon" style="display: none">>
+												はじめ
+											</a>
+									</div>
+	
 								</div>
-								<div id="WebGL-ui">
-										<div id="vr-button"></div>
-										<a id="magic-window" href="#" class="balloon" style="display: none">>
-											はじめ
-										</a>
+								<div id="right-component">
+									<div id="JCODE-instruction" width="100%">
+									<p>
+										こんにちは、プログラミング<ruby>教育研究所<rp>(</rp><rt>きょういくけんきゅうじょ</rt><rp>)</rp></ruby>にようこそ。<br />
+									</p>
+									</div>
 								</div>
-
-							</td>
-							<td>
-								<div id="JCODE-instruction" width="100%">
-                    こんにちは、プログラミング<ruby>教育研究所<rp>(</rp><rt>きょういくけんきゅうじょ</rt><rp>)</rp></ruby>にようこそ。<br />
-                    このページには、何もないから、はじめての人は、<a href="/home">ここを開いてくださいね。</a>
-								</div>
-							</td>
-						</tr>
-					</table>
-				
-
+					
+	
 					</div>
 				</div>　
 				<div class="split-pane-divider" id="my-divider"></div>
+					
 				<div class="split-pane-component" id="bottom-component">
 					<div class="pretty-split-pane-component-inner"><!-- This div is added for styling purposes only. It's not part of the split-pane plugin. -->
 
@@ -127,13 +140,8 @@
 							  </td>
 							</tr>
 						</table>
-
-						<div id="content_area">
-					  </div>
-					  <div id="blocklyDiv">
-						</div>
-
-
+						<div id="content_area">  </div>
+					  <div id="blocklyDiv">	</div>
 						<div id="content_blocks" class="content"></div>
 						<pre id="content_javascript" class="content"></pre>
 						<pre id="content_python" class="content"></pre>
@@ -143,26 +151,27 @@
 						<textarea id="content_xml" class="content" wrap="off"></textarea>
 
 						</div>
+					</div>
 				</div>
+
 			</div>
 		</div>
 
-<script>
-window.addEventListener("load", function(event) {
-  console.log("Start User instruction!");
-	var hostUrl = "/home/start.js";
-	$.ajax({
-			url: hostUrl,
-			type:'GET',
-			timeout:10000,
-	}).done(function(js) {
-		// start instruction
-		JCODE.runScript(js);
-	}).fail(function(XMLHttpRequest, textStatus, errorThrown) {
-		alert("読み込みに失敗しました。");
-	});
-});	
-
-</script>
+	<script>
+		window.addEventListener("load", function(event) {
+			console.log("Start User instruction!");
+			var hostUrl = "{{{start_filename}}}";
+			$.ajax({
+					url: hostUrl,
+					type:'GET',
+					timeout:10000,
+			}).done(function(js) {
+				// start instruction
+				JCODE.runScript(js);
+			}).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+				alert("読み込みに失敗しました。");
+			});
+		});	
+	</script>
 </body>
 </html>

@@ -331,6 +331,22 @@
                       </block>
       </value>
     </block>
+    <block type="three_setColor" id="^XbylD4oS2Ld!{o{C,=A">
+      <field name="VAR" id="-Xe#a~l@kJ$d(a3q-RnK" variabletype="">obj</field>
+      <value name="VALUE">
+        <block type="colour_picker" id=",FA^nA?ZVR8Qv|p%=9_)">
+          <field name="COLOUR">#ff0000</field>
+        </block>
+      </value>
+    </block>
+  <block type="three_setScale" id="27Q!=e8an9*$o9..wiE," x="-238" y="-38">
+    <field name="VAR" id="-Xe#a~l@kJ$d(a3q-RnK" variabletype="">obj</field>
+    <value name="VALUE">
+      <block type="math_number" id="6jH/5NNI^Bq4^o%nhW/.">
+        <field name="NUM">1</field>
+      </block>
+    </value>
+  </block>
   </category>>
 
 </xml>

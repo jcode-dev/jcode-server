@@ -17,13 +17,14 @@ router.get('*', function(req, res, next) {
   var displayName = (req.user) ? req.user.displayName : "<guest>";
   var item = req.params[0].split('/');
   var filename = item[1];
-  console.log(filename);
+  console.log("home URL:", filename);
 
   Document.findOne({ 'filename' : filename }, function(err, result) {
     if (result) {
       res.send(result.content);
     } else {
-      res.render('./jcode/index.html', { title: 'Hey', displayName: displayName, filename: filename });
+      res.render('./jcode/index.html',
+       { start_filename: '/lesson/' + filename + '/start.js', title: 'Hey', displayName: displayName, filename: filename });
     }
   });
 });

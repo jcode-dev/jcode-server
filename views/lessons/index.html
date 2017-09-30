@@ -162,7 +162,10 @@
 								<button id="runButton" title="...">
 										<i class="material-icons md-24 orange600">play_circle_filled</i>
 								</button>
-																		
+								<button id="clearButton" title="...">
+									<i class="material-icons md-24">clear</i>
+								</button>
+																	
 
 									<button id="linkButton" class="notext" title="...">
 										<img src='/blockly/media/1x1.gif' class="link icon21">
@@ -192,6 +195,10 @@
 
 			
 <script>
+
+function clearTeachersGroup(){
+  JCODE.clearGroup ("tehon",{shape:"sphere", color:'#ffffff', speed:2, scale:0.9, opacity:0.5, arrow:"always"});
+}
 
 // コードブロックXMLを読み込んで、ユーザーのエリアに表示する
 function loadBlocks(code){
@@ -257,7 +264,7 @@ function nextLesson(func, timeout) {
     }
     Promise.all(promises).then(function (value) {
       Blockly.JavaScript.STATEMENT_PREFIX = '';
-      highlightBlock();
+			highlightBlock();
       console.log("all done...");
 			callback();
     })
@@ -266,6 +273,7 @@ function nextLesson(func, timeout) {
 
 // ここから開始します。
 $(function(){
+	$("#clearButton").click(clearStudentsGroup);
   Code.initBlockly($('#toolbox_all').prop('outerHTML'));
   initInstruction(); // インストラクションの初期化
   setTimeout(startLesson, 2000);  
@@ -611,8 +619,6 @@ $(function(){
 			<category name="%{BKY_CATFUNCTIONS}" colour="%{BKY_PROCEDURES_HUE}" custom="PROCEDURE"></category>
 		
 			<sep></sep>
-			<category name="3D全部list" colour="#abcc52" custom="JCODE_THREE"></category>
-			<category name="インストラクション" colour="%{BKY_COLOUR_HUE}" custom="JCODE_INSTRUCTION"></category>
 		
 		<category name="3Dオブジェクト" colour="#abcc52">
 			<block type="three_createNew">
@@ -671,10 +677,15 @@ $(function(){
 					</shadow>
 				</value>
 			</block>
-
-			<block type="three_clearGroup" id="!.jO@JS9QT+Wvbxc!-qx" x="38" y="63">
-				<field name="VAR" id="*YKsc]3xQIgK|dKb_Bx." variabletype="">playground</field>
+			<block type="three_setTransparent">
+				<field name="VAR" variabletype="">obj</field>
+				<value name="VALUE">
+					<shadow type="math_number" >
+						<field name="NUM">0</field>
+					</shadow>
+				</value>
 			</block>
+
 		</category>>
 	</xml>
 </body>

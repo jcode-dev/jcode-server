@@ -1,0 +1,681 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<title>Jcode Educational</title>
+		<link rel="stylesheet" href="/jcode/style.css">
+		<!-- Material Icons -->
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		<!-- Bootstrap -->
+		<link rel="stylesheet" href="/jcode/split-pane/split-pane.css" />
+		<link rel="stylesheet" href="/jcode/split-pane/pretty-split-pane.css" />
+	
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+		<script src="https://code.jquery.com/jquery-3.2.1.min.js" ></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+
+		<script src="/jcode/split-pane/split-pane.js"></script>
+
+		<script src="/jcode/storage.js"></script>
+		<script src="/blockly/blockly_compressed.js"></script>
+		<script src="/blockly/blocks_compressed.js"></script>
+		<script src="/blockly/javascript_compressed.js"></script>
+
+		<script src="/three/build/three.js"></script>
+		<script src="/three/examples/js/controls/OrbitControls.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
+
+		<script src="/jcode/jcode-lib/TextBoardObject.js"></script>
+		<script src="/jcode/code.js"></script>
+		<script src="/jcode/jcode.js"></script>
+		<script src="/jcode/jcode-lib/obj.js"></script>
+		<script src="/jcode/jcode-lib/three.js"></script>
+		<script src="/jcode/jcode-lib/instructions.js"></script>
+
+		<script src="{{scriptfilename}}"></script>
+		
+		<style type="text/css">
+
+			html, body {
+				height: 100%;
+				min-height: 100%;
+				margin: 0;
+				padding: 0;
+			}
+
+			#top-component {
+				bottom: 60%;
+				margin-bottom: 5px;
+				min-height: 10em;
+			}
+
+			#my-divider {
+				bottom: 60%;
+				height: 10px;
+			}
+
+			#bottom-component {
+				height: 60%;
+				min-height: 5em;
+			}
+			#left-component	{
+				display: inline-block;
+			}
+			p {
+				margin-left: 1em;
+				margin-bottom: 4px;
+				padding:0.5em;
+				background-color: white;
+			}
+			#right-component	{
+				display: inline-block;
+				vertical-align: top;
+				overflow: scroll;
+				background-color: lightgray;
+			}
+			#JCODE-instruction {
+				background-color: lightgray;
+				width: 100%;
+			}
+			.material-icons.orange600 { color: #FB8C00; }
+			.material-icons {
+ 				 vertical-align:middle;
+			} 
+		
+		</style>
+
+		<script>
+			$(function() {
+				$('div.split-pane').splitPane();
+			});
+		</script>
+	</head>
+	<body>
+		<audio id="broadcasting-start1" preload="auto">
+				<source src="/jcode/sounds/broadcasting-start1.mp3" type="audio/mp3">
+		</audio>
+		<audio id="trumpet1" preload="auto">
+			<source src="/jcode/sounds/trumpet1.mp3" type="audio/mp3">
+		</audio>
+		<audio id="stupid4" preload="auto">
+				<source src="/jcode/sounds/stupid4.mp3" type="audio/mp3">
+		</audio>
+		<audio id="boyoyon1" preload="auto">
+				<source src="/jcode/sounds/boyoyon1.mp3" type="audio/mp3">
+		</audio>
+		<audio id="people-people-stadium-cheer1" preload="auto">
+				<source src="/jcode/sounds/people-people-stadium-cheer1.mp3" type="audio/mp3">
+		</audio>
+    <nav class="navbar navbar-expand-md navbar-dark bg-primary">
+      <a class="navbar-brand" href="http://J-CODE.ORG" id="title">NPO法人プログラミング教育研究所</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item ">
+						<select id="languageMenu"></select>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+		<div class="pretty-split-pane-frame"><!-- This div is added for styling purposes only. It's not part of the split-pane plugin. -->
+			<div class="split-pane horizontal-percent">
+
+				<div class="split-pane-component" id="top-component">
+					<div class="pretty-split-pane-component-inner"><!-- This div is added for styling purposes only. It's not part of the split-pane plugin. -->
+
+						<div id="left-component">
+							<div id="WebGL-output">
+							</div>
+							<div id="WebGL-ui">
+									<div id="vr-button"></div>
+									<a id="magic-window" href="#" class="balloon" style="display: none">>
+										はじめ
+									</a>
+							</div>
+
+						</div>
+						<div id="right-component">
+							<div id="JCODE-instruction">
+						</div>
+					</div>
+						
+					</div>
+				</div>　
+				<div class="split-pane-divider" id="my-divider"></div>
+							
+				<div class="split-pane-component" id="bottom-component">
+					<div class="pretty-split-pane-component-inner"><!-- This div is added for styling purposes only. It's not part of the split-pane plugin. -->
+
+						<table width="100%" id='content_panel'>
+							<tr id="tabRow" height="1em">
+							  <td id="tab_blocks" class="tabon" style="min-width:8em;">...</td>
+							  <td class="tabmin">&nbsp;</td>
+							  <td id="tab_javascript" class="taboff">JavaScript</td>
+							  <td class="tabmin">&nbsp;</td>
+							  <td id="tab_xml" class="taboff">XML</td>
+							  <td class="tabmax">
+								<button id="runButton" title="...">
+										<i class="material-icons md-24 orange600">play_circle_filled</i>
+								</button>
+																		
+
+									<button id="linkButton" class="notext" title="...">
+										<img src='/blockly/media/1x1.gif' class="link icon21">
+									</button>
+									<button id="trashButton" class="notext" title="...">
+								  <img src='/blockly/media/1x1.gif' class="trash icon21">
+								</button>
+							  </td>
+							</tr>
+						</table>
+						<div id="content_area">  </div>
+					  <div id="blocklyDiv">	</div>
+						<div id="content_blocks" class="content"></div>
+						<pre id="content_javascript" class="content"></pre>
+						<pre id="content_python" class="content"></pre>
+						<pre id="content_php" class="content"></pre>
+						<pre id="content_lua" class="content"></pre>
+						<pre id="content_dart" class="content"></pre>
+						<textarea id="content_xml" class="content" wrap="off"></textarea>
+
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+			
+<script>
+
+// コードブロックXMLを読み込んで、ユーザーのエリアに表示する
+function loadBlocks(code){
+  Code.workspace.clear();
+  Code.loadBlocks(code);
+}
+
+// インストラクションエリアを初期化する
+function initInstruction() {
+  $("#right-component").html("<div id='instructions'></div>");
+}
+
+// html インストラクションを追加して、一番下にスクロールする
+function print(h) {
+  $("#instructions").append($("<p />").html(h));
+  $('#right-component').animate({scrollTop: $('#right-component')[0].scrollHeight}, 'fast');
+}
+
+
+function highlightBlock(id) {
+  Code.workspace.highlightBlock(id);
+  JCODE.highlightBlockId = id;
+}
+
+function saiten() {
+  if (!JCODE.tehon) return 0;
+  if (!JCODE.playground) return 0;
+  var tehon = JCODE.tehon.children;
+  var result = JCODE.playground.children;
+  var tokuten = 0;
+  for (var i = 0; i < tehon.length; i++) {
+    for (var j = 0; j < result.length; j++) {
+      var distance = tehon[i].position.distanceTo( result[j].position );
+      //console.log(distance);
+      if ( distance <= 0.01) {
+        tokuten++;
+      }
+    }
+  }
+  console.log("TTL:",tokuten);
+  return {teachers:tehon.length, students:result.length, points:tokuten};
+}
+
+// playgroundを掃除して、RUNボタンが押されたらコードを実行するようにコールバックを設定し、
+// プログラムの実行が終了したら、指定のプログラムを実行する
+function nextLesson(func, timeout) {
+
+	function callback() {
+		var tokuten = saiten();
+		if (func) {func(tokuten);}
+	}
+	$("#runButton").off("click");
+	if (timeout) {setTimeout(callback, timeout);}
+  $('#runButton').on("click", function () {
+    Blockly.JavaScript.STATEMENT_PREFIX = 'highlightBlock(%1);\n';
+    JCODE.clearGroup ('playground');
+    Code.runJS();
+    // すべてのpromiseが完了するのを待ってコードを実行
+    var children = JCODE.playground.children;
+    var promises = [];
+    for (var i = 0; i < children.length; i++) {
+      promises.push(children[i].userData.promise);
+    }
+    Promise.all(promises).then(function (value) {
+      Blockly.JavaScript.STATEMENT_PREFIX = '';
+      highlightBlock();
+      console.log("all done...");
+			callback();
+    })
+  });
+}
+
+// ここから開始します。
+$(function(){
+  Code.initBlockly($('#toolbox_all').prop('outerHTML'));
+  initInstruction(); // インストラクションの初期化
+  setTimeout(startLesson, 1000);  
+});
+
+</script>
+
+<xml id="toolbox_start">
+	<variables>
+    <variable type="" id="*YKsc]3xQIgK|dKb_Bx.">obj</variable>
+  </variables>
+  <block type="three_createNew" id="iIe)+8=R%4^l4V-bIA[R" x="13" y="37">
+    <field name="VAR" id="*YKsc]3xQIgK|dKb_Bx." variabletype="">obj</field>
+    <value name="VALUE">
+      <block type="three_typeName" id="[{M)=YVi9L`KvYdNaQ0.">
+        <field name="FIELDNAME">box</field>
+      </block>
+    </value>
+  </block>
+  <block type="three_moveForward" id="D-_pM5U9c8JrL%WEld?+" x="13" y="113">
+    <field name="VAR" id="*YKsc]3xQIgK|dKb_Bx." variabletype="">obj</field>
+    <value name="VALUE">
+      <block type="math_number" id="$i#%a=5{,|;p`lsL(W#|">
+        <field name="NUM">10</field>
+      </block>
+    </value>
+  </block>
+  <block type="three_turnRight" id="X:Le5^gVu[{Aan}]e4=J" x="13" y="163">
+    <field name="VAR" id="*YKsc]3xQIgK|dKb_Bx." variabletype="">obj</field>
+    <value name="VALUE">
+      <block type="three_angle" id="?)cfixviBf1f_+~x2t;D">
+        <field name="FIELDNAME">90</field>
+      </block>
+    </value>
+  </block>
+  <block type="three_lookUpward" id="kI#I|X6C5o7S2S2#[[vw" x="13" y="238">
+    <field name="VAR" id="*YKsc]3xQIgK|dKb_Bx." variabletype="">obj</field>
+    <value name="VALUE">
+      <block type="three_angle" id="xT=tZauijK@kJ1[W0t{)">
+        <field name="FIELDNAME">45</field>
+      </block>
+    </value>
+	</block>
+	
+</xml>
+
+
+
+<xml id="toolbox_all" style="display: none">
+		<category name="%{BKY_CATLOGIC}" colour="%{BKY_LOGIC_HUE}">
+			<block type="controls_if"></block>
+			<block type="logic_compare"></block>
+			<block type="logic_operation"></block>
+			<block type="logic_negate"></block>
+			<block type="logic_boolean"></block>
+			<block type="logic_null"></block>
+			<block type="logic_ternary"></block>
+		</category>
+		<category name="%{BKY_CATLOOPS}" colour="%{BKY_LOOPS_HUE}">
+			<block type="controls_repeat_ext">
+			<value name="TIMES">
+				<shadow type="math_number">
+				<field name="NUM">10</field>
+				</shadow>
+			</value>
+			</block>
+			<block type="controls_whileUntil"></block>
+			<block type="controls_for">
+			<value name="FROM">
+				<shadow type="math_number">
+				<field name="NUM">1</field>
+				</shadow>
+			</value>
+			<value name="TO">
+				<shadow type="math_number">
+				<field name="NUM">10</field>
+				</shadow>
+			</value>
+			<value name="BY">
+				<shadow type="math_number">
+				<field name="NUM">1</field>
+				</shadow>
+			</value>
+			</block>
+			<block type="controls_forEach"></block>
+			<block type="controls_flow_statements"></block>
+		</category>
+			<category name="%{BKY_CATMATH}" colour="%{BKY_MATH_HUE}">
+				<block type="math_number"></block>
+				<block type="math_arithmetic">
+				<value name="A">
+					<shadow type="math_number">
+					<field name="NUM">1</field>
+					</shadow>
+				</value>
+				<value name="B">
+					<shadow type="math_number">
+					<field name="NUM">1</field>
+					</shadow>
+				</value>
+				</block>
+				<block type="math_single">
+				<value name="NUM">
+					<shadow type="math_number">
+					<field name="NUM">9</field>
+					</shadow>
+				</value>
+				</block>
+				<block type="math_trig">
+				<value name="NUM">
+					<shadow type="math_number">
+					<field name="NUM">45</field>
+					</shadow>
+				</value>
+				</block>
+				<block type="math_constant"></block>
+				<block type="math_number_property">
+				<value name="NUMBER_TO_CHECK">
+					<shadow type="math_number">
+					<field name="NUM">0</field>
+					</shadow>
+				</value>
+				</block>
+				<block type="math_round">
+				<value name="NUM">
+					<shadow type="math_number">
+					<field name="NUM">3.1</field>
+					</shadow>
+				</value>
+				</block>
+				<block type="math_on_list"></block>
+				<block type="math_modulo">
+				<value name="DIVIDEND">
+					<shadow type="math_number">
+					<field name="NUM">64</field>
+					</shadow>
+				</value>
+				<value name="DIVISOR">
+					<shadow type="math_number">
+					<field name="NUM">10</field>
+					</shadow>
+				</value>
+				</block>
+				<block type="math_constrain">
+				<value name="VALUE">
+					<shadow type="math_number">
+					<field name="NUM">50</field>
+					</shadow>
+				</value>
+				<value name="LOW">
+					<shadow type="math_number">
+					<field name="NUM">1</field>
+					</shadow>
+				</value>
+				<value name="HIGH">
+					<shadow type="math_number">
+					<field name="NUM">100</field>
+					</shadow>
+				</value>
+				</block>
+				<block type="math_random_int">
+				<value name="FROM">
+					<shadow type="math_number">
+					<field name="NUM">1</field>
+					</shadow>
+				</value>
+				<value name="TO">
+					<shadow type="math_number">
+					<field name="NUM">100</field>
+					</shadow>
+				</value>
+				</block>
+				<block type="math_random_float"></block>
+			</category>
+			<category name="%{BKY_CATTEXT}" colour="%{BKY_TEXTS_HUE}">
+				<block type="text"></block>
+				<block type="text_join"></block>
+				<block type="text_append">
+				<value name="TEXT">
+					<shadow type="text"></shadow>
+				</value>
+				</block>
+				<block type="text_length">
+				<value name="VALUE">
+					<shadow type="text">
+					<field name="TEXT">abc</field>
+					</shadow>
+				</value>
+				</block>
+				<block type="text_isEmpty">
+				<value name="VALUE">
+					<shadow type="text">
+					<field name="TEXT"></field>
+					</shadow>
+				</value>
+				</block>
+				<block type="text_indexOf">
+				<value name="VALUE">
+					<block type="variables_get">
+					<field name="VAR">{textVariable}</field>
+					</block>
+				</value>
+				<value name="FIND">
+					<shadow type="text">
+					<field name="TEXT">abc</field>
+					</shadow>
+				</value>
+				</block>
+				<block type="text_charAt">
+				<value name="VALUE">
+					<block type="variables_get">
+					<field name="VAR">{textVariable}</field>
+					</block>
+				</value>
+				</block>
+				<block type="text_getSubstring">
+				<value name="STRING">
+					<block type="variables_get">
+					<field name="VAR">{textVariable}</field>
+					</block>
+				</value>
+				</block>
+				<block type="text_changeCase">
+				<value name="TEXT">
+					<shadow type="text">
+					<field name="TEXT">abc</field>
+					</shadow>
+				</value>
+				</block>
+				<block type="text_trim">
+				<value name="TEXT">
+					<shadow type="text">
+					<field name="TEXT">abc</field>
+					</shadow>
+				</value>
+				</block>
+				<block type="text_print">
+				<value name="TEXT">
+					<shadow type="text">
+					<field name="TEXT">abc</field>
+					</shadow>
+				</value>
+				</block>
+				<block type="text_prompt_ext">
+				<value name="TEXT">
+					<shadow type="text">
+					<field name="TEXT">abc</field>
+					</shadow>
+				</value>
+				</block>
+			</category>
+			<category name="%{BKY_CATLISTS}" colour="%{BKY_LISTS_HUE}">
+				<block type="lists_create_with">
+				<mutation items="0"></mutation>
+				</block>
+				<block type="lists_create_with"></block>
+				<block type="lists_repeat">
+				<value name="NUM">
+					<shadow type="math_number">
+					<field name="NUM">5</field>
+					</shadow>
+				</value>
+				</block>
+				<block type="lists_length"></block>
+				<block type="lists_isEmpty"></block>
+				<block type="lists_indexOf">
+				<value name="VALUE">
+					<block type="variables_get">
+					<field name="VAR">{listVariable}</field>
+					</block>
+				</value>
+				</block>
+				<block type="lists_getIndex">
+				<value name="VALUE">
+					<block type="variables_get">
+					<field name="VAR">{listVariable}</field>
+					</block>
+				</value>
+				</block>
+				<block type="lists_setIndex">
+				<value name="LIST">
+					<block type="variables_get">
+					<field name="VAR">{listVariable}</field>
+					</block>
+				</value>
+				</block>
+				<block type="lists_getSublist">
+				<value name="LIST">
+					<block type="variables_get">
+					<field name="VAR">{listVariable}</field>
+					</block>
+				</value>
+				</block>
+				<block type="lists_split">
+				<value name="DELIM">
+					<shadow type="text">
+					<field name="TEXT">,</field>
+					</shadow>
+				</value>
+				</block>
+				<block type="lists_sort"></block>
+			</category>
+			<category name="%{BKY_CATCOLOUR}" colour="%{BKY_COLOUR_HUE}">
+				<block type="colour_picker"></block>
+				<block type="colour_random"></block>
+				<block type="colour_rgb">
+				<value name="RED">
+					<shadow type="math_number">
+					<field name="NUM">100</field>
+					</shadow>
+				</value>
+				<value name="GREEN">
+					<shadow type="math_number">
+					<field name="NUM">50</field>
+					</shadow>
+				</value>
+				<value name="BLUE">
+					<shadow type="math_number">
+					<field name="NUM">0</field>
+					</shadow>
+				</value>
+				</block>
+				<block type="colour_blend">
+				<value name="COLOUR1">
+					<shadow type="colour_picker">
+					<field name="COLOUR">#ff0000</field>
+					</shadow>
+				</value>
+				<value name="COLOUR2">
+					<shadow type="colour_picker">
+					<field name="COLOUR">#3333ff</field>
+					</shadow>
+				</value>
+				<value name="RATIO">
+					<shadow type="math_number">
+					<field name="NUM">0.5</field>
+					</shadow>
+				</value>
+				</block>
+			</category>
+			<sep></sep>
+			<category name="%{BKY_CATVARIABLES}" colour="%{BKY_VARIABLES_HUE}" custom="VARIABLE"></category>
+			<category name="%{BKY_CATFUNCTIONS}" colour="%{BKY_PROCEDURES_HUE}" custom="PROCEDURE"></category>
+		
+			<sep></sep>
+			<category name="3D全部list" colour="#abcc52" custom="JCODE_THREE"></category>
+			<category name="インストラクション" colour="%{BKY_COLOUR_HUE}" custom="JCODE_INSTRUCTION"></category>
+		
+		<category name="3Dオブジェクト" colour="#abcc52">
+			<block type="three_createNew">
+				<field name="VAR" variabletype="">obj</field>
+				<value name="VALUE">
+					<shadow type="three_typeName">
+						<field name="FIELDNAME">box</field>
+					</shadow>
+				</value>
+			</block>
+			<block type="three_moveForward">
+				<field name="VAR" variabletype="">obj</field>
+				<value name="VALUE">
+					<shadow type="math_number">
+						<field name="NUM">10</field>
+					</shadow>
+				</value>
+			</block>
+			<block type="three_turnRight">
+				<field name="VAR" variabletype="">obj</field>
+				<value name="VALUE">
+					<shadow type="three_angle">
+						<field name="FIELDNAME">90</field>
+					</shadow>
+				</value>
+			</block>
+			<block type="three_lookUpward">
+				<field name="VAR" variabletype="">obj</field>
+				<value name="VALUE">
+					<shadow type="three_angle">
+						<field name="FIELDNAME">90</field>
+					</shadow>
+				</value>
+			</block>
+			<block type="three_setColor">
+				<field name="VAR" variabletype="">obj</field>
+				<value name="VALUE">
+					<shadow type="colour_picker">
+						<field name="COLOUR">#ff0000</field>
+					</shadow>
+				</value>
+			</block>
+			<block type="three_setScale" >
+				<field name="VAR" variabletype="">obj</field>
+				<value name="VALUE">
+					<shadow type="math_number" >
+						<field name="NUM">1</field>
+					</shadow>
+				</value>
+			</block>
+			<block type="three_setSpeed" >
+				<field name="VAR" variabletype="">obj</field>
+				<value name="VALUE">
+					<shadow type="math_number" >
+						<field name="NUM">1</field>
+					</shadow>
+				</value>
+			</block>
+
+			<block type="three_clearGroup" id="!.jO@JS9QT+Wvbxc!-qx" x="38" y="63">
+				<field name="VAR" id="*YKsc]3xQIgK|dKb_Bx." variabletype="">playground</field>
+			</block>
+		</category>>
+	</xml>
+</body>
+</html>

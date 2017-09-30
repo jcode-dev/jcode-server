@@ -40,7 +40,7 @@ app.use('/jcode', express.static(path.join(__dirname, '../jcode')));
 app.use('/physics', express.static(path.join(__dirname, '../physics')));
 app.use('/ace', express.static(path.join(__dirname, '../ace-builds')));
 app.use('/bootstrap', express.static(path.join(__dirname, '../bootstrap-3.3.7-dist')));
-app.use('/lessons', express.static(path.join(__dirname, '../lessons')));
+//app.use('/lessons', express.static(path.join(__dirname, '../lessons')));
 
 // Configuring Passport
 var passport = require('passport');
@@ -67,6 +67,9 @@ var home = '/home';
 
 var routesHome = require('./routes/home');
 app.use('/home', routesHome);
+
+var lessons = require('./routes/lessons');
+app.use('/lessons', lessons);
 
 var editor = require('./routes/editor');
 app.use('/editor', editor);

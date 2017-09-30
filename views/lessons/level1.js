@@ -62,10 +62,8 @@ function startLesson() {
     switch (result.points) {
       case result.teachers:
         document.getElementById("people-people-stadium-cheer1").play();
-        print(`おめでとうございます。<br />
-          次のステージに進みます。
-        `);
-        startLesson2();
+        print(`おめでとうございます。<br />次のステージに進みます。`);
+        setTimeout(startLesson2,3000);
         break;
       case 0:
         document.getElementById("stupid4").play();
@@ -153,7 +151,7 @@ function startLesson2() {
         print(`おめでとうございます。<br />
           次のステージに進みます。
         `);
-        startLesson3();
+        setTimeout(startLesson3,3000);
         break;
       case 0:
         document.getElementById("stupid4").play();
@@ -188,7 +186,7 @@ function startLesson3() {
         document.getElementById("people-people-stadium-cheer1").play();
         globalPoints++;
         print("おめでとうございます。 " + globalPoints + " 面をクリアしました。");
-        startLesson3();
+        setTimeout(startLesson3,3000);
         break;
       case 0:
         document.getElementById("stupid4").play();

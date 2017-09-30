@@ -1,15 +1,16 @@
 //////////////////
 // 手本をうごかす
+function clearTeachersGroup(){
+  JCODE.clearGroup ("tehon",{shape:"sphere", color:'#ffffff', speed:2, scale:0.9, opacity:0.5, arrow:"always"});
+}
+function clearStudentsGroup(){
+  JCODE.clearGroup ("playground",{shape:"sphere", color:'#ff0000', speed:1.2, arrow:"always"});
+}
+
 function runTeacherCode() {
-
-  JCODE.clearGroup ("tehon");
-    var obj = new JCODE.object3d({shape:"sphere", group:"tehon"});
-    obj.setColor('#ffffff');
-    obj.setSpeed(2);
-    obj.setScale(0.9);
-    obj.setOpacity(0.5);
-
-    obj.moveForward(20);
+  clearTeachersGroup();
+  var obj = new JCODE.object3d({shape:"sphere", group:"tehon"});
+  obj.moveForward(20);
 }
 
 function loadStudentCode() {
@@ -51,7 +52,7 @@ function startLesson() {
     白黒のタイルは、ひとつ10センチの大きさです。<br />
     もう一度、お手本のうごきを見るには <button onclick="runTeacherCode();">ここをクリック</button>して下さい。<br />
   `);
-  JCODE.clearGroup ("playground");
+  clearStudentsGroup();
   var obj = new JCODE.object3d({shape:"sphere", group:"playground"});
 
   runTeacherCode();
@@ -79,13 +80,9 @@ function startLesson() {
 }
 
 function runTeacherCode2(len1, len2, a1) {
-  
-  JCODE.clearGroup ("tehon");
+
+  clearTeachersGroup();
   var obj = new JCODE.object3d({shape:"sphere", group:"tehon"});
-  obj.setColor('#ffffff');
-  obj.setSpeed(2);
-  obj.setScale(0.9);
-  obj.setOpacity(0.5);
 
   obj.moveForward(len1);
   obj.turnRight(a1);
@@ -138,15 +135,16 @@ function startLesson2() {
   document.getElementById("broadcasting-start1").play();
   print(`
     こんどは、右にまがるを使って、うごかします。<br />
+    足りないブロックは、「3Dオブジェクト」の中から取り出して、使ってください。<br />
     お手本と同じ所に玉が止まるように、プログラムを直して、  
     下の<i class="material-icons md-18 orange600">play_circle_filled</i>ボタンを押して、プログラムを動かしてください。<br />
-    もう一度、お手本のうごきを見るには <button onclick="runTeacherCode2();">ここをクリック</button>して下さい。<br />
+    もう一度、お手本のうごきを見るには <button onclick="runTeacherCode2(20,30,90);">ここをクリック</button>して下さい。<br />
   `);
-  JCODE.clearGroup ("playground");
+  clearStudentsGroup();
   var obj = new JCODE.object3d({shape:"sphere", group:"playground"});
 
   runTeacherCode2(20,30,90);
-  loadStudentCode2();
+  //loadStudentCode2();
   
   nextLesson(function (result) {
     switch (result.points) {
@@ -176,9 +174,10 @@ function startLesson3() {
   print(`
     ここからは、コンピュータがたまをてきとうにうごかします。<br />
     １０面クリアしたら、もっと難しいレベルに進もう。<br />
+    ヒント：前にうごくにマイナスの数字を入れると、後ろにうごくこともできるよ。<br />
     ちがうお手本を出すには <button onclick="startLesson3();">ここをクリック</button>して下さい。<br />
   `);
-  JCODE.clearGroup ("playground");
+  clearStudentsGroup();
   var obj = new JCODE.object3d({shape:"sphere", group:"playground"});
 
   runTeacherCode2((Math.floor(Math.random() * 3) + 1)*10, (Math.floor(Math.random() * 4) + 1)*10, Math.random()<0.5? 90:270);

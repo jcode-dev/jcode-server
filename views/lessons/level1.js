@@ -51,6 +51,7 @@ function startLesson() {
     下の<i class="material-icons md-18 orange600">play_circle_filled</i>ボタンを押して、プログラムを動かしてください。<br />
     白黒のタイルは、ひとつ10センチの大きさです。<br />
     もう一度、お手本のうごきを見るには <button onclick="runTeacherCode();">ここをクリック</button>して下さい。<br />
+    画面が見にくいときは、大きくしたり、みるいちを かえたりも出来ますよ。
   `);
   clearStudentsGroup();
   var obj = new JCODE.object3d({shape:"sphere", group:"playground"});
@@ -67,7 +68,7 @@ function startLesson() {
         break;
       case 0:
         document.getElementById("stupid4").play();
-        print("プログラムを直して、 " + result.teachers + " こ のお手本のところに、うごかしてください。");
+        print("プログラムを直して、お手本のところに、うごかしてください。");
         break;
       default:
         document.getElementById("boyoyon1").play();
@@ -84,10 +85,12 @@ function runTeacherCode2(len1, len2, a1) {
 
   obj.moveForward(len1);
   obj.turnRight(a1);
-  obj.moveForward(len1);
-  obj.turnRight(a1);
+  //obj.moveForward(len1);
+  //obj.turnRight(a1);
   obj.moveForward(len2);
- 
+  obj.turnRight(-90);
+  obj.moveForward(10);
+  
 }
 
 function loadStudentCode2() {
@@ -136,12 +139,12 @@ function startLesson2() {
     足りないブロックは、「3Dオブジェクト」の中から取り出して、使ってください。<br />
     お手本と同じ所に玉が止まるように、プログラムを直して、  
     下の<i class="material-icons md-18 orange600">play_circle_filled</i>ボタンを押して、プログラムを動かしてください。<br />
-    もう一度、お手本のうごきを見るには <button onclick="runTeacherCode2(20,30,90);">ここをクリック</button>して下さい。<br />
+    もう一度、お手本のうごきを見るには <button onclick="runTeacherCode2(10,30,90);">ここをクリック</button>して下さい。<br />
   `);
   clearStudentsGroup();
   var obj = new JCODE.object3d({shape:"sphere", group:"playground"});
 
-  runTeacherCode2(20,30,90);
+  runTeacherCode2(10,30,90);
   //loadStudentCode2();
   
   nextLesson(function (result) {
@@ -155,7 +158,7 @@ function startLesson2() {
         break;
       case 0:
         document.getElementById("stupid4").play();
-        print("プログラムを直して、 " + result.teachers + " こ のお手本のところに、うごかしてください。");
+        print("プログラムを直して、お手本のところに、うごかしてください。");
         break;
       default:
         document.getElementById("boyoyon1").play();
@@ -178,7 +181,7 @@ function startLesson3() {
   clearStudentsGroup();
   var obj = new JCODE.object3d({shape:"sphere", group:"playground"});
 
-  runTeacherCode2((Math.floor(Math.random() * 3) + 1)*10, (Math.floor(Math.random() * 4) + 1)*10, Math.random()<0.5? 90:270);
+  runTeacherCode2((Math.floor(Math.random() * 8) - 4)*10, (Math.floor(Math.random() * 9) - 4)*10, Math.random()<0.5? 90:270);
   
   nextLesson(function (result) {
     switch (result.points) {
@@ -190,7 +193,7 @@ function startLesson3() {
         break;
       case 0:
         document.getElementById("stupid4").play();
-        print("プログラムを直して、 " + result.teachers + " こ のお手本のところに、うごかしてください。");
+        print("プログラムを直して、お手本のところに、うごかしてください。");
         break;
       default:
         document.getElementById("boyoyon1").play();

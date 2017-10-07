@@ -11,9 +11,10 @@
     "config": "^1.26.2",
     "connect-flash": "^0.1.1",
     "cookie-parser": "~1.4.3",
-    "debug": "~2.6.3",
-    "express": "~4.15.2",
-    "express-session": "^1.15.5",
+    "debug": "^2.6.9",
+    "express": "^4.15.5",
+    "express-session": "^1.15.6",
+    "https": "^1.0.0",
     "jade": "~1.11.0",
     "mongoose": "~4.4.16",
     "mongoose-findorcreate": "^2.0.0",
@@ -23,6 +24,6 @@
     "passport-google": "^0.3.0",
     "passport-google-oauth": "^1.0.0",
     "passport-local": "^1.0.0",
-    "serve-favicon": "~2.4.2"
+    "serve-favicon": "^2.4.5"
   }
 }

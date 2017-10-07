@@ -30,6 +30,25 @@ server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
+
+/**
+ * HTTPS
+ */
+
+var https = require('https');  
+var fs = require('fs');  
+var options = {  
+  key: fs.readFileSync('/etc/letsencrypt/live/j-code.org/privkey.pem')
+  ,cert: fs.readFileSync('/etc/letsencrypt/live/j-code.org/cert.pem')  
+};
+var sserver = https.createServer(  
+    options
+    ,app
+);
+
+sserver.listen(443);
+
+
 /**
  * Normalize a port into a number, string, or false.
  */

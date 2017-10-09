@@ -1,194 +1,199 @@
 <!doctype html>
 <html>
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-	<title>Jcode Educational</title>
-	<!-- Bulma JQuery Icons -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-	<link rel="stylesheet" href="/bulma.css">
-	<script src="https://code.jquery.com/jquery-3.2.1.min.js" ></script>
-
-	<!-- jcode & blockly -->
-	<script src="/jcode/storage.js"></script>
-	<script src="/blockly/blockly_compressed.js"></script>
-	<script src="/blockly/blocks_compressed.js"></script>
-	<script src="/blockly/javascript_compressed.js"></script>
-
-	<!-- threejs -->
-	<script src="/three/build/three.js"></script>
-	<script src="/three/examples/js/controls/OrbitControls.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
-
-	<!-- jcode ext -->
-	<script src="/jcode/jcode-lib/TextBoardObject.js"></script>
-	<script src="/jcode/code.js"></script>
-	<script src="/jcode/jcode.js"></script>
-	<script src="/jcode/jcode-lib/obj.js"></script>
-	<script src="/jcode/jcode-lib/three.js"></script>
-	<script src="/jcode/jcode-lib/instructions.js"></script>
-
-	<!-- lessons js -->
-	<script src="{{scriptfilename}}"></script>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<title>Jcode Educational</title>
+		<link rel="stylesheet" href="/jcode/style.css">
+		<!-- Material Icons -->
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		<!-- Bootstrap -->
+		<link rel="stylesheet" href="/jcode/split-pane/split-pane.css" />
+		<link rel="stylesheet" href="/jcode/split-pane/pretty-split-pane.css" />
 	
-	<style type="text/css">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+		<script src="https://code.jquery.com/jquery-3.2.1.min.js" ></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
 
-/* 吹き出し本体 - 枠線付きの吹き出し */
-.balloon2{
-	margin: 0.2em 0.2em 0.1em 1.5em;
-  position: relative;
-  padding: 7px 10px;
-  background-color: #FFF;
-  border: 2px solid #7AC8EC;
-  border-radius: 10px;         /* 角丸を指定 */
-}
-/* 三角アイコン - 枠線付きの吹き出し */
-.balloon2::before{
-  content: '';
-  position: absolute;
-  display: block;
-  width: 0;
-  height: 0;
-  left: -12px;
-  top: 8px;
-  border-right: 12px solid #7AC8EC;
-  border-top: 12px solid transparent;
-  border-bottom: 12px solid transparent;
-}
-.balloon2::after{
-  content: '';
-  position: absolute;
-  display: block;
-  width: 0;
-  height: 0;
-  left: -9px;
-  top: 8px;
-  border-right: 12px solid #FFF;
-  border-top: 12px solid transparent;
-  border-bottom: 12px solid transparent;
-}
-	.orange600 {
-		color: #FB8C00; 
-	}
+		<script src="/jcode/split-pane/split-pane.js"></script>
 
-	.content {
-    position: absolute;
-    top: 0px;
-    left: 16px;
-    width: 97%;
-    height: 100%;
-	}
+		<script src="/jcode/storage.js"></script>
+		<script src="/blockly/blockly_compressed.js"></script>
+		<script src="/blockly/blocks_compressed.js"></script>
+		<script src="/blockly/javascript_compressed.js"></script>
 
-	html {
-    overflow-y: auto;
-	}
-	</style>
-</head>
-<body>
-	<audio id="broadcasting-start1" preload="auto">
-	</audio>
-	<audio id="trumpet1" preload="auto">
-		<source src="/jcode/sounds/trumpet1.mp3" type="audio/mp3">
-	</audio>
-	<audio id="stupid4" preload="auto">
-			<source src="/jcode/sounds/stupid4.mp3" type="audio/mp3">
-	</audio>
-	<audio id="boyoyon1" preload="auto">
-			<source src="/jcode/sounds/boyoyon1.mp3" type="audio/mp3">
-	</audio>
-	<audio id="people-people-stadium-cheer1" preload="auto">
-			<source src="/jcode/sounds/people-people-stadium-cheer1.mp3" type="audio/mp3">
-	</audio>
+		<script src="/three/build/three.js"></script>
+		<script src="/three/examples/js/controls/OrbitControls.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
 
-	<nav class="navbar is-info">
-		<div class="navbar-brand">
-			<span class="nav-item is-size-4-desktop" href="/" id="title">
-				NPO法人プログラミング教育研究所
-			</span>
-			<button class="button navbar-burger" data-target="navMenu">
-				<span></span>
-				<span></span>
-				<span></span>
-			</button>
-		</div>
-		<div class="navbar-menu" id="navMenu">
-			<div class="navbar-end">
-				<div class="nav-item ">
-					<select id="languageMenu"></select>
-				</div>
-			</div>
-		</div>		
-	</nav>
+		<script src="/jcode/jcode-lib/TextBoardObject.js"></script>
+		<script src="/jcode/code.js"></script>
+		<script src="/jcode/jcode.js"></script>
+		<script src="/jcode/jcode-lib/obj.js"></script>
+		<script src="/jcode/jcode-lib/three.js"></script>
+		<script src="/jcode/jcode-lib/instructions.js"></script>
 
-	<section class="tile is-ancestor is-vertical" style="margin-top:-9px;background:#EFEFEF">
-		<div class="tile is-parent is-primary">
+		<script src="{{scriptfilename}}"></script>
+		
+		<style type="text/css">
 
-			<article class="tile is-child is-6">
-				<div id="threejs-canvas" style="height:300px";>
-				</div>
-				<div id="WebGL-ui">
-						<div id="vr-button"></div>
-						<a id="magic-window" href="#" class="balloon" style="display: none">>
-							はじめ
-						</a>
-				</div>
-			</article>					
+			html, body {
+				height: 100%;
+				min-height: 100%;
+				margin: 0;
+				padding: 0;
+			}
 
-			<article class="tile is-child is-primary" style="background:#DBDBDB" id="instruction-canvas">
-			</article>					
-		</div>
-		<div class="tile is-parent is-primary is-paddingless" style="background:#FFF">
-			<article class="tile is-child is-primary">
+			#top-component {
+				bottom: 60%;
+				margin-bottom: 5px;
+				min-height: 10em;
+			}
 
-				<div class="tabs is-left is-marginless">
-					<ul style="height:42px">
-						<li><a id="tab_blocks" class="tabon is-active">...</a></li>
-						<li><a id="tab_javascript" class="taboff">JavaScript</a></li>
-						<li><a  id="tab_xml" class="taboff">XML</a></li>
-					</ul>
-				</div>
-			</article>
-			<article class="tile is-child is-primary">
-  			<div class="tabs is-right is-marginless">
-					<ul style="height:42px">
-								<li>
-									<button id="runButton">
-										<span class="icon orange600">
-												<i class="fa fa-play-circle " aria-hidden="true"></i>
-										</span>
-										実行
-									</button>
-									<button id="clearButton" title="...">
-											<span class="icon">
-													<i class="fa fa-refresh" aria-hidden="true"></i>
-												</span>
-											</button>
+			#my-divider {
+				bottom: 60%;
+				height: 10px;
+			}
+
+			#bottom-component {
+				height: 60%;
+				min-height: 5em;
+			}
+			#left-component	{
+				display: inline-block;
+			}
+			p {
+				margin-left: 1em;
+				margin-bottom: 4px;
+				padding:0.5em;
+				background-color: white;
+			}
+			#right-component	{
+				display: inline-block;
+				vertical-align: top;
+				overflow: scroll;
+				background-color: lightgray;
+			}
+			#JCODE-instruction {
+				background-color: lightgray;
+				width: 100%;
+			}
+			.material-icons.orange600 { color: #FB8C00; }
+			.material-icons {
+ 				 vertical-align:middle;
+			} 
+		
+		</style>
+
+		<script>
+			$(function() {
+				$('div.split-pane').splitPane();
+			});
+		</script>
+	</head>
+	<body>
+		<audio id="broadcasting-start1" preload="auto">
+				<source src="/jcode/sounds/broadcasting-start1.mp3" type="audio/mp3">
+		</audio>
+		<audio id="trumpet1" preload="auto">
+			<source src="/jcode/sounds/trumpet1.mp3" type="audio/mp3">
+		</audio>
+		<audio id="stupid4" preload="auto">
+				<source src="/jcode/sounds/stupid4.mp3" type="audio/mp3">
+		</audio>
+		<audio id="boyoyon1" preload="auto">
+				<source src="/jcode/sounds/boyoyon1.mp3" type="audio/mp3">
+		</audio>
+		<audio id="people-people-stadium-cheer1" preload="auto">
+				<source src="/jcode/sounds/people-people-stadium-cheer1.mp3" type="audio/mp3">
+		</audio>
+    <nav class="navbar navbar-expand-md navbar-dark bg-primary">
+      <a class="navbar-brand" href="http://J-CODE.ORG" id="title">NPO法人プログラミング教育研究所</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item ">
+						<select id="languageMenu"></select>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+		<div class="pretty-split-pane-frame"><!-- This div is added for styling purposes only. It's not part of the split-pane plugin. -->
+			<div class="split-pane horizontal-percent">
+
+				<div class="split-pane-component" id="top-component">
+					<div class="pretty-split-pane-component-inner"><!-- This div is added for styling purposes only. It's not part of the split-pane plugin. -->
+
+						<div id="left-component">
+							<div id="WebGL-output">
+							</div>
+							<div id="WebGL-ui">
+									<div id="vr-button"></div>
+									<a id="magic-window" href="#" class="balloon" style="display: none">>
+										はじめ
+									</a>
+							</div>
+
+						</div>
+						<div id="right-component">
+							<div id="JCODE-instruction">
+						</div>
+					</div>
+						
+					</div>
+				</div>　
+				<div class="split-pane-divider" id="my-divider"></div>
+							
+				<div class="split-pane-component" id="bottom-component">
+					<div class="pretty-split-pane-component-inner"><!-- This div is added for styling purposes only. It's not part of the split-pane plugin. -->
+
+						<table width="100%" id='content_panel'>
+							<tr id="tabRow" height="1em">
+							  <td id="tab_blocks" class="tabon" style="min-width:8em;">...</td>
+							  <td class="tabmin">&nbsp;</td>
+							  <td id="tab_javascript" class="taboff">JavaScript</td>
+							  <td class="tabmin">&nbsp;</td>
+							  <td id="tab_xml" class="taboff">XML</td>
+							  <td class="tabmax">
+								<button id="runButton" title="...">
+										<i class="material-icons md-24 orange600">play_circle_filled</i>
+								</button>
+								<button id="clearButton" title="...">
+									<i class="material-icons md-24">clear</i>
+								</button>
+																	
+
 									<button id="linkButton" class="notext" title="...">
-										<span class="icon">
-													<i class="fa fa-files-o" aria-hidden="true"></i>
-												</span>
-											</button>
-									<button id="trashButton" class="notext" title="...">
-											<span class="icon has-text-danger">
-												<i class="fa fa-trash-o" aria-hidden="true"></i>
-											</span>
+										<img src='/blockly/media/1x1.gif' class="link icon21">
 									</button>
-								</li>
-					</ul>
-				</div>
-			</article>
-		</div>
-		<div class="tile is-parent is-primary is-paddingless">
-					
-				<div id="content_area" style="position: relative;width:100%;height:300px;"> 	<!-- important -->
-					<div id="content_blocks" class="content"></div>
-					<pre id="content_javascript" class="content"></pre>
-					<textarea id="content_xml" class="content" wrap="off"></textarea>
+									<button id="trashButton" class="notext" title="...">
+								  <img src='/blockly/media/1x1.gif' class="trash icon21">
+								</button>
+							  </td>
+							</tr>
+						</table>
+						<div id="content_area">  </div>
+					  <div id="blocklyDiv">	</div>
+						<div id="content_blocks" class="content"></div>
+						<pre id="content_javascript" class="content"></pre>
+						<pre id="content_python" class="content"></pre>
+						<pre id="content_php" class="content"></pre>
+						<pre id="content_lua" class="content"></pre>
+						<pre id="content_dart" class="content"></pre>
+						<textarea id="content_xml" class="content" wrap="off"></textarea>
+
+						</div>
+					</div>
 				</div>
 
+			</div>
 		</div>
-	</section>
 
+			
 <script>
 
 function clearTeachersGroup(){
@@ -203,13 +208,13 @@ function loadBlocks(code){
 
 // インストラクションエリアを初期化する
 function initInstruction() {
-  $("#instruction-canvas").html("<div id='instructions' style='width:100%;height:300px;overflow-y:scroll;'></div>");
+  $("#right-component").html("<div id='instructions'></div>");
 }
 
 // html インストラクションを追加して、一番下にスクロールする
 function print(h) {
-  $("#instructions").append($("<p class='balloon2' />").html(h));
-  $('#instructions').animate({scrollTop: $('#instructions')[0].scrollHeight}, 'fast');
+  $("#instructions").append($("<p />").html(h));
+  $('#right-component').animate({scrollTop: $('#right-component')[0].scrollHeight}, 'fast');
 }
 
 
@@ -276,7 +281,7 @@ $(function(){
 
 </script>
 
-<xml id="toolbox_start" style="display: none">
+<xml id="toolbox_start">
 	<variables>
     <variable type="" id="*YKsc]3xQIgK|dKb_Bx.">obj</variable>
   </variables>
@@ -304,10 +309,10 @@ $(function(){
       </block>
     </value>
   </block>
-  <block type="three_lookUpward">
-    <field name="VAR" variabletype="">obj</field>
+  <block type="three_lookUpward" id="kI#I|X6C5o7S2S2#[[vw" x="13" y="238">
+    <field name="VAR" id="*YKsc]3xQIgK|dKb_Bx." variabletype="">obj</field>
     <value name="VALUE">
-      <block type="three_angle">
+      <block type="three_angle" id="xT=tZauijK@kJ1[W0t{)">
         <field name="FIELDNAME">45</field>
       </block>
     </value>

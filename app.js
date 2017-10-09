@@ -41,6 +41,9 @@ app.use('/physics', express.static(path.join(__dirname, '../physics')));
 app.use('/ace', express.static(path.join(__dirname, '../ace-builds')));
 app.use('/bootstrap', express.static(path.join(__dirname, '../bootstrap-3.3.7-dist')));
 //app.use('/lessons', express.static(path.join(__dirname, '../lessons')));
+app.get('/kitaku', function(req, res) {
+res.redirect(302, "/");
+});
 app.use('/', express.static(path.join(__dirname, '../www'), {extensions: ['htm', 'html']}));
 
 // Configuring Passport

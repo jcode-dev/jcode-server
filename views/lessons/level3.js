@@ -15,6 +15,6 @@ function startLesson() {
   document.getElementById("broadcasting-start1").play();
   print(`
   自由にすきなグラフィックスをつくろう。<br />
-  下の <i class="material-icons">clear</i> ボタンを押すと、すべてのオブジェクトをけして、画面をクリアできます。<br />
+  下の「リフレッシュ」ボタンを押すと、すべてのオブジェクトをけして、画面をクリアできます。<br />
   `);
 }

@@ -48,7 +48,7 @@ function startLesson() {
   print(`
     白いたまは、お手本です。<br />
     お手本と同じ所に玉が止まるように、プログラムを直して、  
-    下の<i class="material-icons md-18 orange600">play_circle_filled</i>ボタンを押して、プログラムを動かしてください。<br />
+    下の「実行」ボタンを押して、プログラムを動かしてください。<br />
     白黒のタイルは、ひとつ10センチの大きさです。<br />
     もう一度、お手本のうごきを見るには <button onclick="runTeacherCode();">ここをクリック</button>して下さい。<br />
     画面が見にくいときは、大きくしたり、みるいちを かえたりも出来ますよ。

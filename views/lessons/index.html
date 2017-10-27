@@ -10,7 +10,6 @@
 	<script src="https://code.jquery.com/jquery-3.2.1.min.js" ></script>
 
 	<!-- jcode & blockly -->
-	<script src="/jcode/storage.js"></script>
 	<script src="/blockly/blockly_compressed.js"></script>
 	<script src="/blockly/blocks_compressed.js"></script>
 	<script src="/blockly/javascript_compressed.js"></script>
@@ -20,7 +19,11 @@
 	<script src="/three/examples/js/controls/OrbitControls.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
 
-	<!-- jcode ext -->
+  <!-- socket.io -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="socket.js"></script>
+  
+  <!-- jcode ext -->
 	<script src="/jcode/jcode-lib/TextBoardObject.js"></script>
 	<script src="/jcode/code.js"></script>
 	<script src="/jcode/jcode.js"></script>
@@ -102,7 +105,7 @@
 			<source src="/jcode/sounds/people-people-stadium-cheer1.mp3" type="audio/mp3">
 	</audio>
 
-	<nav class="navbar is-info">
+	<nav id="top_nav" class="navbar is-info">
 		<div class="navbar-brand">
 			<span class="nav-item is-size-4-desktop" href="/" id="title">
 				プログラミング教育研究所
@@ -125,8 +128,8 @@
 	<section class="tile is-ancestor is-vertical" style="margin-top:-9px;background:#EFEFEF">
 		<div class="tile is-parent is-primary">
 
-			<article class="tile is-child is-6">
-				<div id="threejs-canvas" style="height:300px;">
+			<article class="tile is-child is-6" style="height:300px;" id="threejs_win" >
+				<div id="threejs-canvas" style="width:100%;height:100%;margin-bottom:8px;overflow:hidden;" >
 				</div>
 				<div id="WebGL-ui">
 						<div id="vr-button"></div>
@@ -135,15 +138,20 @@
 						</a>
 				</div>
 			</article>					
-
-			<article class="tile is-child is-primary" style="background:#DBDBDB" id="instruction-canvas">
-			</article>					
+      <section class="tile is-vertical">
+        
+        <article class="tile is-child is-primary" style="background:#DBDBDB" id="instruction-canvas">
+        </article>
+        <article class="tile is-child is-primary">
+            <input input class="input is-info" id="inputMessage" type="text" placeholder="Type here..."/>
+        </article>
+      </section>
 		</div>
 		<div class="tile is-parent is-primary is-paddingless" style="background:#FFF">
 			<article class="tile is-child is-primary">
 
 				<div class="tabs is-left is-marginless">
-					<ul style="height:42px">
+					<ul id="middle_pannel" style="height:42px">
 						<li><a id="tab_blocks" class="tabon is-active">...</a></li>
 						<li><a id="tab_javascript" class="taboff">JavaScript</a></li>
 						<li><a  id="tab_xml" class="taboff">XML</a></li>
@@ -151,32 +159,46 @@
 				</div>
 			</article>
 			<article class="tile is-child is-primary">
+        <div class="control">
+          <div class="select">
+            <select id="programMenu">
+            </select>
+          </div>
+        </div>
+      </article>
+      <article class="tile is-child is-primary">
   			<div class="tabs is-right is-marginless">
 					<ul style="height:42px">
-								<li>
-									<button id="runButton">
-										<span class="icon orange600">
-												<i class="fa fa-play-circle " aria-hidden="true"></i>
-										</span>
-										実行
-									</button>
-									<button id="clearButton" title="...">
-											<span class="icon">
-													<i class="fa fa-refresh" aria-hidden="true"></i>
-												</span>
-												リフレッシュ
-											</button>
-									<button id="linkButton" class="notext" title="...">
-										<span class="icon">
-													<i class="fa fa-files-o" aria-hidden="true"></i>
-												</span>
-											</button>
-									<button id="trashButton" class="notext" title="...">
-											<span class="icon has-text-danger">
-												<i class="fa fa-trash-o" aria-hidden="true"></i>
-											</span>
-									</button>
-								</li>
+            <li>
+              <button id="runButton">
+                <span class="icon orange600">
+                    <i class="fa fa-play-circle " aria-hidden="true"></i>
+                </span>
+                実行
+              </button>
+              <button id="clearButton" title="...">
+                <span class="icon">
+                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                </span>
+                 リフレッシュ
+              </button>
+              <button id="sendScript" class="notext" title="...">
+                <span class="icon">
+                    <i class="fa fa-share" aria-hidden="true"></i>
+                </span>
+                プログラムを送る
+              </button>
+              <button id="linkButton" class="notext" title="...">
+                <span class="icon">
+                  <i class="fa fa-sign-in" aria-hidden="true"></i>
+                </span>
+              </button>
+              <button id="trashButton" class="notext" title="...">
+                <span class="icon has-text-danger">
+                  <i class="fa fa-trash-o" aria-hidden="true"></i>
+                </span>
+              </button>
+            </li>
 					</ul>
 				</div>
 			</article>
@@ -192,22 +214,119 @@
 		</div>
 	</section>
 
+  <div class="modal" id="modal-open">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <!-- Any other Bulma elements you want -->
+      <article class="message">
+        <div class="message-header">
+          <p>ログイン</p>
+          <button class="delete" aria-label="close" id="modal-close"></button>
+        </div>
+        <div class="message-body">
+          <div class="field">
+            <label class="label">ニックネーム：</label>
+            <div class="control">
+              <input class="input" id="usernameInput" type="text" maxlength="14" />
+            </div>
+            <p class="help">すきな名前を入れてください</p>
+          </div>
+          <a class="button is-primary" id="loginOk">OK</a>
+    
+        </div>
+      </article>
+     </div>
+  </div>
+
 <script>
+// top_nav
+//threejs-canvas
+//middle_pannel
+// content_area 300px
+
+
+$(document).ready(function() {
+
+  var wh = $(window).height();
+  var nh = $("#top_nav").height();
+  var th = $("#threejs_win").height();
+  var ph = $("#middle_pannel").height();
+  //var eh = $("#content_area").height();
+  var rh = wh - nh - th - ph - 39;
+  rh = Math.max(100, rh);
+  console.log(rh);
+
+  $("#content_area").height(rh);
+  JCODE.resizeEvent();
+  $("#content_area").funcResizeBox({ });
+  $('#threejs_win').funcResizeBox({ });
+});
+
+/*
+$(document).ready(function() {
+
+  JCODE.project = {
+    name: "テスト",
+    type: "project",
+    children:[
+      {
+        name: "プログラム0",
+        type: "jsxml",
+        xml:"",
+      },
+      {
+        name: "プログラム1",
+        type: "jsxml",
+        xml:"",
+      }
+    ]
+  };
+  
+  var programs = JCODE.project.children;
+  // Populate the language selection menu.
+  var programMenu = document.getElementById('programMenu');
+  programMenu.options.length = 0;
+  for (var i = 0; i < programs.length; i++) {
+    var option = new Option(programs[i].name, i);
+    if (i == 0) {
+      option.selected = true;
+      JCODE.project.selectedIndex = i;
+    }
+    programMenu.options.add(option);
+  }
+  programMenu.addEventListener('change', function(){
+    console.log("change program");
+    
+    var xmlDom = Blockly.Xml.workspaceToDom(Code.workspace);
+    var xmlText = Blockly.Xml.domToPrettyText(xmlDom);
+    JCODE.project.children[JCODE.project.selectedIndex].xml = xmlText;
+    console.log(programMenu.selectedIndex);
+
+    JCODE.project.selectedIndex = programMenu.selectedIndex;
+    Code.workspace.clear();
+    Code.loadBlocks(JCODE.project.children[JCODE.project.selectedIndex].xml);
+  }, true);
+  
+}());
+*/
+
 
 function clearTeachersGroup(){
   JCODE.clearGroup ("tehon",{shape:"sphere", color:'#ffffff', speed:2, scale:0.9, opacity:0.5, arrow:"always"});
 }
-
+/*
 // コードブロックXMLを読み込んで、ユーザーのエリアに表示する
 function loadBlocks(code){
   Code.workspace.clear();
   Code.loadBlocks(code);
 }
 
+
 // インストラクションエリアを初期化する
 function initInstruction() {
   $("#instruction-canvas").html("<div id='instructions' style='width:100%;height:300px;overflow-y:scroll;'></div>");
 }
+*/
 
 // html インストラクションを追加して、一番下にスクロールする
 function print(h) {
@@ -269,6 +388,7 @@ function nextLesson(func, timeout) {
   });
 }
 
+/*
 // ここから開始します。
 $(function(){
 	console.log("All resources finished loading!");
@@ -282,6 +402,7 @@ $(function(){
 	initInstruction(); // インストラクションの初期化
   setTimeout(startLesson,100);  
 });
+*/
 
 </script>
 
@@ -691,6 +812,57 @@ $(function(){
 			</block>
 
 		</category>>
+
+		<category name="3Dオブジェクト(all)" colour="#abcc52" custom="JCODE_THREE"></category>>
+		<category name="インストラクション" colour="%{BKY_COLOUR_HUE}" custom="JCODE_INSTRUCTION"></category>>
+
+		<category name="3Dオブジェクトnew" colour="#abcc52">
+      <block type="variables_set"  x="13" y="13">
+        <field name="VAR"  variabletype="">obj</field>
+        <value name="VALUE">
+          <block type="THREE_constr_blocks" >
+            <mutation arg0="true" arg1="false"></mutation>
+            <field name="CODE">new JCODE.object3d</field>
+            <value name="ARG0">
+              <shadow type="three_typeName" >
+                <field name="FIELDNAME">sphere</field>
+              </shadow>
+            </value>
+          </block>
+        </value>
+      </block>
+      <block type="THREE_method_blocks"  x="63" y="63">
+        <mutation args="1"></mutation>
+        <field name="OUTPUT">FALSE</field>
+        <field name="CODE">.moveForward</field>
+        <value name="OBJECT">
+          <shadow type="variables_get" >
+            <field name="VAR"  variabletype="">obj</field>
+          </shadow>
+        </value>
+        <value name="ARG0">
+          <shadow type="math_number" >
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="THREE_accessor_blocks"  x="38" y="88">
+        <mutation args="1"></mutation>
+        <field name="OUTPUT">FALSE</field>
+        <field name="CODE">.setSpeed</field>
+        <value name="OBJECT">
+          <shadow type="variables_get" >
+            <field name="VAR"  variabletype="">obj</field>
+          </shadow>
+        </value>
+        <value name="ARG0">
+          <shadow type="math_number" >
+            <field name="NUM">2</field>
+          </shadow>
+        </value>
+      </block>
+    </category>
+
 	</xml>
 </body>
 </html>

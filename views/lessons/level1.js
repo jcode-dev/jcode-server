@@ -13,6 +13,12 @@ function runTeacherCode() {
   obj.moveForward(20);
 }
 
+function loadBlocks(xml) {
+  Code.workspace.clear();
+  var xml = Blockly.Xml.textToDom(xml);
+  Blockly.Xml.domToWorkspace(xml, Code.workspace);
+}
+
 function loadStudentCode() {
   loadBlocks(`
 
@@ -77,6 +83,10 @@ function startLesson() {
     }
   });
 }
+// ここから開始します。
+$(function(){
+  setTimeout(startLesson, 100);  
+});
 
 function runTeacherCode2(len1, len2, a1) {
 
@@ -138,7 +148,7 @@ function startLesson2() {
     こんどは、右にまがるを使って、うごかします。<br />
     足りないブロックは、「3Dオブジェクト」の中から取り出して、使ってください。<br />
     お手本と同じ所に玉が止まるように、プログラムを直して、  
-    下の<i class="material-icons md-18 orange600">play_circle_filled</i>ボタンを押して、プログラムを動かしてください。<br />
+    下の「実行」ボタンを押して、プログラムを動かしてください。<br />
     もう一度、お手本のうごきを見るには <button onclick="runTeacherCode2(10,30,90);">ここをクリック</button>して下さい。<br />
   `);
   clearStudentsGroup();

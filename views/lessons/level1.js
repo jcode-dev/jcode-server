@@ -85,6 +85,8 @@ function startLesson() {
 }
 // ここから開始します。
 $(function(){
+  JCODE.scene.add(JCODE.createFloor());  // 床を書く
+  JCODE.scene.add(JCODE.createSkydome());  //スカイドームの利用
   setTimeout(startLesson, 100);  
 });
 

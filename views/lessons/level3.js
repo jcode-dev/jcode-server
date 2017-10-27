@@ -14,7 +14,9 @@ function startLesson() {
 
 // ここから開始します。
 $(function(){
-    setTimeout(startLesson, 100);  
+  JCODE.scene.add(JCODE.createFloor());  // 床を書く
+  JCODE.scene.add(JCODE.createSkydome());  //スカイドームの利用
+  setTimeout(startLesson, 100);  
 });
 
 function snow() {

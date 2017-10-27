@@ -31,7 +31,7 @@ function newdoc(userid, filename) {
           console.log('Error in Saving user: '+err);  
           throw err;  
       }
-    console.log('User Registration succesful');    
+    //console.log('User Registration succesful');    
     return newDoc;
   });
 }

@@ -5,7 +5,7 @@ var schema = mongoose.Schema;
 var code = new schema({
   name: String,   // Owner
   type: String, // filename
-  xml: String, // filename
+  data: String, // filename
   creator: String
 });
 code.plugin(findOrCreate);

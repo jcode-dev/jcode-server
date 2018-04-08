@@ -56,25 +56,6 @@ res.redirect(302, "/");
 });
 app.use('/', express.static(path.join(__dirname, '../www'), {extensions: ['htm', 'html']}));
 
-// Configuring Passport
-var passport = require('passport');
-var expressSession = require('express-session');
-app.use(expressSession(
-  {
-    secret: 'mySecretKey',
-    resave: false,
-    saveUninitialized: false
-  }));
-app.use(passport.initialize());
-app.use(passport.session());
-// Serialize/desirialize Passport
-require('./passport/init')(passport);
-
-// Using the flash middleware provided by connect-flash to store messages in session
-// and displaying in templates
-var flash = require('connect-flash');
-app.use(flash());
-
 
 // アプリのホーム
 var home = '/home';
@@ -87,38 +68,6 @@ app.use('/lessons', lessons);
 
 var editor = require('./routes/editor');
 app.use('/editor', editor);
-
-//var doc = require('./routes/document');
-//app.use('/doc', doc);
-
-
-// Google Strategy
-//  https://developers.google.com/identity/sign-in/web/devconsole-project?hl=ja
-require('./passport/google')(passport);
-
-// Local Strategy
-require('./passport/login')(passport);
-require('./passport/signup')(passport);
-
-var authentication = require('./routes/authentication')(home, passport);
-app.use('/auth', authentication);
-
-
-/*
-app.get('/api/authentication/facebook/start',
-  passport.authenticate('facebook', { session: false }));
-app.get('/api/authentication/facebook/redirect',
-  passport.authenticate('facebook', { session: false }),
-  generateUserToken);
-*/
-
-app.get('/api/insecure', (req, res) => {
-  res.send('Insecure response');
-});
-
-app.get('/api/secure', (req, res) => {
-  res.send('Secure response from ' + JSON.stringify(req.user));
-});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -141,3 +90,37 @@ app.use(function(err, req, res, next) {
 });
 
 module.exports = app;
+
+
+/*
+// Configuring Passport
+var passport = require('passport');
+var expressSession = require('express-session');
+app.use(expressSession(
+  {
+    secret: 'mySecretKey',
+    resave: false,
+    saveUninitialized: false
+  }));
+app.use(passport.initialize());
+app.use(passport.session());
+// Serialize/desirialize Passport
+require('./passport/init')(passport);
+
+// Using the flash middleware provided by connect-flash to store messages in session
+// and displaying in templates
+var flash = require('connect-flash');
+app.use(flash());
+
+
+// Google Strategy
+//  https://developers.google.com/identity/sign-in/web/devconsole-project?hl=ja
+require('./passport/google')(passport);
+
+// Local Strategy
+require('./passport/login')(passport);
+require('./passport/signup')(passport);
+
+var authentication = require('./routes/authentication')(home, passport);
+app.use('/auth', authentication);
+*/

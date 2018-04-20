@@ -15,6 +15,8 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 var config = require('config');
+require('dotenv').config();
+
 var mongoose = require('mongoose');
 // Connect to DB
 console.log ("connect to", config.mongodb); 
@@ -24,7 +26,11 @@ mongoose.connect(config.mongodb, {}, function(error) {
     console.log (error); // Check error in initial connection. There is no 2nd param to the callback.
   }
  });
+var passport = require('./passport');
+var api_user = require('./rest/api_user');
+var api_event = require('./rest/api_event');
 
+console.log ("start express app"); 
 var app = express();
 // view engine setup
 app.engine('html', mustacheExpress());
@@ -34,6 +40,7 @@ app.set('views', path.join(__dirname, 'views'));
 //app.set('view engine', 'jade');
 app.set('view engine', 'mustache');
 
+console.log ("config express app"); 
 // uncomment after placing your favicon in /public
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
@@ -41,6 +48,14 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+console.log ("setup routers"); 
+
+app.use('/api/user', api_user);
+app.use('/api/event', api_event);
+app.use('/user', express.static(path.join(__dirname, './client-user')));
+app.use('/admin', express.static(path.join(__dirname, './client-admin')));
+
 //app.use(express.static(path.join(__dirname, 'public')));
 app.use('/blockly', express.static(path.join(__dirname, '../blockly')));
 app.use('/three', express.static(path.join(__dirname, '../three.js')));
@@ -50,12 +65,13 @@ app.use('/ace', express.static(path.join(__dirname, '../ace-builds')));
 app.use('/bootstrap', express.static(path.join(__dirname, '../bootstrap-3.3.7-dist')));
 app.use('/pub', express.static(path.join(__dirname, '../pub')));
 //app.use('/lessons', express.static(path.join(__dirname, '../lessons')));
+
+console.log ("start www..."); 
 // 昔の301リダイレクト対策
 app.get('/kitaku', function(req, res) {
 res.redirect(302, "/");
 });
 app.use('/', express.static(path.join(__dirname, '../www'), {extensions: ['htm', 'html']}));
-
 
 // アプリのホーム
 var home = '/home';
@@ -88,6 +104,14 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error.html', {message: res.locals.message, error: res.locals.error});
 });
+
+function errorHandler(err, req, res, next) {
+  if (res.headersSent) {
+    return next(err);
+  }
+  res.status(500);
+  res.render('error', { error: err });
+}
 
 module.exports = app;
 

@@ -1,0 +1,20 @@
+#バックアップ
+mongodump -d test2 -o ./dump/201804010
+
+#restore
+mongorestore ./dump/201804010
+
+
+
+#操作
+>mongo
+show dbs
+
+use test2
+show collections
+
+db.events.find();
+db.users.find();
+
+
+db.events.drop()

@@ -8,10 +8,10 @@ exports = module.exports = function(id_field_name, model){
 	return addRoutes([
 		// find
 		['/', 'get', function(req, res) {
-			console.log("user:",req.user);
 			var params = req.query;
-			console.log("list:",params);
-			var limit = Math.max(1, Math.min(50, params.limit|0 || 10));
+			console.log("find:", model.modelName, params);
+			//console.dir();
+			var limit = Math.max(1, Math.min(50, params.limit|0 || 100));
 
 			// if you have fulltext search enabled.
 			if (params.search && typeof model.textSearch==='function') {
@@ -23,31 +23,36 @@ exports = module.exports = function(id_field_name, model){
 			}
 			model.find({}).skip(params.start|0 || 0).limit(limit).exec(toRes(res));
 		}],
+		// schema
+		['/schema', 'get', function(req, res) {
+			console.dir(model.schema.paths);
+			res.status(200).send(model.schema.paths);
+		}],
 		// create new
 		['/', 'post', function(req, res) {
-			console.log("create:",req.body);
-			model.create(req.body, toRes(res));
+			var body = req.body;
+			console.log("create:", model.modelName, body);
+			model.create(body, toRes(res));
 		}],
 		// read
 		['/:_id/', 'get', function(req, res) {
-			console.log("get user:",req.user);
-			var params = req.params;
-			console.log("read:",params);
-			model.findById(params[id_field_name], toRes(res));
+			var id = req.params[id_field_name];
+			console.log("read:", model.modelName, id);
+			model.findById(id, toRes(res));
 		}, false],
 		// update
 		['/:_id/', 'post', function(req, res) {
-			var params = req.params;
+			var id = req.params[id_field_name];
 			var body = req.body;
-			console.log("update:",params, body);
 			delete body._id;
-			model.findByIdAndUpdate(params[id_field_name], { $set:body }, toRes(res));
+			console.log("update:", model.modelName, id, body);
+			model.findByIdAndUpdate(id, { $set:body }, toRes(res));
 		}],
 		// delete
 		['/:_id/', 'delete', function(req, res) {
-			var params = req.params;
-			console.log("delete:",params);
-			model.findByIdAndRemove(params[id_field_name], toRes(res));
+			var id = req.params[id_field_name];
+			console.log("delete:", model.modelName, id);
+			model.findByIdAndRemove(id, toRes(res));
 		},true],
 	]);
 }

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Hello pel</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+	<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+	<style>
+
+	.message {
+		margin: 1.5rem;
+	}
+	.frame {
+		margin: 1.5rem;
+	}
+	.morespace {
+		margin: 0 1rem;
+	}
+	</style>
+
+	
+</head>
+<body>
+
+	<div id="app">
+
+		<form onsubmit="return submit11();">
+				<article class="message is-primary">
+					<div class="content">
+						<div class="message-header">
+							サインイン
+						</div>
+						<div class="message-body">
+
+							<p>
+							まだ会員登録しておらず、メールアドレスとパスワードが登録されていない場合は、「次へ」をクリックしてください。
+							</p>
+							<div class="field is-grouped">
+						  	<div class="control has-text-right">
+							  	<a class="button is-primary" href="{{nexturl}}">次へ</a>
+							  </div>
+							</div>
+							<P>次の画面で、会員登録用のメールアドレスが必要になります。<br />
+							自分のメールアドレスを持っていない人は、保護者や先生に、かわりに登録してもらってください。</P>
+
+							<p>
+							会員登録していて、メールアドレスとパスワードを使ってサインインする場合は、「サインイン」をクリックしてください。
+							</p>
+							<div class="field">
+							  <label class="label">メールアドレス</label>
+							  <div class="control has-icons-left">
+									<input name="email" class="input" type="email" required  placeholder="someone@j-code.org" id="email">
+									<span class="icon is-small is-left">
+										<i class="fas fa-envelope"></i>
+									</span>
+							  </div>
+							</div>
+
+							<div class="field">
+								<label class="label">パスワード</label>
+								<input name="password" type="password" required id="password">
+							</div>
+							<p id="errormessage"></p>
+
+							<div class="field is-grouped">
+						  	<div class="control has-text-right">
+							  	<input class="button is-primary" value="サインイン" type="submit">
+							  </div>
+							</div>
+
+						</div>
+					</div>
+				</article>
+		</form>
+
+	</div>
+
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script>
+		const url = location.protocol+"//"+location.host+"/api/";
+		// axios with token
+		const axiosToken = axios.create({ baseURL: url });
+		axiosToken.interceptors.request.use((config) => {
+			var token = localStorage.getItem('token');
+		  if (token) {  
+		    config.headers.Authorization = `Bearer ${token}`
+		    return config
+		  }
+		  return config
+		}, function (error) {
+		  return Promise.reject(error)
+		});
+
+		function submit11() {
+			
+			;
+			
+			var user = {email: document.getElementById('email').value
+			, password:document.getElementById('password').value};
+			axios.post(url+"user/signin", user).then((response) => {
+				console.log("サインインに成功しました:", response);
+				var user = response.data;
+				console.log(user);
+				localStorage.setItem('token',user);
+				var href = "{{{nexturl}}}";
+				console.log("サインインにリダイレクトした:", href);
+				location.href = href;
+
+			}).catch((error) => {
+				console.log("サインインに失敗しました:",error);
+				document.getElementById('errormessage').innerHTML = "サインインに失敗しました";
+			});
+
+			return false;
+		}
+
+	</script>
+</body>
+</html>

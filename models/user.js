@@ -1,18 +1,18 @@
+// イベント登録
 var mongoose = require('mongoose');
-var findOrCreate = require('mongoose-findorcreate');
+var Schema = mongoose.Schema;
+var ObjectId = Schema.Types.ObjectId;
+var Doc = require('./doc');
+
 var bCrypt = require('bcrypt-nodejs');
 
-var Schema = mongoose.Schema;
-var UserSchema = new Schema({
-	name: String,	// ニックネーム
-	password: String,	// サインイン・パスワード
-	email:String,		// email
-	member_id: Number,	// 会員番号
-	title: String,	//肩書 ['Student', 'Parent', 'Teacher', 'Staff', 'Administrator']
-	role: String, //セキュリティ名 ['GUEST', 'USER', 'ADMIN', 'ROOT']
-});
-UserSchema.plugin(findOrCreate);
-var User = mongoose.model('User', UserSchema);
+var User = Doc.discriminator('User',
+	new Schema({
+		password: String,	// サインイン・パスワード
+		email:String,		// email
+		member_id: Number,	// 会員番号
+		role: String, //セキュリティ名 ['GUEST', 'USER', 'ADMIN', 'ROOT']
+	}));
 
 // Auto Increment Membership ID
 User.schema.pre('save', function(next) {
@@ -35,7 +35,7 @@ User.schema.pre('save', function(next) {
 	});
 });
 
-UserSchema.pre('save', function(next) {
+User.schema.pre('save', function(next) {
 	var user = this;
 
 	// only hash the password if it has been modified (or is new)

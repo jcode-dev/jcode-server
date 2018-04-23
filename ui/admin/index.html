@@ -41,7 +41,8 @@
 								<select v-model="selected">
 									<option disabled value="">Please select one</option>
 									<option>event</option>
-									<option>contact</option>
+									<option>doc</option>
+									<option>address</option>
 									<option>user</option>
 								</select>
 								<span>Selected: {{ selected }}</span>
@@ -114,10 +115,10 @@
 				</label>
 			</td>
 			<td>
-				{{item._id}}
+				{{item.name}}
 			</td>
 			<td>
-				{{item.comment}}
+				{{item.__t}}
 			</td>
 			<td>
 				<button class="button" v-on:click.prevent="edit_click">編集</button>

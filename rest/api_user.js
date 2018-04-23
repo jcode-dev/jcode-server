@@ -10,7 +10,7 @@ var bCrypt = require('bcrypt-nodejs');
 const toRes = require('./resource-router').toRes;
 const addRoutes = require('./resource-router').addRoutes;
 
-const sendEmail = require('./email');
+const sendEmail = require('./email/email');
 
 const mailFooter = "ご不明な点がありましたら、以下までお問合せください。\n（このメールには、返信しないでください。）\n＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝\nNPO法人プログラミング教育研究所\nnpo@j-code.org\nHTTP://J-CODE.ORG\n";
 
@@ -71,6 +71,18 @@ exports = module.exports = (function(model){
 				}
 			}
 			res.status(200).send(user);
+		},true],
+		// スキーマ
+		['/schema', 'get', function(req, res) {
+			console.dir(model.schema.paths);
+			res.status(200).send(model.schema.paths);
+		},true],
+		// 子どもの一覧
+		['/children', 'get', function(req, res) {
+			console.log("children:", req.user);
+			if (req.user) {
+				model.find({ownerId: req.user._id}).exec(toRes(res));
+			}
 		},true],
 		['/:_id/', 'get', function(req, res) {
 			var params = req.params;
@@ -146,6 +158,14 @@ exports = module.exports = (function(model){
 			res.status(501).send("エラー");
 			//toRes(res);
 			//model.create(req.body, toRes(res));
+		}],
+		// update
+		['/:_id/', 'post', function(req, res) {
+			var id = req.params['_id'];
+			var body = req.body;
+			delete body._id;
+			console.log("update:", model.modelName, id, body);
+			model.findByIdAndUpdate(id, { $set:body }, toRes(res));
 		}],
 		// delete
 		['/:_id/', 'delete', function(req, res) {

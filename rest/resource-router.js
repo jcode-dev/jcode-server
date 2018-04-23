@@ -35,7 +35,7 @@ rest.addRoutes = function(params) {
 
 	for (let item of params) {
 
-		if (item[3]) {
+		if (item[3]) { // もしも、セキュリティが必要なら
 			router[item[1]](item[0], passport.authenticate(['jwt'], { session: false }), item[2]);
 		} else {
 			router[item[1]](item[0], item[2]);

@@ -40,12 +40,40 @@
 	</div>
 	
 	<script type="text/x-template" id="about-component">
-		<div>
-			<p> about </p>
-		  <div>A custom component!</div>
-			{{message}}
-			{{user.email}}
-		</div>
+
+		<form v-on:submit.preventDefault="submitfunc">
+				<article class="message is-primary">
+					<div class="content">
+						<div class="message-header">
+							about
+						</div>
+						<div class="message-body">
+							<P>会員登録には、メールアドレスが必要です。<br />
+							自分のメールアドレスを持っていない人は、保護者や先生に、かわりに登録してもらってください。</P>
+					【{{location.href}}】
+					【{{location.search}}】
+					【{{next}}】					【{{id}}】
+							<div class="field">
+								<label class="label">どれか選んで下さい</label>
+								<input type="radio" id="next" value="next" v-model="next">
+								<label for="next">わたしは、まだ会員登録したことはありません。初めて利用します。</label>
+								<br>
+								<input type="radio" id="signin" value="signin" v-model="next">
+								<label for="signin">わたしは、メールアドレスを登録した会員です。</label>
+								<br>
+							</div>
+
+							<div class="field is-grouped">
+						  	<div class="control has-text-right">
+							  	<input class="button is-primary" type="submit" value="次へ">
+							  </div>
+							</div>
+
+						</div>
+					</div>
+				</article>
+		</form>
+
 	</script>
 
 	<script type="text/x-template" id="login-component">

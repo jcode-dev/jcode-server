@@ -20,6 +20,10 @@ var About = {
 	data: function() {
 		return {
 			message: "こんにちは",
+			next: 'next',
+			newurl: '',
+			location: {},
+			id: '',
 			user:{},
 		}
 	},
@@ -29,6 +33,11 @@ var About = {
 	methods: {
 		// ログイン情報
 		whoami: function() {
+			this.location = location;
+			this.id = this.$route.query.id;
+			this.id = this.$route.fullPath;
+			this.newurl = "href='/ui/event/"+this.location.search+"'";
+
 			var $this = this;
 			axiosToken.get(url+"user/whoami/").then((response) => {
 				$this.user = response.data;
@@ -37,7 +46,17 @@ var About = {
 				console.log('whoami err!', error);
 				$this.message = "サインインが必要です";
 			});
-
+		},
+		submitfunc: function() {
+			if (this.next === 'next') {
+				this.$router.push('/');
+				//router.push('dashboard');
+				//let newurl = "/ui/event/1111111111";
+				//setTimeout(function(){location.href = newurl;},500);
+			} else {
+				//router.push('signin');
+				router.push({ path: 'signin', query: { id: '11234' }})
+			}
 		},
 	}
 };
@@ -151,8 +170,10 @@ const routes = [
   { path: '/dashboard', component: Dashboard, meta: { requiresAuth: true }},
   { path: '/sendemail', component: SendEmail },
   { path: '/signin', component: Signin },
+  { path: '/signin/:id', component: Signin },
   { path: '/signup', component: Signup },
-  { path: '/login', component: Login }
+  { path: '/login', component: Login },
+  { path: '/:id', component: About },
 ];
 
 var router = new VueRouter({
@@ -162,6 +183,9 @@ var router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
 	if (to.matched.some(record => record.meta.requiresAuth) && !Auth.loggedIn) {
+
+		//let newurl = "/ui/event/?aa=1111111111";
+		//setTimeout(function(){location.href = newurl;},500);
 		next({ path: '/login', query: { redirect: to.fullPath }});
 	} else {
 		next();

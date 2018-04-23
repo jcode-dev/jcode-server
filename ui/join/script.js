@@ -33,17 +33,24 @@ var itemcomp = {
 		},
 	},
 };
+const yobi= new Array("日","月","火","水","木","金","土");
 
 const app = new Vue({
 	el: '#app',
-		components: {
-			itemcomp: itemcomp,
+	components: {
+		itemcomp: itemcomp,
 	},
 	data: {
-		items: [],
-		item:{},
-		selected:'reviews',
-		user:{},
+		item:{
+			title: '保護者',
+			children:[{
+				name:'',
+				title:'',
+			}],
+		},
+		event:{name:'aaaa'},
+		location:{href:'ccc'},
+		user: {},
 	},
 	mounted: function() {
 		this.whoami();
@@ -54,53 +61,30 @@ const app = new Vue({
 	methods: {
 		// ログイン情報
 		whoami: function() {
+			this.location = location;
+
+			this.event._id = location.hash.substr(1);
+			console.log(this.event._id);
+			axiosToken.get(base_url+"event/"+this.event._id).then((response) => {
+				this.event = response.data;
+				let date = new Date(this.event.startDatetime);
+				this.event.startDate = date.getFullYear()+'年'+(date.getMonth()+1)+'月'+date.getDate()+'日（'+yobi[date.getDay()]+'）';
+				this.event.startTime = date.getHours()+'時'+date.getMinutes()+'分';
+				date = new Date(this.event.endDatetime);
+				this.event.endTime = date.getHours()+'時'+date.getMinutes()+'分';
+				console.log("event:", response);
+			});
+
 			axiosToken.get(base_url+"user/whoami/").then((response) => {
 				this.user = response.data;
 				console.log("contact:", response);
 			});
 		},
-		// 一覧表示
-		get_items: function() {
-			console.log("contact:" );
-			axiosToken.get(this.url + '').then((response) => {
-				this.items = response.data;
-				console.log("contact:", response);
-			});
-		},
-		// item 編集
-		edit_item: function(item) {
-			console.log("edit:", item);
-			axiosToken.get(this.url + item._id).then((response) => {
-				this.item = response.data;
-				console.log("item:", response);
-			});
-		},
-		// item 新規作成
-		create_item: function() {
-			console.log("crear id:", this.item._id);
-			this.item._id = null;
-		},
+
 		// item 書込み
 		form_submit: function() {
-			if (this.item._id) { // 更新
-				console.log("write:", this.item);
-				axiosToken.post(this.url + this.item._id, this.item).then((response) => {
-					console.log("item:", response);
-					this.get_items(); // 一覧表示
-				});
-			} else { // 新規
-				axiosToken.post(this.url , this.item).then((response) => {
-					console.log("item:", response);
-					this.get_items(); // 一覧表示
-				});
-			}
-		},
-		// 削除
-		delete_item: function(item) {
-			console.log("delete:", item);
-			axiosToken.delete(this.url + item._id).then((response) => {
+			axiosToken.post(base_url+"registration/" , this.item).then((response) => {
 				console.log("item:", response);
-				this.get_items(); // 一覧表示
 			});
 		},
 

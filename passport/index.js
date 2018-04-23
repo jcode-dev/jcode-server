@@ -25,17 +25,17 @@ var isValidPassword = function(user, password){
 
 // Local Strategy
 passport.use(new LocalStrategy({
-	usernameField: 'MemberNo',
+	usernameField: 'email',
 	passwordField: 'password'
-}, function(username, password, done) {
+}, function(email, password, done) {
 		//console.log('findOne: ', username);
 		// check in mongo if a user with username exists or not
-		User.model.findOne({ 'MemberNo' :  username }).exec(function (err, user) {
+		User.findOne({ 'email' :  email }).exec(function (err, user) {
 			// In case of any error, return using the done method
 			if (err) { return done(err); }
 			// Username does not exist, log the error and redirect back
 			if (!user){
-				console.log('User Not Found with username '+username);
+				console.log('User Not Found with username ');
 				return done(null, false, {message: 'User Not found.'});
 			}
 			// User exists but wrong password, log the error 

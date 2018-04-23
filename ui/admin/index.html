@@ -38,7 +38,7 @@
 						<div class="content">
 							<div class="message-header">
 
-								<select v-model="selected">
+								<select v-model="selected" @change="get_items">
 									<option disabled value="">Please select one</option>
 									<option>event</option>
 									<option>doc</option>
@@ -70,40 +70,13 @@
 			</div>
 			<div class="tile is-parent">
 				<div class="tile is-child box">
-		<form v-on:submit.prevent="form_submit">
 
-			<article class="message is-primary">
-				<div class="content">
-					<div class="message-header">
-						編集
-					</div>
-					<div class="message-body">
-
-						<template v-for="(value, key) in item">
-							<div class="field">
-								<label class="label">{{ key }}</label>
-								<input v-model="item[key]" class="input" type="text">
-							</div>
-						</template>
-
-					<div class="field is-grouped">
-						<p class="morespace">データの更新</p>
-				  	<div class="control has-text-right">
-					  	<input class="button is-primary" type="submit" value="更新">
-					  </div>
-					</div>
-
-					</div>
-				</div>
-			</article>
-		</form>
-
+					<component v-bind:is="selectedComponent" :item="item" v-on:submit_from_child="child_form_submit">
+					</component>
 
 				</div>
 			</div>
 		</div>
-
-
 
 	</div>
 	
@@ -127,10 +100,100 @@
 		</tr>
 	</script>
 
-	
-	
+	<script id="template-home" type="text/x-template">
+		<form v-on:submit.prevent="child_form_submit">
+			<article class="message is-primary">
+				<div class="content">
+					<div class="message-header">
+						編集
+					</div>
+					<div class="message-body">
+
+						<template v-for="(value, key) in item">
+							<div class="field">
+								<label class="label">{{ key }}</label>
+								<input v-model="item[key]" class="input" type="text">
+							</div>
+						</template>
+
+					<div class="field is-grouped">
+				  	<div class="control has-text-right">
+					  	<input class="button is-primary" type="submit" value="更新">
+					  </div>
+					</div>
+
+					</div>
+				</div>
+			</article>
+		</form>
+	</script>
+
+	<script id="template-event" type="text/x-template">
+		<form v-on:submit.prevent="child_form_submit">
+			<article class="message is-primary">
+				<div class="content">
+					<div class="message-header">
+						イベント管理
+					</div>
+					<div class="message-body">
+
+									<div class="field">
+										<label class="label">イベントid</label>
+										<input v-model="item._id" class="input" type="text" readonly>
+									</div>
+
+									<div class="field">
+										<label class="label">イベント名</label>
+										<input v-model="item.name" class="input" type="text" required placeholder="イベント名称">
+									</div>
+
+{{startDatetime}}
+									<div class="field">
+										<label class="label">開始日付</label>
+										<input v-model="item.startDate" class="input" type="date" required placeholder="開始日時">
+									</div>
+
+									<div class="field">
+										<label class="label">開始時間</label>
+										<input v-model="item.startTime" class="input" type="time" required placeholder="終了日時">
+									</div>
+
+									<div class="field">
+										<label class="label">終了日付</label>
+{{endDatetime}}
+										<input v-model="item.endDate" class="input" type="date" required placeholder="開始日時">
+									</div>
+
+									<div class="field">
+										<label class="label">終了時間</label>
+										<input v-model="item.endTime" class="input" type="time" required placeholder="終了日時">
+									</div>
+
+									<div class="field">
+										<label class="label">場所</label>
+										<input v-model="item.place" class="input" type="text" required placeholder="場所">
+									</div>
+
+									<div class="field">
+										<label class="label">詳細</label>
+										<textarea class="textarea" v-model="item.description" placeholder="add multiple lines 説明文を入れてください。"></textarea>
+									</div>
+
+					<div class="field is-grouped">
+				  	<div class="control has-text-right">
+					  	<input class="button is-primary" type="submit" value="更新">
+					  </div>
+					</div>
+
+					</div>
+				</div>
+			</article>
+		</form>
+	</script>
+
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="restapi.js"></script>
 	<script src="script.js"></script>
 </body>
 </html>

@@ -1,5 +1,6 @@
 var Router = require('express').Router;
 const passport = require('passport');
+const restapi = require('./restapi');
 
 var rest = {};
 
@@ -14,8 +15,10 @@ var rest = {};
  */
 rest.toRes = function (res, status=200) {
 	return (err, thing) => {
-		if (err) return res.status(500).send(err);
-
+		if (err) {
+			console.log("err:", err);
+			return res.status(500).send(err);
+		}
 		if (thing && typeof thing.toObject==='function') {
 			thing = thing.toObject();
 		}
@@ -35,7 +38,7 @@ rest.addRoutes = function(params) {
 
 	for (let item of params) {
 
-		if (item[3]) { // もしも、セキュリティが必要なら
+		if (item[3] !== restapi.role.public) { // role もしも、セキュリティが必要なら
 			router[item[1]](item[0], passport.authenticate(['jwt'], { session: false }), item[2]);
 		} else {
 			router[item[1]](item[0], item[2]);

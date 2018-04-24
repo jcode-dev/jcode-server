@@ -25,28 +25,23 @@
 
 	<div id="app">
 
-		<form onsubmit="return submit11();">
+		<form onsubmit="return sign_in();">
 				<article class="message is-primary">
 					<div class="content">
 						<div class="message-header">
-							サインイン
+							会員専用画面に入る（サインイン）
 						</div>
 						<div class="message-body">
 
-							<p>
-							まだ会員登録しておらず、メールアドレスとパスワードが登録されていない場合は、「次へ」をクリックしてください。
-							</p>
 							<div class="field is-grouped">
 						  	<div class="control has-text-right">
-							  	<a class="button is-primary" href="{{nexturl}}">次へ</a>
+									<input name="first_check" type="checkbox">まだメールアドレスとパスワードは登録されていません。
 							  </div>
 							</div>
-							<P>次の画面で、会員登録用のメールアドレスが必要になります。<br />
-							自分のメールアドレスを持っていない人は、保護者や先生に、かわりに登録してもらってください。</P>
+							<p><small>
+							まだ会員登録したおらず、はじめてメールアドレスとパスワードを登録する場合は、チェックしてください。
+							</small></p>
 
-							<p>
-							会員登録していて、メールアドレスとパスワードを使ってサインインする場合は、「サインイン」をクリックしてください。
-							</p>
 							<div class="field">
 							  <label class="label">メールアドレス</label>
 							  <div class="control has-icons-left">
@@ -57,64 +52,160 @@
 							  </div>
 							</div>
 
+							<div class="first" style="display: none">
+								<div class="field">
+									<label class="label">なまえ</label>
+									<input name="name" type="text" id="name">
+								</div>
+							</div>
+							<p></p>
+
 							<div class="field">
 								<label class="label">パスワード</label>
 								<input name="password" type="password" required id="password">
 							</div>
 							<p id="errormessage"></p>
 
-							<div class="field is-grouped">
-						  	<div class="control has-text-right">
+							<div class="first" style="display: none">
+								<div class="field">
+									<label class="label">パスワード（同じものを、もういちど）</label>
+									<input name="password2" type="password" id="password2">
+								</div>
+							</div>
+							<p></p>
+
+							<div class="field">
+						  	<div class="control">
 							  	<input class="button is-primary" value="サインイン" type="submit">
 							  </div>
 							</div>
+
+							<P>
+							登録されていても<button id="forget_button">パスワードが分からない場合はここをクリック</button>してください。パスワードをメールします。
+							</P>
+
+							<P>
+							※自分のメールアドレスを持っていない人は、会員登録できません。保護者や先生に、かわりに登録してもらってください。
+							</P>
 
 						</div>
 					</div>
 				</article>
 		</form>
 
+
+	<div class="modal" id="forget">
+	  <div class="modal-background"></div>
+	  <div class="modal-content">
+	    <!-- Any other Bulma elements you want -->
+				<form onsubmit="return send_mail();">
+						<article class="message is-primary">
+							<div class="content">
+								<div class="message-header">
+									パスワードをリセットして、メールを送る
+								</div>
+								<div class="message-body">
+
+									<div class="field">
+									  <label class="label">メールアドレス</label>
+									  <div class="control has-icons-left">
+											<input name="email" class="input" type="email" required  placeholder="someone@j-code.org" id="email2">
+											<span class="icon is-small is-left">
+												<i class="fas fa-envelope"></i>
+											</span>
+									  </div>
+									</div>
+
+									<div class="field">
+								  	<div class="control">
+									  	<input class="button is-primary" value="メール送信" type="submit">
+									  </div>
+									</div>
+
+								</div>
+							</div>
+						</article>
+				</form>
+	  </div>
+	  <button class="modal-close is-large" aria-label="close" id="forget_close"></button>
 	</div>
 
-	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-	<script>
-		const url = location.protocol+"//"+location.host+"/api/";
-		// axios with token
-		const axiosToken = axios.create({ baseURL: url });
-		axiosToken.interceptors.request.use((config) => {
-			var token = localStorage.getItem('token');
-		  if (token) {  
-		    config.headers.Authorization = `Bearer ${token}`
-		    return config
-		  }
-		  return config
-		}, function (error) {
-		  return Promise.reject(error)
-		});
 
-		function submit11() {
-			
-			;
-			
-			var user = {email: document.getElementById('email').value
-			, password:document.getElementById('password').value};
-			axios.post(url+"user/signin", user).then((response) => {
-				console.log("サインインに成功しました:", response);
+
+	</div>
+
+
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script>
+		var $check_box = $('input[name="first_check"]');
+		var $email = $('#email');
+		var $name = $('#name');
+		var $password1 = $('#password');
+		var $password2 = $('#password2');
+		var $errormsg = $('#errormessage');
+	
+		$check_box.change(function() {
+			if ($check_box.prop('checked')) {
+				$('.first').show();
+			} else {
+				$('.first').hide();
+			}
+		});
+		
+		function sign_in_user() {
+			var user = { email: $email.val(), password: $password1.val(), name: $name.val() };
+			axios.post(location.protocol+"//"+location.host+"/api/user/signin", user).then((response) => {
 				var user = response.data;
-				console.log(user);
 				localStorage.setItem('token',user);
-				var href = "{{{nexturl}}}";
-				console.log("サインインにリダイレクトした:", href);
-				location.href = href;
+				location.href = "{{{nexturl}}}"; // リダイレクト
 
 			}).catch((error) => {
-				console.log("サインインに失敗しました:",error);
-				document.getElementById('errormessage').innerHTML = "サインインに失敗しました";
+				console.log("err:", error.response);
+				$errormsg.text(error.response.data);
+				localStorage.removeItem('token');
 			});
+		}
 
+		function sign_in() {
+			if ($check_box.prop('checked')) {
+				if ($password1.val() === $password2.val()) {
+					// 新しいアカウントを作成
+					var user = { email: $email.val(), password: $password1.val(), name: $name.val() };
+					axios.post(location.protocol+"//"+location.host+"/api/user/signup", user).then((response) => {
+						sign_in_user();
+					}).catch((error) => {
+						console.log("err:", error.response);
+						$errormsg.text(error.response.data);
+						localStorage.removeItem('token');
+					});
+				} else {
+					$errormsg.text("エラー：2つのパスワードが異なります。同じものを2回入れてください。");
+				}
+			} else {
+				sign_in_user();
+			}
 			return false;
 		}
 
+		$("#forget_button").click(function() {
+				$('#forget').addClass('is-active');
+		});
+
+		$("#forget_close").click(function() {
+				$('#forget').removeClass('is-active');
+		});
+
+		function send_mail() {
+			console.log("mail");
+			var user = { email: $("#email2").val(), password: {{secret}} };
+			axios.post(location.protocol+"//"+location.host+"/api/user/reset", user).then((response) => {
+				$errormsg.text("メールのパスワードを使ってサインインしてください。メールの送信には数分かかることがあります。迷惑メールになっていないかご確認ください。");
+				$('#forget').removeClass('is-active');
+			})
+
+			return false;
+		}
 	</script>
 </body>
 </html>

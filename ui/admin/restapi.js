@@ -3,8 +3,10 @@
 var restapi = {};
 
 restapi.base_url = location.protocol+"//"+location.host+"/api/";
-// axios with token
+
 restapi.axios = axios.create({ baseURL: restapi.base_url });
+
+// axios with token
 restapi.axios.interceptors.request.use((config) => {
 	var token = localStorage.getItem('token');
   if (token) {  

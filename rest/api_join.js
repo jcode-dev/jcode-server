@@ -1,9 +1,8 @@
 /*
-	doc
+	join
 */
 
-const model =require('../models/doc');
-const toRes = require('./resource-router').toRes;
+const model =require('../models/join');
 const addRoutes = require('./resource-router').addRoutes;
 const restapi =require('./restapi');
 

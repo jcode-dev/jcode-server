@@ -10,31 +10,29 @@ var User = Doc.discriminator('User',
 	new Schema({
 		password: String,	// サインイン・パスワード
 		email:String,		// email
-		member_id: Number,	// 会員番号
 		role: String, //セキュリティ名 ['GUEST', 'USER', 'ADMIN', 'ROOT']
 	}));
 
-// Auto Increment Membership ID
+// スキーマ毎に連番を振る
 User.schema.pre('save', function(next) {
 	var user = this;
 
-	if (user.member_id) {
+	if (user.number) {
 		return next();
 	}
-	User.find().sort({'member_id':-1}).exec(function(err,data){
+	User.find().sort({'number':-1}).exec(function(err,data){
 		console.log('number',data[0]);
-		if (data[0] && data[0].member_id) {
-			user.member_id = data[0].member_id+1;
-			//console.log('member_id1:',user.member_id);
+		if (data[0] && data[0].number) {
+			user.number = data[0].number+1;
 		} else {
-			user.member_id = 1000;
+			user.number = 1000;
 			user.role = 'ROOT';
-			//console.log('member_id2:',user.member_id);
 		}
 		return next();
 	});
 });
 
+// パスワードは暗号化する
 User.schema.pre('save', function(next) {
 	var user = this;
 

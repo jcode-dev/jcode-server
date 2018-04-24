@@ -12,6 +12,7 @@ router.all('*', function(req, res, next) {
 	go.successRedirect = nexturl;
   res.render('../ui/signin/index.html',{
 		nexturl:nexturl,
+		secret:"7878",
   });
 });
 

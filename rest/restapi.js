@@ -1,7 +1,23 @@
 'use strict';
 const passport = require('passport');
-const toRes = require('./resource-router').toRes;
 const addRoutes = require('./resource-router').addRoutes;
+
+var toRes = function (res, status=200) {
+	return (err, thing) => {
+		if (err) {
+			console.log("err:", err);
+			return res.status(500).send(err);
+		}
+		if (thing && typeof thing.toObject==='function') {
+			thing = thing.toObject();
+		}
+    res.set('X-Total-Count', 50);
+    res.set('Access-Control-Expose-Headers', 'X-Total-Count');
+    
+		res.status(status).send(thing);
+
+	};
+}
 
 var restapi = {};
 
@@ -20,6 +36,7 @@ restapi.find = function(model) {
 				lean : true
 			}, toRes(res));
 		}
+		console.log("toRes",toRes);
 		model.find({}).skip(params.start|0 || 0).limit(limit).exec(toRes(res));
 	}];
 }
@@ -67,13 +84,12 @@ restapi.remove = function(model) {
 		},true];
 }
 
-exports = module.exports = function(id, model){
-	return addRoutes([
-		restapi.find(model),
-		restapi.schema(model),
-		restapi.create(model),
-		restapi.read(model),
-		restapi.update(model),
-		restapi.remove(model),
-	]);
-}
+restapi.role = {
+	public: 'PUBLIC',
+	guest:  'GUEST',
+	user:   'USER',
+	admin:  'ADMIN',
+	root:   'ROOT',
+};
+
+exports = module.exports = restapi;

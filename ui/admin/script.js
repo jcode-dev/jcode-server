@@ -11,6 +11,11 @@ var itemcomp = {
 			console.log(this.item);
 			this.$emit('edit_item', this.item);
 		},
+		edit_click22: function(event) {
+			// update if not canceled
+			console.log(this.item);
+			this.$emit('edit_item22', this.item);
+		},
 		delete_click: function(event) {
 			// update if not canceled
 			console.log(this.item);
@@ -33,6 +38,41 @@ Vue.component('home-component', {
 	},
 });
 
+Vue.component('doc-component', {
+  template: '#template-doc',
+	props: [
+		'item',
+	],
+	methods: {
+		child_form_submit: function(event) {
+			// update if not canceled
+			console.log("submit_from_child", this.item._id);
+			this.$emit('submit_from_child', this.item);
+		},
+	},
+});
+
+Vue.component('address-component', {
+  template: '#template-address',
+	props: [
+		'item',
+	],
+	methods: {
+		child_form_submit: function(event) {
+			// update if not canceled
+			console.log("submit_from_child", this.item._id);
+			this.$emit('submit_from_child', this.item);
+		},
+		change_zip: function(event) {
+			console.log("joiiojoij",this.item.zipcode);
+			axios.get("http://zipcloud.ibsnet.co.jp/api/search?zipcode="+this.item.zipcode).then((response) => {
+				this.item.address1 = response.results.address1;
+				console.log("zipcode:", response);
+			});
+		}
+	},
+});
+
 Vue.component('event-component', {
   template: '#template-event',
 	props: [
@@ -47,6 +87,12 @@ Vue.component('event-component', {
 	},
 });
 
+const showerror = function(error) {
+	console.log("error:",error);
+	console.log("error:",error.response.data);
+	document.getElementById("errormsg").innerHTML = error.response.data;
+}
+
 const app = new Vue({
 	el: '#app',
 	components: {
@@ -56,12 +102,13 @@ const app = new Vue({
 	data: {
 		items: [],
 		item:{},
-		selected:'reviews',
+		selected:'doc',
 		selectedComponent: 'event-component',
 		user:{},
 	},
 	mounted: function() {
 		this.whoami();
+		this.get_items();
 	},
 	computed: {
 		url: function() {return this.selected + "/";},
@@ -69,18 +116,26 @@ const app = new Vue({
 	methods: {
 		// ログイン情報
 		whoami: function() {
+			var that = this;
 			restapi.get("user/whoami/").then((response) => {
-				this.user = response.data;
+				that.user = response.data;
 				console.log("contact:", response);
+			}).catch(function(err){
+				that.user = null;
+				showerror(err);
 			});
 		},
 		// 一覧表示
 		get_items: function() {
+			var that = this;
 			console.log("find:", this.selected );
 			console.log("find:", this.url );
 			restapi.get(this.url + '').then((response) => {
-				this.items = response.data;
+				that.items = response.data;
 				console.log("contact:", response);
+			}).catch(function(err){
+				that.items = [];
+				showerror(err);
 			});
 		},
 		// item 編集
@@ -88,6 +143,10 @@ const app = new Vue({
 
 			if (item.__t === 'Event') {
 				this.selectedComponent = 'event-component';
+			} else if (! item.__t) {
+				this.selectedComponent = 'doc-component';
+			} else if (item.__t === 'Address') {
+				this.selectedComponent = 'address-component';
 			} else {
 				this.selectedComponent = 'home-component';
 			}
@@ -95,6 +154,20 @@ const app = new Vue({
 			restapi.get(this.url + item._id).then((response) => {
 				this.item = response.data;
 				console.log("item:", response);
+			});
+		},
+		edit_item22: function(item) {
+			this.selectedComponent = 'home-component';
+			restapi.get(this.url + item._id).then((response) => {
+				this.item = response.data;
+			});
+		},
+		// 削除
+		delete_item: function(item) {
+			console.log("delete:", item);
+			restapi.delete(this.url + item._id).then((response) => {
+				console.log("item:", response);
+				this.get_items(); // 一覧表示
 			});
 		},
 		// item 新規作成
@@ -141,14 +214,6 @@ const app = new Vue({
 					this.get_items(); // 一覧表示
 				});
 			}
-		},
-		// 削除
-		delete_item: function(item) {
-			console.log("delete:", item);
-			restapi.delete(this.url + item._id).then((response) => {
-				console.log("item:", response);
-				this.get_items(); // 一覧表示
-			});
 		},
 
 	}

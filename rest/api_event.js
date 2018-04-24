@@ -1,24 +1,18 @@
 /*
-list:		GET /resources
-create:	POST /resources
-read:		GET /resources/:id
-update:	PUT /resources/:id
-delete:	DELETE /resources/:id
-
-
-Filter
-=		filed = value
-start		âΩî‘ñ⁄Ç©ÇÁ
-limit		ç≈ëÂêî
-
-sort		sort=[field] or sort=-[field]
-
+	event
 */
 
-var restfull = require('./restfull');
-const model =require('../models/event'); // event model
+const model =require('../models/event');
+const toRes = require('./resource-router').toRes;
+const addRoutes = require('./resource-router').addRoutes;
+const restapi =require('./restapi');
 
 // create and export a Router, mount it anywhere via .use()
-var router = restfull('_id', model);
-
-exports = module.exports = router;
+exports = module.exports = addRoutes([
+	restapi.find(model),
+	restapi.schema(model),
+	restapi.create(model),
+	restapi.read(model),
+	restapi.update(model),
+	restapi.remove(model),
+]);

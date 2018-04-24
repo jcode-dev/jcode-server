@@ -23,8 +23,9 @@
 		<div class="tile is-ancestor">
 			<div class="tile is-parent">
 				<div class="tile is-child box">
-			_id: {{user._id}}, name: {{user.name}}, email: {{user.email}}, member_id: {{user.member_id}},
-
+					こんにちは、{{user.name}} さん。プログラミング教育研究所へようこそ。
+						<p id="errormsg">
+						</p>
 				</div>
 			</div>
 		</div>
@@ -39,14 +40,12 @@
 							<div class="message-header">
 
 								<select v-model="selected" @change="get_items">
-									<option disabled value="">Please select one</option>
-									<option>event</option>
-									<option>doc</option>
-									<option>address</option>
-									<option>user</option>
+									<option value="doc" selected>すべて</option>
+									<option value="event">予定</option>
+									<option value="address">連絡先</option>
+									<option value="user">子ども</option>
 								</select>
-								<span>Selected: {{ selected }}</span>
-								<button class="button" v-on:click.prevent="get_items">一覧表示</button>
+								<span>＜＝きりかえ 現在：{{ selected }}</span>
 
 							</div>
 							<div class="message-body">
@@ -58,7 +57,7 @@
 
 								<table class="table">
 									<tbody>
-										<itemcomp v-for="item in items" :item="item" v-on:edit_item="edit_item" v-on:delete_item="delete_item" ></itemcomp>
+										<itemcomp v-for="item in items" :item="item" v-on:edit_item="edit_item" v-on:edit_item22="edit_item22" v-on:delete_item="delete_item" ></itemcomp>
 									</tbody>
 								</table>
 							</div>
@@ -95,6 +94,7 @@
 			</td>
 			<td>
 				<button class="button" v-on:click.prevent="edit_click">編集</button>
+				<button class="button" v-on:click.prevent="edit_click22">編集2</button>
 				<button class="button" v-on:click.prevent="delete_click">削除</button>
 			</td>
 		</tr>
@@ -128,6 +128,83 @@
 		</form>
 	</script>
 
+	<script id="template-doc" type="text/x-template">
+		<form v-on:submit.prevent="child_form_submit">
+			<article class="message is-primary">
+				<div class="content">
+					<div class="message-header">
+						ドキュメント
+					</div>
+					<div class="message-body">
+
+						<div class="field">
+							<label class="label">名前</label>
+							<input v-model="item.name" class="input" type="text" required>
+						</div>
+
+						<div class="field is-grouped">
+					  	<div class="control has-text-right">
+						  	<input class="button is-primary" type="submit" value="更新">
+						  </div>
+						</div>
+
+					</div>
+				</div>
+			</article>
+		</form>
+	</script>
+
+	<script id="template-address" type="text/x-template">
+		<form v-on:submit.prevent="child_form_submit">
+			<article class="message is-primary">
+				<div class="content">
+					<div class="message-header">
+						住所と連絡先
+					</div>
+					<div class="message-body">
+
+						<div class="field">
+							<label class="label">ふりがな</label>
+							<input v-model="item.furigana" class="input" type="text" required>
+						</div>
+
+						<div class="field">
+							<label class="label">名前</label>
+							<input v-model="item.name" class="input" type="text" required>
+						</div>
+
+						<div class="field">
+							<label class="label">郵便番号</label>
+							<input v-model="item.zipcode" class="input" type="text" required v-on:change="change_zip();">
+						</div>
+
+						<div class="field">
+							<label class="label">住所1</label>
+							<input v-model="item.address1" class="input" type="text" required>
+						</div>
+
+						<div class="field">
+							<label class="label">住所2</label>
+							<input v-model="item.address2" class="input" type="text" required>
+						</div>
+
+						<div class="field">
+							<label class="label">電話番号</label>
+							<input v-model="item.tel" class="input" type="text" required>
+						</div>
+
+						<div class="field is-grouped">
+					  	<div class="control has-text-right">
+						  	<input class="button is-primary" type="submit" value="更新">
+						  </div>
+						</div>
+
+					</div>
+				</div>
+			</article>
+		</form>
+	</script>
+
 	<script id="template-event" type="text/x-template">
 		<form v-on:submit.prevent="child_form_submit">
 			<article class="message is-primary">
@@ -137,53 +214,53 @@
 					</div>
 					<div class="message-body">
 
-									<div class="field">
-										<label class="label">イベントid</label>
-										<input v-model="item._id" class="input" type="text" readonly>
-									</div>
+						<div class="field">
+							<label class="label">イベントid</label>
+							<input v-model="item._id" class="input" type="text" readonly>
+						</div>
 
-									<div class="field">
-										<label class="label">イベント名</label>
-										<input v-model="item.name" class="input" type="text" required placeholder="イベント名称">
-									</div>
+						<div class="field">
+							<label class="label">イベント名</label>
+							<input v-model="item.name" class="input" type="text" required placeholder="イベント名称">
+						</div>
 
-{{startDatetime}}
-									<div class="field">
-										<label class="label">開始日付</label>
-										<input v-model="item.startDate" class="input" type="date" required placeholder="開始日時">
-									</div>
+	{{startDatetime}}
+						<div class="field">
+							<label class="label">開始日付</label>
+							<input v-model="item.startDate" class="input" type="date" required placeholder="開始日時">
+						</div>
 
-									<div class="field">
-										<label class="label">開始時間</label>
-										<input v-model="item.startTime" class="input" type="time" required placeholder="終了日時">
-									</div>
+						<div class="field">
+							<label class="label">開始時間</label>
+							<input v-model="item.startTime" class="input" type="time" required placeholder="終了日時">
+						</div>
 
-									<div class="field">
-										<label class="label">終了日付</label>
-{{endDatetime}}
-										<input v-model="item.endDate" class="input" type="date" required placeholder="開始日時">
-									</div>
+						<div class="field">
+							<label class="label">終了日付</label>
+	{{endDatetime}}
+							<input v-model="item.endDate" class="input" type="date" required placeholder="開始日時">
+						</div>
 
-									<div class="field">
-										<label class="label">終了時間</label>
-										<input v-model="item.endTime" class="input" type="time" required placeholder="終了日時">
-									</div>
+						<div class="field">
+							<label class="label">終了時間</label>
+							<input v-model="item.endTime" class="input" type="time" required placeholder="終了日時">
+						</div>
 
-									<div class="field">
-										<label class="label">場所</label>
-										<input v-model="item.place" class="input" type="text" required placeholder="場所">
-									</div>
+						<div class="field">
+							<label class="label">場所</label>
+							<input v-model="item.place" class="input" type="text" required placeholder="場所">
+						</div>
 
-									<div class="field">
-										<label class="label">詳細</label>
-										<textarea class="textarea" v-model="item.description" placeholder="add multiple lines 説明文を入れてください。"></textarea>
-									</div>
+						<div class="field">
+							<label class="label">詳細</label>
+							<textarea class="textarea" v-model="item.description" placeholder="add multiple lines 説明文を入れてください。"></textarea>
+						</div>
 
-					<div class="field is-grouped">
-				  	<div class="control has-text-right">
-					  	<input class="button is-primary" type="submit" value="更新">
-					  </div>
-					</div>
+						<div class="field is-grouped">
+					  	<div class="control has-text-right">
+						  	<input class="button is-primary" type="submit" value="更新">
+						  </div>
+						</div>
 
 					</div>
 				</div>
@@ -195,5 +272,6 @@
 	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 	<script src="restapi.js"></script>
 	<script src="script.js"></script>
+
 </body>
 </html>

@@ -10,10 +10,9 @@ var bCrypt = require('bcrypt-nodejs');
 const toRes = require('./resource-router').toRes;
 const addRoutes = require('./resource-router').addRoutes;
 
-const sendEmail = require('./email/email');
-
-const mailFooter = "ご不明な点がありましたら、以下までお問合せください。\n（このメールには、返信しないでください。）\n＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝\nNPO法人プログラミング教育研究所\nnpo@j-code.org\nHTTP://J-CODE.ORG\n";
-
+const mailer =require('./email/mailer');
+const path = require('path');
+const restapi =require('./restapi');
 
 // Generate an Access Token for the given User ID
 function generateAccessToken(userId) {
@@ -47,133 +46,95 @@ var isValidPassword = function(password, hash){
 
 const secretNumber = '7878';
 
-exports = module.exports = (function(model){
-	return addRoutes([
-		// 一覧
-		['/', 'get', function(req, res) {
-			var params = req.params;
-			var body = req.body;
-			console.log("get user:", params);
-			model.find({}).exec(toRes(res));
-		},true],
-		// ログイン情報
-		['/whoami', 'get', function(req, res) {
-			console.log("login user!!:", req.user);
-			var user = null;
-			if (req.user) {
-				user = {
-					_id: req.user.id,
-					name: req.user.name,
-					email: req.user.email,
-					member_id: req.user.member_id,
-					role: req.user.role,
-					title: req.user.title,
-				}
+exports = module.exports = addRoutes([
+
+	// ログイン情報
+	['/whoami', 'get', function(req, res) {
+		console.log("WHO AM I !!:", req.user);
+		var user = null;
+		if (req.user) {
+			user = {
+				_id: req.user.id,
+				name: req.user.name,
+				email: req.user.email,
+				member_id: req.user.member_id,
+				role: req.user.role,
+				title: req.user.title,
 			}
-			res.status(200).send(user);
-		},true],
-		// スキーマ
-		['/schema', 'get', function(req, res) {
-			console.dir(model.schema.paths);
-			res.status(200).send(model.schema.paths);
-		},true],
-		// 子どもの一覧
-		['/children', 'get', function(req, res) {
-			console.log("children:", req.user);
-			if (req.user) {
-				model.find({ownerId: req.user._id}).exec(toRes(res));
+		}
+		res.status(200).send(user);
+	},true],
+	// 子どもの一覧
+	['/children', 'get', function(req, res) {
+		console.log("children:", req.user);
+		if (req.user) {
+			model.find({ownerId: req.user._id}).exec(toRes(res));
+		}
+	},true],
+	// パスワードリセットして、確認用メールを送信(公開API)
+	['/reset', 'post', function(req, res) {
+		var email = req.body.email;
+		model.find({ email: email }, function(err, result) {
+			console.log("reset:",result);
+			//if (err || !result || result.length != 1 || req.body.password != "7878") {
+			if (err || !result || result.length != 1 || req.body.password != 7878) {
+				 return res.status(401).send("エラー：このメールアドレスには送信できません。");
 			}
-		},true],
-		['/:_id/', 'get', function(req, res) {
-			var params = req.params;
-			console.log("get jwt:", params);
-			model.findById(params._id, toRes(res));
-		}],
-
-		// メールアドレス確認用メールを送信
-		['/sendemail', 'post', function(req, res) {
-			var email = req.body.email;
-			model.find({ email: email }, function(err, result) {
-				console.log("result:",err, result);
-				if (err) throw err;
-				if (result && result.length) { // データがある
-					return res.status(400).send("すでにメールがあるみたい");
-				} else {
-					sendEmail(req.body.email, 'プログラミング教育研究所からの確認メール', "ご登録ありがとうございます。\n以下の番号を入力してください。\n\n秘密の番号： 7878\n\nこのメールは、プログラミング教育研究所のホームページで、会員登録を行おうとしている人に送られます。\n" + mailFooter );
-					res.status(200).send("OK");
-				}
+			var id = result[0]._id;
+			var password = "78" + Math.ceil(Math.random()*10000);
+			mailer(email, 'パスワードリセットのお知らせ',
+			 path.join(__dirname, "./resetpass.txt"), {subject:'パスワードリセットのお知らせ', password: password});
+			 model.findById(id, function (err, user) {
+			  if (err) return res.status(401).send("エラー");
+			  user.set({ password: password });
+			  user.save(function (err, updatedUser) {
+			    if (err) return res.status(401).send("エラー");
+			    res.status(200).send("OK");
+			  });
 			});
-		}],
-		// 会員登録
-		['/signup', 'post', function(req, res) {
-			console.log("signup:", req.body);
+		});
+	}, restapi.role.public],
+	// 会員登録(公開API)
+	['/signup', 'post', function(req, res) {
+		console.log("signup:", req.body);
 
-			model.count({ email: req.body.email }, function (err, count){ 
-				if(count>0){
-					return res.status(501).send("エラー"); //document exists });
-				}
-				if (req.body.number === secretNumber) {
-					console.log("new user!");
-					var newUser = new model();
-					newUser.email = req.body.email;
-					newUser.name = req.body.name;
-					newUser.password = req.body.password;
-					newUser.role = req.body.password || 'VOLUNTEER';
-					newUser.save(function(err){
-						console.log("err:", err);
-						res.status(200).send(newUser);
-					});
-				} else {
-					//model.findOne({}).exec(toRes(res));
-					res.status(501).send("エラー");
-					//toRes(res);
-					//model.create(req.body, toRes(res));
-				}
-			}); 
-		}],
-		// サインイン
-		['/signin', 'post', function(req, res) {
-			console.log("signin:", req.body);
-
-			var email = req.body.email;
-			var password = req.body.password;
-			model.findOne({ email: email }).exec(function(err, result) {
-			
-				console.log("signin:", result);
-				if (err || !result || !isValidPassword(password, result.password)) {
-					return res.status(501).send("エラー");
-				}
-				var token = generateAccessToken(result._id);
-				res.status(200).send(token);
+		model.count({ email: req.body.email }, function (err, count){ 
+			if(count>0){
+				return res.status(401).send("エラー：このメールアドレスは既に登録されている可能性があります。");
+			}
+			console.log("new user!");
+			var newUser = new model();
+			newUser.email = req.body.email;
+			newUser.name = req.body.name;
+			newUser.password = req.body.password;
+			newUser.role = 'GUEST';
+			newUser.save(function(err){
+				console.log("err:", err);
+				res.status(200).send(newUser);
 			});
-		}],
+		}); 
+	}, restapi.role.public],
+	// サインイン(公開API)
+	['/signin', 'post', function(req, res) {
+		console.log("signin:", req.body);
 
-		['/', 'post', function(req, res) {
-			console.log("create:", req.body);
-			var params = req.params;
-			var body = req.body;
-			
-			//email('koichii@live.jp', 'テストです', 'これはテストですよ');
+		var email = req.body.email;
+		var password = req.body.password;
+		model.findOne({ email: email }).exec(function(err, result) {
+		
+			console.log("signin:", result);
+			if (err || !result || !isValidPassword(password, result.password)) {
+				return res.status(401).send("エラー：メールアドレスとパスワードが異なる可能性があります。");
+			}
+			var token = generateAccessToken(result._id);
+			res.status(200).send(token);
+		});
+	}, restapi.role.public],
+	restapi.find(model),
+	restapi.schema(model),
+	restapi.create(model),
+	restapi.read(model),
+	restapi.update(model),
+	restapi.remove(model),
 
-			res.status(501).send("エラー");
-			//toRes(res);
-			//model.create(req.body, toRes(res));
-		}],
-		// update
-		['/:_id/', 'post', function(req, res) {
-			var id = req.params['_id'];
-			var body = req.body;
-			delete body._id;
-			console.log("update:", model.modelName, id, body);
-			model.findByIdAndUpdate(id, { $set:body }, toRes(res));
-		}],
-		// delete
-		['/:_id/', 'delete', function(req, res) {
-			var params = req.params;
-			console.log("delete:",params);
-			model.findByIdAndRemove(params._id, toRes(res));
-		},true],
-
-	]);
-})(model);
-
+]);

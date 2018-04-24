@@ -28,7 +28,6 @@ exports = module.exports = function (to, subject, template, vars) {
 	fs.readFile(template, function (err, data) {
 		console.log("mailer1:", __dirname);
 		console.log("mailer2:", err);
-		console.log("mailer3:", data);
 	  if (err) return;
 	  var output = mustache.render(data.toString(), vars);
 		let msg = {

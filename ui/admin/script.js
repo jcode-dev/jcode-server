@@ -28,6 +28,7 @@ Vue.component('home-component', {
   template: '#template-home',
 	props: [
 		'item',
+		'local',
 	],
 	methods: {
 		child_form_submit: function(event) {
@@ -105,6 +106,7 @@ const app = new Vue({
 		selected:'doc',
 		selectedComponent: 'event-component',
 		user:{},
+		local: restapi.local,
 	},
 	mounted: function() {
 		this.whoami();

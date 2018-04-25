@@ -47,18 +47,32 @@
 								</select>
 								<span>＜＝きりかえ 現在：{{ selected }}</span>
 
+						  	<div class="control">
+							  	<input class="button is-primary" v-on:click.prevent="create_item" value="新規作成">
+							  </div>
+
+
 							</div>
 							<div class="message-body">
 
 
-						  	<div class="control has-text-right">
-							  	<input class="button is-primary" v-on:click.prevent="create_item" value="新規作成">
-							  </div>
 
-								<table class="table">
+								<table class="table is-striped">
 									<tbody>
-										<itemcomp v-for="item in items" :item="item" v-on:edit_item="edit_item" v-on:edit_item22="edit_item22" v-on:delete_item="delete_item" ></itemcomp>
+										<tr v-for="item in items">
+											<td>
+											<span v-html="local[item.__t]"></span>
+											</td>
+											<td v-on:click.prevent="edit_item(item)">
+												{{item.name}}
+											</td>
+											<td>
+												<button class="button" v-on:click.prevent="delete_item(item)"><i class="far fa-trash-alt"></i></button>
+											</td>
+										</tr>
 									</tbody>
+
+
 								</table>
 							</div>
 						</div>
@@ -70,7 +84,7 @@
 			<div class="tile is-parent">
 				<div class="tile is-child box">
 
-					<component v-bind:is="selectedComponent" :item="item" v-on:submit_from_child="child_form_submit">
+					<component v-bind:is="selectedComponent" :item="item" :local="local" v-on:submit_from_child="child_form_submit">
 					</component>
 
 				</div>
@@ -78,24 +92,27 @@
 		</div>
 
 	</div>
-	
-	<script id="template-task-item" type="text/x-template">
-		<tr>
+
+	<script id="template-temp" type="text/x-template">
 			<td>
 				<label class="checkbox">
 					<input v-model="item.finished" type="checkbox">
 				</label>
 			</td>
+				<button class="button" v-on:click.prevent="edit_click22">編集2</button>
+	</script>
+
+	<script id="template-task-item" type="text/x-template">
+		<tr>
 			<td>
-				{{item.name}}
+				<i class="fal fa-bullseye"></i>
+			</td>
+			<td>
+				<button class="button" v-on:click.prevent="edit_click">{{item.name}}</button>
 			</td>
 			<td>
 				{{item.__t}}
-			</td>
-			<td>
-				<button class="button" v-on:click.prevent="edit_click">編集</button>
-				<button class="button" v-on:click.prevent="edit_click22">編集2</button>
-				<button class="button" v-on:click.prevent="delete_click">削除</button>
+				<button class="button" v-on:click.prevent="delete_click"><i class="far fa-trash-alt"></i></button>
 			</td>
 		</tr>
 	</script>
@@ -111,7 +128,7 @@
 
 						<template v-for="(value, key) in item">
 							<div class="field">
-								<label class="label">{{ key }}</label>
+								<label class="label">{{ local[key] || key }}</label>
 								<input v-model="item[key]" class="input" type="text">
 							</div>
 						</template>

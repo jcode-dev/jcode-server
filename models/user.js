@@ -21,7 +21,7 @@ User.schema.pre('save', function(next) {
 		return next();
 	}
 	User.find().sort({'number':-1}).exec(function(err,data){
-		console.log('number',data[0]);
+		//console.log('number',data[0]);
 		if (data[0] && data[0].number) {
 			user.number = data[0].number+1;
 		} else {

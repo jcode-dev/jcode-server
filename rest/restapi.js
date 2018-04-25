@@ -110,7 +110,12 @@ restapi.create = function(model, schema = null) {
 restapi.read = function(model, schema = null) {
 	return ['/:_id/', 'get', function(req, res) {
 		console.log(schema);
-		model.findById(req.params['_id'], schema).exec(toRes(res));
+		if (isRoot(req.user)) {
+			model.findById(req.params['_id']).exec(toRes(res));
+		} else {
+			console.log("user read:",schema);
+			model.findOne({_id: req.params['_id'], ownerId: req.user._id}, schema).exec(toRes(res));
+		}
 	}, false];
 }
 
@@ -122,7 +127,11 @@ restapi.update = function(model) {
 		delete body.updatedAt;
 		delete body.createdAt;
 		console.log("update:", model.modelName, id, body);
-		model.findByIdAndUpdate(id, { $set:body }, toRes(res));
+		if (isRoot(req.user)) {
+			model.findByIdAndUpdate(id, { $set:body }, toRes(res));
+		} else {
+			model.findOneAndUpdate({_id: req.params['_id'], ownerId: req.user._id}, { $set:body }, toRes(res));
+		}
 	}];
 }
 
@@ -130,7 +139,11 @@ restapi.remove = function(model) {
 	return ['/:_id/', 'delete', function(req, res) {
 			var id = req.params['_id'];
 			console.log("delete:", model.modelName, id);
-			model.findByIdAndRemove(id, toRes(res));
+			if (isRoot(req.user)) {
+				model.findByIdAndRemove(id, toRes(res));
+			} else {
+				model.findOneAndRemove({_id: req.params['_id'], ownerId: req.user._id}, toRes(res));
+			}
 		},true];
 }
 
@@ -145,7 +158,7 @@ restapi.role = {
 	// ユーザー拡張
 
 // ログイン情報
-restapi.whoami = function(model) {
+restapi.whoami = function(model, schema = null) {
 	return ['/whoami', 'get', function(req, res) {
 		console.log("who am I ?:", req.user);
 		var user = null;
@@ -196,6 +209,22 @@ restapi.reset = function(model) {
 		});
 	}, restapi.role.public];
 }
+// パスワード変更
+restapi.update = function(model) {
+	return ['/password', 'post', function(req, res) {
+		console.log("password:", req.body);
+
+		model.findById(req.user._id, function (err, user) {
+			if (err) return res.status(401).send("エラー");
+			user.set({ password: req.body.password });
+			user.save(function (err, updatedUser) {
+			  if (err) return res.status(401).send("エラー");
+			  res.status(200).send("OK");
+			});
+		});
+	}];
+}
+
 // ユーザー登録(公開API)
 restapi.signup = function(model) {
 	return ['/signup', 'post', function(req, res) {

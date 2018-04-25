@@ -7,7 +7,7 @@ const model =require('../models/user'); // User model
 const addRoutes = require('./resource-router').addRoutes;
 const restapi =require('./restapi');
 
-var read = 'id number title name email';
+var read = '_id number title name email';
 var edit = 'title name';
 
 exports = module.exports = addRoutes([
@@ -20,7 +20,7 @@ exports = module.exports = addRoutes([
 
 	restapi.find(model, read),
 	restapi.schema(model, edit),
-	restapi.create(model, edit),
+
 	restapi.read(model, read),
 	restapi.update(model, edit),
 	restapi.remove(model),

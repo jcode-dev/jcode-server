@@ -23,7 +23,7 @@
 		<div class="tile is-ancestor">
 			<div class="tile is-parent">
 				<div class="tile is-child box">
-					こんにちは、{{user.name}} さん。プログラミング教育研究所へようこそ。
+					こんにちは、{{user.name}} さん。プログラミング教育研究所へようこそ。{{user.role}}
 						<p id="errormsg">
 						</p>
 				</div>
@@ -47,16 +47,12 @@
 								</select>
 								<span>＜＝きりかえ 現在：{{ selected }}</span>
 
-						  	<div class="control">
+						  	<div class="control" v-if="user.role==='ROOT'">
 							  	<input class="button is-primary" v-on:click.prevent="create_item" value="新規作成">
 							  </div>
-
-
 							</div>
+
 							<div class="message-body">
-
-
-
 								<table class="table is-striped">
 									<tbody>
 										<tr v-for="item in items">
@@ -66,13 +62,11 @@
 											<td v-on:click.prevent="edit_item(item)">
 												{{item.name}}
 											</td>
-											<td>
+											<td v-if="user.role==='ROOT'">
 												<button class="button" v-on:click.prevent="delete_item(item)"><i class="far fa-trash-alt"></i></button>
 											</td>
 										</tr>
 									</tbody>
-
-
 								</table>
 							</div>
 						</div>
@@ -84,7 +78,7 @@
 			<div class="tile is-parent">
 				<div class="tile is-child box">
 
-					<component v-bind:is="selectedComponent" :item="item" :local="local" v-on:submit_from_child="child_form_submit">
+					<component v-bind:is="selectedComponent" :item="item" :local="local" v-on:submit_from_child="child_form_submit" v-on:changepass_2="changepass_child">
 					</component>
 
 				</div>
@@ -146,6 +140,8 @@
 	</script>
 
 	<script id="template-doc" type="text/x-template">
+
+	<div>
 		<form v-on:submit.prevent="child_form_submit">
 			<article class="message is-primary">
 				<div class="content">
@@ -159,7 +155,7 @@
 							<input v-model="item.name" class="input" type="text" required>
 						</div>
 
-						<div class="field is-grouped">
+						<div class="field">
 					  	<div class="control has-text-right">
 						  	<input class="button is-primary" type="submit" value="更新">
 						  </div>
@@ -169,6 +165,31 @@
 				</div>
 			</article>
 		</form>
+
+		<form v-on:submit.prevent="changepass_child">
+			<article class="message is-primary">
+				<div class="content">
+					<div class="message-header">
+						パスワード
+					</div>
+					<div class="message-body">
+
+						<div class="field">
+							<label class="label">パスワード</label>
+							<input v-model="item.password" class="input" type="password" required pattern="[!-~]{3,}">
+						</div>
+
+						<div class="field">
+					  	<div class="control has-text-right">
+						  	<input class="button is-primary" type="submit" value="パスワード変更">
+						  </div>
+						</div>
+
+					</div>
+				</div>
+			</article>
+		</form>
+	</div>
 	</script>
 
 	<script id="template-address" type="text/x-template">

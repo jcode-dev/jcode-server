@@ -50,6 +50,11 @@ Vue.component('doc-component', {
 			console.log("submit_from_child", this.item._id);
 			this.$emit('submit_from_child', this.item);
 		},
+		changepass_child: function(event) {
+			// update if not canceled
+			console.log("changepass_2", this.item._id);
+			this.$emit('changepass_2', this.item);
+		},
 	},
 });
 
@@ -104,7 +109,7 @@ const app = new Vue({
 		items: [],
 		item:{},
 		selected:'doc',
-		selectedComponent: 'event-component',
+		selectedComponent: 'home-component',
 		user:{},
 		local: restapi.local,
 	},
@@ -143,14 +148,22 @@ const app = new Vue({
 		// item 編集
 		edit_item: function(item) {
 
-			if (item.__t === 'Event') {
-				this.selectedComponent = 'event-component';
-			} else if (! item.__t) {
-				this.selectedComponent = 'doc-component';
-			} else if (item.__t === 'Address') {
-				this.selectedComponent = 'address-component';
-			} else {
-				this.selectedComponent = 'home-component';
+			if (!(this.user.role==='ROOT')) {
+				if (item.__t === 'Event') {
+					this.selectedComponent = 'event-component';
+					this.selected = 'event';
+				} else if (! item.__t) {
+					this.selectedComponent = 'doc-component';
+					this.selected = 'doc';
+				} else if (item.__t === 'User') {
+					this.selectedComponent = 'doc-component';
+					this.selected = 'user';
+				} else if (item.__t === 'Address') {
+					this.selectedComponent = 'address-component';
+					this.selected = 'address';
+				} else {
+					this.selectedComponent = 'home-component';
+				}
 			}
 			console.log("edit:", item);
 			restapi.get(this.url + item._id).then((response) => {
@@ -187,6 +200,17 @@ const app = new Vue({
 			});
 
 		},
+
+		// パスワード変更
+		changepass_child: function(item) {
+			restapi.post("user/password/", item).then((response) => {
+				console.log("password:", response);
+			}).catch(function(err){
+				that.user = null;
+				showerror(err);
+			});
+		},
+
 		// 子コンポーネントよりitem 書込み
 		child_form_submit: function(item) {
 			console.log("write:",item);

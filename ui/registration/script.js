@@ -14,26 +14,12 @@ axiosToken.interceptors.request.use((config) => {
   return Promise.reject(error)
 });
 
-/**
- * URL解析して、クエリ文字列を返す
- * @returns {Array} クエリ文字列
- */
-function getUrlVars()
-{
-    var vars = [], max = 0, hash = "", array = "";
-    var url = window.location.search;
-
-        //?を取り除くため、1から始める。複数のクエリ文字列に対応するため、&で区切る
-    hash  = url.slice(1).split('&');    
-    max = hash.length;
-    for (var i = 0; i < max; i++) {
-        array = hash[i].split('=');    //keyと値に分割。
-        vars.push(array[0]);    //末尾にクエリ文字列のkeyを挿入。
-        vars[array[0]] = array[1];    //先ほど確保したkeyに、値を代入。
-    }
-
-    return vars;
+const showerror = function(error) {
+	console.log("error:",error);
+	console.log("error:",error.response.data);
+	document.getElementById("errormsg").innerHTML = error.response.data;
 }
+
 
 var itemcomp = {
 	template: '#template-task-item',
@@ -69,6 +55,7 @@ const app = new Vue({
 			}],
 		},
 		event:{name:'aaaa'},
+		children:[],
 		user: {},
 	},
 	mounted: function() {
@@ -81,19 +68,35 @@ const app = new Vue({
 		// ログイン情報
 		whoami: function() {
 			
-			var vars = getUrlVars();
-			
+			var that = this;
+			var vars = restapi.getUrlVars();
 			this.event._id = vars.eventid;
 			console.log(this.event._id);
-			axiosToken.get(base_url+"event/"+this.event._id).then((response) => {
+			restapi.get("event/"+this.event._id).then((response) => {
+				that.event = response.data;
+/*			
 				this.event = response.data;
 				let date = new Date(this.event.startDatetime);
 				this.event.startDate = date.getFullYear()+'年'+(date.getMonth()+1)+'月'+date.getDate()+'日（'+yobi[date.getDay()]+'）';
 				this.event.startTime = date.getHours()+'時'+date.getMinutes()+'分';
 				date = new Date(this.event.endDatetime);
 				this.event.endTime = date.getHours()+'時'+date.getMinutes()+'分';
+*/
 				console.log("event:", response);
 			});
+
+
+			restapi.get("user/whoami/").then((response) => {
+				that.user = response.data;
+				restapi.get("user/children/").then((response) => {
+					that.children = response.data;
+					console.log("contact:", response);
+				});
+			}).catch(function(err){
+				that.user = null;
+				showerror(err);
+			});
+/*
 
 			axiosToken.get(base_url+"user/whoami/").then((response) => {
 				var item = response.data;
@@ -105,6 +108,7 @@ const app = new Vue({
 					console.log("children:", $this.item);
 				});
 			});
+*/
 		},
 
 		// item 書込み

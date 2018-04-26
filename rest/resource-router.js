@@ -1,8 +1,7 @@
-var Router = require('express').Router;
 const passport = require('passport');
 const restapi = require('./restapi');
 
-var rest = {};
+//var rest = {};
 
 /**	Creates a callback that proxies node callback style arguments to an Express Response object.
  *	@param {express.Response} res	Express HTTP Response
@@ -13,6 +12,7 @@ var rest = {};
  *			collection.find({}, toRes(res));
  *		}
  */
+/*
 rest.toRes = function (res, status=200) {
 	return (err, thing) => {
 		if (err) {
@@ -29,12 +29,11 @@ rest.toRes = function (res, status=200) {
 
 	};
 }
-
+*/
 
 // ƒ‹[ƒg‚ğ‚½‚­‚³‚ñ’Ç‰Á
 // http request mmethod get,post,delete ...
-rest.addRoutes = function(params) {
-	var router = Router();
+module.exports = function(router, params) {
 
 	for (let item of params) {
 
@@ -43,9 +42,10 @@ rest.addRoutes = function(params) {
 		} else {
 			router[item[1]](item[0], item[2]);
 		}
+		console.log("register:",item[1], item[0]);
+		
+		
 	}
-	return router;
+
 };
 
-
-module.exports = rest;

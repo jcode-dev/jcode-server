@@ -39,6 +39,7 @@ restapi.local = {
 
 	Address: '<i class="far fa-address-card"></i>',
 	EventRegistration: '<i class="far fa-calendar-check"></i>',
+	Join: '<i class="far fa-calendar-check"></i>',
 	Event: '<i class="far fa-calendar-alt"></i>',
 	User: '<i class="fas fa-child"></i>',
 };
@@ -61,4 +62,15 @@ restapi.getUrlVars = function() {
     }
 
     return vars;
+}
+
+const yobi= new Array("日","月","火","水","木","金","土");
+
+restapi.getDate = function(datetime) {
+	let date = new Date(datetime);
+	return date.getFullYear()+'年'+(date.getMonth()+1)+'月'+date.getDate()+'日（'+yobi[date.getDay()]+'）';
+}
+restapi.getTime = function(datetime) {
+	let date = new Date(datetime);
+	return date.getHours()+':' + ('00'+date.getMinutes()).slice(-2); 
 }

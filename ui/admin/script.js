@@ -83,8 +83,34 @@ Vue.component('event-component', {
   template: '#template-event',
 	props: [
 		'item',
+		'users',
 	],
+	data: {
+		joins: function(){return {joins:[]}},
+	},
+	mounted: function() {
+		this.getJoins();
+	},
 	methods: {
+		getJoins: function() {
+			var event = this.item;
+			restapi.get("join/?groupId="+event._id).then((response) => {
+				this.joins = response.data;
+				console.log("Joins:", response.data);
+			}).catch(function(err){
+				showerror(err);
+			});
+		},
+		attend: function(user) {
+			var event = this.item;
+			console.log("ATTEND:", event);
+			console.log(user);
+			restapi.post("join/", {name:'参加申込',title:event.startDate, memberId: user._id, group_id: event._id}).then((response) => {
+				console.log("Join:", response);
+			}).catch(function(err){
+				showerror(err);
+			});
+		},
 		child_form_submit: function(event) {
 			// update if not canceled
 			console.log("submit_from_child", this.item._id);
@@ -110,11 +136,13 @@ const app = new Vue({
 		item:{},
 		selected:'doc',
 		selectedComponent: 'home-component',
+		users:{},
 		user:{},
 		local: restapi.local,
 	},
 	mounted: function() {
 		this.whoami();
+		this.getUsers();
 		this.get_items();
 	},
 	computed: {
@@ -129,6 +157,16 @@ const app = new Vue({
 				console.log("contact:", response);
 			}).catch(function(err){
 				that.user = null;
+				showerror(err);
+			});
+		},
+		getUsers: function() {
+			var that = this;
+			restapi.get("user/").then((response) => {
+				that.users = response.data;
+				console.log("users", that.users);
+			}).catch(function(err){
+				that.users = [];
 				showerror(err);
 			});
 		},
@@ -148,7 +186,7 @@ const app = new Vue({
 		// item 編集
 		edit_item: function(item) {
 
-			if (!(this.user.role==='ROOT')) {
+			if (true || !(this.user.role==='ROOT')) {
 				if (item.__t === 'Event') {
 					this.selectedComponent = 'event-component';
 					this.selected = 'event';
@@ -165,10 +203,16 @@ const app = new Vue({
 					this.selectedComponent = 'home-component';
 				}
 			}
-			console.log("edit:", item);
+			//console.log("edit:", item);
 			restapi.get(this.url + item._id).then((response) => {
-				this.item = response.data;
-				console.log("item:", response);
+				var item = response.data;
+				if (item.__t === 'Event') {
+					item.startDate = restapi.getDate(item.startDatetime);
+					item.startTime = restapi.getTime(item.startDatetime);
+					item.endTime = restapi.getTime(item.endDatetime);
+				}
+				this.item = item;
+				//console.log("ITEM:", this.item);
 			});
 		},
 		edit_item22: function(item) {

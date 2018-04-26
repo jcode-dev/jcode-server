@@ -78,7 +78,7 @@
 			<div class="tile is-parent">
 				<div class="tile is-child box">
 
-					<component v-bind:is="selectedComponent" :item="item" :local="local" v-on:submit_from_child="child_form_submit" v-on:changepass_2="changepass_child">
+					<component v-bind:is="selectedComponent" :item="item" :users="users" :local="local" v-on:submit_from_child="child_form_submit" v-on:changepass_2="changepass_child">
 					</component>
 
 				</div>
@@ -146,13 +146,18 @@
 			<article class="message is-primary">
 				<div class="content">
 					<div class="message-header">
-						ドキュメント
+						ユーザー
 					</div>
 					<div class="message-body">
 
 						<div class="field">
 							<label class="label">名前</label>
 							<input v-model="item.name" class="input" type="text" required>
+						</div>
+
+						<div class="field">
+							<label class="label">タイトル</label>
+							<input v-model="item.title" class="input" type="text" required>
 						</div>
 
 						<div class="field">
@@ -213,22 +218,22 @@
 
 						<div class="field">
 							<label class="label">郵便番号</label>
-							<input v-model="item.zipcode" class="input" type="text" required v-on:change="change_zip();">
+							<input v-model="item.zipcode" class="input" type="text" v-on:change="change_zip();">
 						</div>
 
 						<div class="field">
 							<label class="label">住所1</label>
-							<input v-model="item.address1" class="input" type="text" required>
+							<input v-model="item.address1" class="input" type="text" >
 						</div>
 
 						<div class="field">
 							<label class="label">住所2</label>
-							<input v-model="item.address2" class="input" type="text" required>
+							<input v-model="item.address2" class="input" type="text" >
 						</div>
 
 						<div class="field">
 							<label class="label">電話番号</label>
-							<input v-model="item.tel" class="input" type="text" required>
+							<input v-model="item.tel" class="input" type="text" >
 						</div>
 
 						<div class="field is-grouped">
@@ -244,66 +249,77 @@
 	</script>
 
 	<script id="template-event" type="text/x-template">
-		<form v-on:submit.prevent="child_form_submit">
-			<article class="message is-primary">
-				<div class="content">
-					<div class="message-header">
-						イベント管理
+		<section>
+			<div>
+				<article class="message is-primary">
+					<div class="content">
+						<div class="message-header">
+							教室・イベント
+						</div>
+						<div class="message-body">
+							名称： {{item.name}}<br />
+							日付： {{item.startDate}}<br />
+							時間： {{item.startTime}}～{{item.endTime}}<br />
+							場所： {{item.place}}<br />
+							説明： {{item.description}}<br />
+
+							<table class="table is-striped">
+								<tbody>
+									<tr>
+										<th>名前</th>
+										<th>タイトル</th>
+										<th>アクション</th>
+									</tr>
+									<tr v-for="join in joins">
+										<td>{{join.name}}</td>
+										<td>{{join.title}}</td>
+										<td>
+											<button click v-on:click.prevent="attend(join)">参加</button>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+
+						</div>
 					</div>
-					<div class="message-body">
-
-						<div class="field">
-							<label class="label">イベントid</label>
-							<input v-model="item._id" class="input" type="text" readonly>
+				</article>
+			</div>
+			<form v-on:submit.prevent="child_form_submit">
+				<article class="message is-primary">
+					<div class="content">
+						<div class="message-header">
+							参加者
 						</div>
+						<div class="message-body">
 
-						<div class="field">
-							<label class="label">イベント名</label>
-							<input v-model="item.name" class="input" type="text" required placeholder="イベント名称">
+							<table class="table is-striped">
+								<tbody>
+									<tr>
+										<th>名前</th>
+										<th>タイトル</th>
+										<th>アクション</th>
+									</tr>
+									<tr v-for="user in users">
+										<td>{{user.name}}</td>
+										<td>{{user.title}}</td>
+										<td>
+											<button click v-on:click.prevent="attend(user)">参加</button>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+
+							<div class="field is-grouped">
+						  	<div class="control has-text-right">
+							  	<input class="button is-primary" type="submit" value="更新">
+							  </div>
+							</div>
+
 						</div>
-
-	{{startDatetime}}
-						<div class="field">
-							<label class="label">開始日付</label>
-							<input v-model="item.startDate" class="input" type="date" required placeholder="開始日時">
-						</div>
-
-						<div class="field">
-							<label class="label">開始時間</label>
-							<input v-model="item.startTime" class="input" type="time" required placeholder="終了日時">
-						</div>
-
-						<div class="field">
-							<label class="label">終了日付</label>
-	{{endDatetime}}
-							<input v-model="item.endDate" class="input" type="date" required placeholder="開始日時">
-						</div>
-
-						<div class="field">
-							<label class="label">終了時間</label>
-							<input v-model="item.endTime" class="input" type="time" required placeholder="終了日時">
-						</div>
-
-						<div class="field">
-							<label class="label">場所</label>
-							<input v-model="item.place" class="input" type="text" required placeholder="場所">
-						</div>
-
-						<div class="field">
-							<label class="label">詳細</label>
-							<textarea class="textarea" v-model="item.description" placeholder="add multiple lines 説明文を入れてください。"></textarea>
-						</div>
-
-						<div class="field is-grouped">
-					  	<div class="control has-text-right">
-						  	<input class="button is-primary" type="submit" value="更新">
-						  </div>
-						</div>
-
 					</div>
-				</div>
-			</article>
-		</form>
+				</article>
+			</form>
+		</section>
 	</script>
 
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>

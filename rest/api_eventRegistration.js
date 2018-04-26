@@ -6,8 +6,7 @@ update:	PUT /resources/:id
 delete:	DELETE /resources/:id
 */
 
-const toRes = require('./resource-router').toRes;
-const addRoutes = require('./resource-router').addRoutes;
+const addRoutes = require('./resource-router');
 const model =require('../models/eventRegistration');
 const mailer =require('./email/mailer');
 

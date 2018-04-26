@@ -58,7 +58,7 @@ var toRes = function (res, status=200) {
 
 var restapi = {};
 
-restapi.find = function(model) {
+restapi.find = function(model, schema) {
 	return ['/', 'get', function(req, res) {
 		var params = req.query;
 		console.log("find:", model.modelName, params);
@@ -77,6 +77,14 @@ restapi.find = function(model) {
 		var find =isRoot(req.user) ? {} : {ownerId: req.user._id};
 		model.find(find).skip(params.start|0 || 0).limit(limit).exec(toRes(res));
 	}];
+}
+
+restapi.findPublic = function(router, model) {
+	router.get('/', function(req, res) {
+		var params = req.query;
+		console.log("findPub:", model.modelName, params);
+		model.find().exec(toRes(res));
+	})
 }
 
 function isRoot(user) {
@@ -107,7 +115,7 @@ restapi.create = function(model, schema = null) {
 	}];
 }
 
-restapi.read = function(model, schema = null) {
+restapi.read = function(model, schema = 'name') {
 	return ['/:_id/', 'get', function(req, res) {
 		console.log(schema);
 		if (isRoot(req.user)) {
@@ -118,9 +126,15 @@ restapi.read = function(model, schema = null) {
 		}
 	}, false];
 }
+restapi.readPublic = function(router, model) {
+	router.get('/:_id/', function(req, res) {
+		model.findById(req.params['_id']).exec(toRes(res));
+	})
+}
 
 restapi.update = function(model) {
 	return ['/:_id/', 'post', function(req, res) {
+		console.log("UPDATE!!!!!");
 		var id = req.params['_id'];
 		var body = req.body;
 		delete body._id;
@@ -209,8 +223,8 @@ restapi.reset = function(model) {
 		});
 	}, restapi.role.public];
 }
-// パスワード変更
-restapi.update = function(model) {
+// パスワード変更 toDO : bug fix 子どものパスワードを変更できるように
+restapi.password = function(model) {
 	return ['/password', 'post', function(req, res) {
 		console.log("password:", req.body);
 

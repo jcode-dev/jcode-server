@@ -23,9 +23,16 @@
 		<div class="tile is-ancestor">
 			<div class="tile is-parent">
 				<div class="tile is-child box">
+					<template v-if="user.name">
 					こんにちは、{{user.name}} さん。プログラミング教育研究所へようこそ。{{user.role}}
-						<p id="errormsg">
-						</p>
+					（{{user.name}} さんでは無い場合は、<a v-bind:href="nexturl">サインインし直し</a>てください。
+					</template>
+					<template v-else>
+						このページは、会員専用です。
+						<a v-bind:href="nexturl">サインインして</a>から、表示するひつようがあります。
+					</template>
+					<p id="errormsg">
+					</p>
 				</div>
 			</div>
 		</div>
@@ -43,7 +50,7 @@
 									<option value="doc" selected>すべて</option>
 									<option value="event">予定</option>
 									<option value="address">連絡先</option>
-									<option value="user">子ども</option>
+									<option value="user">アカウント</option>
 								</select>
 								<span>＜＝きりかえ 現在：{{ selected }}</span>
 

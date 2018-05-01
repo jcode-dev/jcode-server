@@ -17,6 +17,7 @@ function register() {
 		restapi.reset(model),
 		restapi.signup(model),
 		restapi.signin(model),
+		restapi.password(model),
 
 		restapi.find(model, read),
 		restapi.schema(model, edit),

@@ -139,6 +139,8 @@ const app = new Vue({
 		users:{},
 		user:{},
 		local: restapi.local,
+		nexturl: "",
+		joins: [],
 	},
 	mounted: function() {
 		this.whoami();
@@ -151,6 +153,9 @@ const app = new Vue({
 	methods: {
 		// ログイン情報
 		whoami: function() {
+			this.nexturl = '/go' + location.pathname + location.search;
+			console.log("SIGNIN", this.nexturl);
+
 			var that = this;
 			restapi.get("user/whoami/").then((response) => {
 				that.user = response.data;

@@ -8,6 +8,10 @@ var bCrypt = require('bcrypt-nodejs');
 
 var User = Doc.discriminator('User',
 	new Schema({
+		number: Number,	// 番号
+		grade: String,	// 小1～中1、高校生以上
+		furigana: String,
+		fullname: String,
 		password: String,	// サインイン・パスワード
 		email:String,		// email
 		role: String, //セキュリティ名 ['GUEST', 'USER', 'ADMIN', 'ROOT']

@@ -6,12 +6,8 @@ var Schema = mongoose.Schema;
 //
 var DocSchema = new Schema({
 	name: String,		// åˆäJñº
-	number: Number,	// î‘çÜ
-	title: String,
-	status: String,
 	ownerId: Schema.Types.ObjectId,
-	memberId: Schema.Types.ObjectId,
-	groupId: Schema.Types.ObjectId,
+	title: String,
 },{ timestamps: {} });
 DocSchema.plugin(findOrCreate);
 module.exports = mongoose.model('Doc', DocSchema);

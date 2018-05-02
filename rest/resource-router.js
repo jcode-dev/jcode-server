@@ -42,10 +42,6 @@ module.exports = function(router, params) {
 		} else {
 			router[item[1]](item[0], item[2]);
 		}
-		console.log("register:",item[1], item[0]);
-		
-		
+		//console.log("register:",item[1], item[0]);
 	}
-
 };
-

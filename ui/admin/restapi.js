@@ -70,6 +70,10 @@ restapi.getDate = function(datetime) {
 	let date = new Date(datetime);
 	return date.getFullYear()+'年'+(date.getMonth()+1)+'月'+date.getDate()+'日（'+yobi[date.getDay()]+'）';
 }
+restapi.getShortDate = function(datetime) {
+	let date = new Date(datetime);
+	return (date.getMonth()+1)+'/'+date.getDate();
+}
 restapi.getTime = function(datetime) {
 	let date = new Date(datetime);
 	return date.getHours()+':' + ('00'+date.getMinutes()).slice(-2); 

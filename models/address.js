@@ -6,7 +6,6 @@ var Doc = require('./doc');
 //
 var Address = Doc.discriminator('Address',
 	new Schema({
-		furigana: String,
 		zipcode: String,
 		address1: String,
 		address2: String,

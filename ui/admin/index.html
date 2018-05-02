@@ -6,26 +6,16 @@
 	<title>Hello pel</title>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
 	<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
-	<style>
-	.message {
-		margin: 0.5rem;
-	}
-	.is-parent {
-		margin: 0.5rem;
-	}
-	</style>
 </head>
 <body>
 	<div id="app">
-
-
 
 		<div class="tile is-ancestor">
 			<div class="tile is-parent">
 				<div class="tile is-child box">
 					<template v-if="user.name">
-					こんにちは、{{user.name}} さん。プログラミング教育研究所へようこそ。{{user.role}}
-					（{{user.name}} さんでは無い場合は、<a v-bind:href="nexturl">サインインし直し</a>てください。
+					こんにちは、{{user.name}} さん。プログラミング教育研究所へようこそ。{{user.role}}<br />
+					※{{user.name}} さんでは無い場合は、<a v-bind:href="nexturl">サインインし直し</a>てください。
 					</template>
 					<template v-else>
 						このページは、会員専用です。
@@ -37,7 +27,6 @@
 			</div>
 		</div>
 
-
 		<div class="tile is-ancestor">
 			<div class="tile is-parent">
 				<div class="tile is-child box">
@@ -48,11 +37,12 @@
 
 								<select v-model="selected" @change="get_items">
 									<option value="doc" selected>すべて</option>
-									<option value="event">予定</option>
+									<option value="event">イベント</option>
 									<option value="address">連絡先</option>
-									<option value="user">アカウント</option>
+									<option value="user">ユーザー情報</option>
+									<option value="join">参加申込</option>
 								</select>
-								<span>＜＝きりかえ 現在：{{ selected }}</span>
+								<span>{{selected}}-{{showing}}</span>
 
 						  	<div class="control" v-if="user.role==='ROOT'">
 							  	<input class="button is-primary" v-on:click.prevent="create_item" value="新規作成">
@@ -62,11 +52,11 @@
 							<div class="message-body">
 								<table class="table is-striped">
 									<tbody>
-										<tr v-for="item in items">
+										<tr v-for="item in items" v-on:click.prevent="edit_item(item)">
 											<td>
 											<span v-html="local[item.__t]"></span>
 											</td>
-											<td v-on:click.prevent="edit_item(item)">
+											<td>
 												{{item.name}}
 											</td>
 											<td v-if="user.role==='ROOT'">
@@ -93,30 +83,6 @@
 		</div>
 
 	</div>
-
-	<script id="template-temp" type="text/x-template">
-			<td>
-				<label class="checkbox">
-					<input v-model="item.finished" type="checkbox">
-				</label>
-			</td>
-				<button class="button" v-on:click.prevent="edit_click22">編集2</button>
-	</script>
-
-	<script id="template-task-item" type="text/x-template">
-		<tr>
-			<td>
-				<i class="fal fa-bullseye"></i>
-			</td>
-			<td>
-				<button class="button" v-on:click.prevent="edit_click">{{item.name}}</button>
-			</td>
-			<td>
-				{{item.__t}}
-				<button class="button" v-on:click.prevent="delete_click"><i class="far fa-trash-alt"></i></button>
-			</td>
-		</tr>
-	</script>
 
 	<script id="template-home" type="text/x-template">
 		<form v-on:submit.prevent="child_form_submit">
@@ -146,31 +112,68 @@
 		</form>
 	</script>
 
-	<script id="template-doc" type="text/x-template">
+	<script id="template-user" type="text/x-template">
 
 	<div>
 		<form v-on:submit.prevent="child_form_submit">
 			<article class="message is-primary">
 				<div class="content">
 					<div class="message-header">
-						ユーザー
+						ユーザー情報
 					</div>
 					<div class="message-body">
 
 						<div class="field">
-							<label class="label">名前</label>
+							<label class="label">会員番号</label>
+							{{item.number}}
+						</div>
+
+						<div class="field">
+							<label class="label">ニックネーム</label>
 							<input v-model="item.name" class="input" type="text" required>
 						</div>
 
 						<div class="field">
-							<label class="label">タイトル</label>
-							<input v-model="item.title" class="input" type="text" required>
+							<label class="label">ふりがな</label>
+							<input v-model="item.furigana" class="input" type="text" required>
 						</div>
 
 						<div class="field">
-					  	<div class="control has-text-right">
-						  	<input class="button is-primary" type="submit" value="更新">
-						  </div>
+							<label class="label">漢字氏名</label>
+							<input v-model="item.fullname" class="input" type="text" required>
+						</div>
+
+						<div class="field">
+							<label class="label">学年</label>
+								<select v-model="item.grade">
+									<option value="小1">小1</option>
+									<option value="小2">小2</option>
+									<option value="小3">小3</option>
+									<option value="小4">小4</option>
+									<option value="小5">小5</option>
+									<option value="小6">小6</option>
+									<option value="中1">中1</option>
+									<option value="中2">中2</option>
+									<option value="中3">中3</option>
+									<option value="それ以上">それ以上</option>
+								</select>
+						</div>
+
+						<div class="field">
+							<label class="label">メール</label>
+							{{item.email}}
+						</div>
+
+						<div class="field">
+							<div class="control">
+								<input class="button is-primary" type="submit" value="更新">
+							</div>
+						</div>
+
+						<div class="field">
+							<div class="control">
+								<button class="button is-info" v-on:click.prevent="newuser()">新しいユーザーアカウントの追加</button>
+							</div>
 						</div>
 
 					</div>
@@ -214,13 +217,8 @@
 					<div class="message-body">
 
 						<div class="field">
-							<label class="label">ふりがな</label>
-							<input v-model="item.furigana" class="input" type="text" required>
-						</div>
-
-						<div class="field">
 							<label class="label">名前</label>
-							<input v-model="item.name" class="input" type="text" required>
+							<input v-model="item.name" class="input" type="text" v-on:change="change_zip();">
 						</div>
 
 						<div class="field">
@@ -273,15 +271,15 @@
 							<table class="table is-striped">
 								<tbody>
 									<tr>
-										<th>名前</th>
-										<th>タイトル</th>
+										<th>参加者</th>
+										<th>ステータス</th>
 										<th>アクション</th>
 									</tr>
-									<tr v-for="join in joins">
+									<tr v-for="join in item.joins">
 										<td>{{join.name}}</td>
-										<td>{{join.title}}</td>
+										<td>{{join.status}}</td>
 										<td>
-											<button click v-on:click.prevent="attend(join)">参加</button>
+											<button click v-on:click.prevent="leave(join)">取消</button>
 										</td>
 									</tr>
 								</tbody>
@@ -291,41 +289,35 @@
 					</div>
 				</article>
 			</div>
-			<form v-on:submit.prevent="child_form_submit">
-				<article class="message is-primary">
-					<div class="content">
-						<div class="message-header">
-							参加者
-						</div>
-						<div class="message-body">
 
-							<table class="table is-striped">
-								<tbody>
-									<tr>
-										<th>名前</th>
-										<th>タイトル</th>
-										<th>アクション</th>
-									</tr>
-									<tr v-for="user in users">
-										<td>{{user.name}}</td>
-										<td>{{user.title}}</td>
-										<td>
-											<button click v-on:click.prevent="attend(user)">参加</button>
-										</td>
-									</tr>
-								</tbody>
-							</table>
-
-							<div class="field is-grouped">
-						  	<div class="control has-text-right">
-							  	<input class="button is-primary" type="submit" value="更新">
-							  </div>
-							</div>
-
-						</div>
+			<article class="message is-primary">
+				<div class="content">
+					<div class="message-header">
+						ユーザー情報
 					</div>
-				</article>
-			</form>
+					<div class="message-body">
+
+						<table class="table is-striped">
+							<tbody>
+								<tr>
+									<th>名前</th>
+									<th>学年</th>
+									<th>アクション</th>
+								</tr>
+								<tr v-for="user in users">
+									<td>{{user.fullname}}</td>
+									<td>{{user.grade}}</td>
+									<td>
+										<button click v-on:click.prevent="attend(user)">参加申込</button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+
+					</div>
+				</div>
+			</article>
+
 		</section>
 	</script>
 

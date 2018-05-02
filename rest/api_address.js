@@ -12,9 +12,7 @@ const restapi =require('./restapi');
 	var edit = 'name furigana zipcode address1 address2 tel';
 
 // create and export a Router, mount it anywhere via .use()
-function register() {
-	addroute(router, [
-
+addroute(router, [
 		restapi.update(model, edit),
 		restapi.find(model),
 		restapi.schema(model),
@@ -22,7 +20,5 @@ function register() {
 		restapi.remove(model),
 		restapi.create(model),
 	]);
-}
-register();
 
 exports = module.exports = router;

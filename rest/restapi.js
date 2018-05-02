@@ -87,6 +87,18 @@ restapi.findPublic = function(router, model) {
 	})
 }
 
+restapi.findJoin = function(router, model) {
+	router.get('/', passport.authenticate(['jwt'], { session: false }), function(req, res) {
+		var params = req.query;
+		var find = {ownerId: req.user._id};
+		if (params.gid) {
+			find.groupId = params.gid;
+		}
+		console.log("findJoin:", model.modelName, find);
+		model.find(find).exec(toRes(res));
+	})
+}
+
 function isRoot(user) {
 	if (user && user.role === restapi.role.root) {
 		return true;

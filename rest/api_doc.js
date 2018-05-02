@@ -12,8 +12,7 @@ const restapi =require('./restapi');
 	var edit = 'name';
 
 // create and export a Router, mount it anywhere via .use()
-function register() {
-	addroute(router, [
+addroute(router, [
 
 		restapi.find(model, read),
 		restapi.schema(model, edit),
@@ -22,8 +21,6 @@ function register() {
 		restapi.update(model, edit),
 		restapi.remove(model),
 	]);
-}
-register();
 
 exports = module.exports = router;
 

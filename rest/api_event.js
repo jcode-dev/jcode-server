@@ -11,15 +11,12 @@ const restapi =require('./restapi');
 	var edit = 'name';
 
 	// create and export a Router, mount it anywhere via .use()
-	function register() {
-		addroute(router, [
-			restapi.schema(model),
-			restapi.create(model),
-			restapi.update(model),
-			restapi.remove(model),
-		]);
-	}
-	register();
+addroute(router, [
+		restapi.schema(model),
+		restapi.create(model),
+		restapi.update(model),
+		restapi.remove(model),
+	]);
 
 	restapi.findPublic(router, model)
 	restapi.readPublic(router, model)

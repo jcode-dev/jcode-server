@@ -1,29 +1,5 @@
 "use strict";
 
-var itemcomp = {
-	template: '#template-task-item',
-	props: [
-		'item',
-	],
-	methods: {
-		edit_click: function(event) {
-			// update if not canceled
-			console.log(this.item);
-			this.$emit('edit_item', this.item);
-		},
-		edit_click22: function(event) {
-			// update if not canceled
-			console.log(this.item);
-			this.$emit('edit_item22', this.item);
-		},
-		delete_click: function(event) {
-			// update if not canceled
-			console.log(this.item);
-			this.$emit('delete_item', this.item);
-		},
-	},
-};
-
 Vue.component('home-component', {
   template: '#template-home',
 	props: [
@@ -39,8 +15,11 @@ Vue.component('home-component', {
 	},
 });
 
-Vue.component('doc-component', {
-  template: '#template-doc',
+/*
+ * ユーザー情報
+ */
+Vue.component('user-component', {
+  template: '#template-user',
 	props: [
 		'item',
 	],
@@ -55,6 +34,11 @@ Vue.component('doc-component', {
 			console.log("changepass_2", this.item._id);
 			this.$emit('changepass_2', this.item);
 		},
+		// item 新規作成
+		newuser: function() {
+			this.item = {};
+		},
+
 	},
 });
 
@@ -71,10 +55,12 @@ Vue.component('address-component', {
 		},
 		change_zip: function(event) {
 			console.log("joiiojoij",this.item.zipcode);
+/*
 			axios.get("http://zipcloud.ibsnet.co.jp/api/search?zipcode="+this.item.zipcode).then((response) => {
 				this.item.address1 = response.results.address1;
 				console.log("zipcode:", response);
 			});
+*/
 		}
 	},
 });
@@ -85,30 +71,24 @@ Vue.component('event-component', {
 		'item',
 		'users',
 	],
-	data: {
-		joins: function(){return {joins:[]}},
-	},
-	mounted: function() {
-		this.getJoins();
-	},
 	methods: {
-		getJoins: function() {
+		attend: function(user) {
 			var event = this.item;
-			restapi.get("join/?groupId="+event._id).then((response) => {
-				this.joins = response.data;
-				console.log("Joins:", response.data);
+			//console.log("ATTEND:", event);
+			//console.log(user);
+			restapi.post("join/", {
+				name: user.fullname + ' ' + restapi.getShortDate(event.startDatetime),
+				memberId: user._id,
+				groupId: event._id }).then((response) => {
+				console.log("Join:", response);
 			}).catch(function(err){
 				showerror(err);
 			});
 		},
-		attend: function(user) {
-			var event = this.item;
-			console.log("ATTEND:", event);
-			console.log(user);
-			restapi.post("join/", {name:'参加申込',title:event.startDate, memberId: user._id, group_id: event._id}).then((response) => {
-				console.log("Join:", response);
-			}).catch(function(err){
-				showerror(err);
+		leave: function(join) {
+			restapi.delete("join/"+join._id).then((response) => {
+				console.log("item:", response);
+				this.get_items(); // 一覧表示
 			});
 		},
 		child_form_submit: function(event) {
@@ -127,14 +107,11 @@ const showerror = function(error) {
 
 const app = new Vue({
 	el: '#app',
-	components: {
-		itemcomp: itemcomp,
-
-	},
 	data: {
-		items: [],
-		item:{},
 		selected:'doc',
+		items: [],
+		showing:'doc',
+		item:{},
 		selectedComponent: 'home-component',
 		users:{},
 		user:{},
@@ -191,42 +168,48 @@ const app = new Vue({
 		// item 編集
 		edit_item: function(item) {
 
-			if (true || !(this.user.role==='ROOT')) {
+			if (!(this.user.role==='ROOT')) {
 				if (item.__t === 'Event') {
 					this.selectedComponent = 'event-component';
-					this.selected = 'event';
+					this.showing = 'event';
 				} else if (! item.__t) {
-					this.selectedComponent = 'doc-component';
-					this.selected = 'doc';
+					this.selectedComponent = 'user-component';
+					this.showing = 'doc';
 				} else if (item.__t === 'User') {
-					this.selectedComponent = 'doc-component';
-					this.selected = 'user';
+					this.selectedComponent = 'user-component';
+					this.showing = 'user';
 				} else if (item.__t === 'Address') {
 					this.selectedComponent = 'address-component';
-					this.selected = 'address';
+					this.showing = 'address';
+				} else if (item.__t === 'Join') {
+					this.selectedComponent = 'event-component';
+					this.showing = 'event';
+					item._id = item.groupId;
 				} else {
 					this.selectedComponent = 'home-component';
 				}
 			}
-			//console.log("edit:", item);
-			restapi.get(this.url + item._id).then((response) => {
+			restapi.get(this.showing +'/'+ item._id).then((response) => {
 				var item = response.data;
 				if (item.__t === 'Event') {
 					item.startDate = restapi.getDate(item.startDatetime);
 					item.startTime = restapi.getTime(item.startDatetime);
 					item.endTime = restapi.getTime(item.endDatetime);
+					restapi.get("join/?gid="+item._id).then((response) => {
+						item.joins = response.data;
+						this.item = item;
+					}).catch(function(err){
+						item.joins = [];
+						showerror(err);
+						this.item = item;
+					});
+				} else {
+					this.item = item;
 				}
-				this.item = item;
-				//console.log("ITEM:", this.item);
 			});
 		},
-		edit_item22: function(item) {
-			this.selectedComponent = 'home-component';
-			restapi.get(this.url + item._id).then((response) => {
-				this.item = response.data;
-			});
-		},
-		// 削除
+
+		// 削除(ROOT用)
 		delete_item: function(item) {
 			console.log("delete:", item);
 			restapi.delete(this.url + item._id).then((response) => {
@@ -234,7 +217,7 @@ const app = new Vue({
 				this.get_items(); // 一覧表示
 			});
 		},
-		// item 新規作成
+		// 新規作成(ROOT用)
 		create_item: function() {
 			console.log("crear id:", this.item._id);
 			restapi.get(this.url + 'schema').then((response) => {
@@ -247,7 +230,6 @@ const app = new Vue({
 				}
 				this.item._id = null;
 			});
-
 		},
 
 		// パスワード変更
@@ -275,6 +257,7 @@ const app = new Vue({
 				});
 			}
 		},
+/*
 		// item 書込み
 		form_submit: function(item) {
 			if (this.item._id) { // 更新
@@ -290,7 +273,7 @@ const app = new Vue({
 				});
 			}
 		},
+*/
 
 	}
 })
-

@@ -6,6 +6,9 @@ var Doc = require('./doc');
 //
 var Join = Doc.discriminator('Join',
 	new Schema({
-		groupName: String,
+		request: String,
+		status: String,
+		memberId: Schema.Types.ObjectId,
+		groupId: Schema.Types.ObjectId,
 	}));
 module.exports = Join;

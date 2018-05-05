@@ -7,8 +7,10 @@ const router = express.Router();
 const addroute = require('./resource-router');
 const restapi =require('./restapi');
 
-const read = '_id number name furigana fullname grade email';
-const edit = 'name furigana fullname grade';
+const read = '_id number email ';
+const edit = 'mainrole name furigana fullname grade zipcode address1 address2 tel hadInsurance';
+
+restapi.signinAdmin(router, model);
 
 addroute(router, [
 	restapi.whoami(model),
@@ -18,14 +20,15 @@ addroute(router, [
 	restapi.signin(model),
 	restapi.password(model),
 
-	restapi.find(model, read),
+	restapi.find(model, read+edit),
 	restapi.schema(model, edit),
 
-	restapi.read(model, read),
+	restapi.read(model, read+edit),
 	restapi.update(model, edit),
 	restapi.remove(model),
 	restapi.create(model),
 ]);
+
 
 exports = module.exports = router;
 

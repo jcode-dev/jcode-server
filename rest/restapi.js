@@ -87,8 +87,12 @@ restapi.findPublic = function(router, model) {
 	})
 }
 
+function authJwt() {
+	return passport.authenticate(['jwt'], { session: false });
+}
+
 restapi.findJoin = function(router, model) {
-	router.get('/', passport.authenticate(['jwt'], { session: false }), function(req, res) {
+	router.get('/', authJwt(), function(req, res) {
 		var params = req.query;
 		var find = {ownerId: req.user._id};
 		if (params.gid) {
@@ -100,7 +104,7 @@ restapi.findJoin = function(router, model) {
 }
 
 function isRoot(user) {
-	if (user && user.role === restapi.role.root) {
+	if (user && user.autho === restapi.autho.root) {
 		return true;
 	}
 	return false;
@@ -108,7 +112,7 @@ function isRoot(user) {
 
 restapi.schema = function(model, schema = {}) {
 	return ['/schema', 'get', function(req, res) {
-		console.log("schema user.role:", req.user.role);
+		console.log("schema user.autho:", req.user.autho);
 		if (isRoot(req.user)) {
 			res.status(200).send(model.schema.paths);
 		} else {
@@ -127,7 +131,7 @@ restapi.create = function(model, schema = null) {
 	}];
 }
 
-restapi.read = function(model, schema = 'name') {
+restapi.read = function(model, schema = '_id name') {
 	return ['/:_id/', 'get', function(req, res) {
 		console.log(schema);
 		if (isRoot(req.user)) {
@@ -144,19 +148,27 @@ restapi.readPublic = function(router, model) {
 	})
 }
 
-restapi.update = function(model) {
+function getFields(body, fields) {
+	var arr = fields.split(' ');
+	var newf = {};
+	for (let key of arr) {
+		if (key in body) {
+			newf[key] = body[key];
+		}
+	}
+	return newf;
+}
+
+restapi.update = function(model, fields = 'name') {
 	return ['/:_id/', 'post', function(req, res) {
 		console.log("UPDATE!!!!!");
 		var id = req.params['_id'];
-		var body = req.body;
-		delete body._id;
-		delete body.updatedAt;
-		delete body.createdAt;
-		console.log("update:", model.modelName, id, body);
+		var updateFields = getFields(req.body, fields);
+		console.log("update:", model.modelName, id, updateFields);
 		if (isRoot(req.user)) {
-			model.findByIdAndUpdate(id, { $set:body }, toRes(res));
+			model.findByIdAndUpdate(id, { $set:updateFields }, toRes(res));
 		} else {
-			model.findOneAndUpdate({_id: req.params['_id'], ownerId: req.user._id}, { $set:body }, toRes(res));
+			model.findOneAndUpdate({_id: req.params['_id'], ownerId: req.user._id}, { $set:updateFields }, toRes(res));
 		}
 	}];
 }
@@ -173,7 +185,7 @@ restapi.remove = function(model) {
 		},true];
 }
 
-restapi.role = {
+restapi.autho = {
 	public: 'PUBLIC',
 	guest:  'GUEST',
 	user:   'USER',
@@ -194,7 +206,7 @@ restapi.whoami = function(model, schema = null) {
 				name: req.user.name,
 				email: req.user.email,
 				member_id: req.user.member_id,
-				role: req.user.role,
+				autho: req.user.autho,
 				title: req.user.title,
 			}
 		}
@@ -233,7 +245,7 @@ restapi.reset = function(model) {
 			  });
 			});
 		});
-	}, restapi.role.public];
+	}, restapi.autho.public];
 }
 // パスワード変更 toDO : bug fix 子どものパスワードを変更できるように
 restapi.password = function(model) {
@@ -265,7 +277,7 @@ restapi.signup = function(model) {
 			newUser.email = req.body.email;
 			newUser.name = req.body.name;
 			newUser.password = req.body.password;
-			newUser.role = 'GUEST';
+			newUser.autho = 'GUEST';
 			newUser.save(function(err){
 				console.log("new:", newUser);
 				newUser.ownerId = newUser._id;
@@ -274,7 +286,7 @@ restapi.signup = function(model) {
 				});
 			});
 		}); 
-	}, restapi.role.public];
+	}, restapi.autho.public];
 }
 // サインイン(公開API)
 restapi.signin = function(model) {
@@ -292,7 +304,24 @@ restapi.signin = function(model) {
 			var token = generateAccessToken(result._id);
 			res.status(200).send(token);
 		});
-	}, restapi.role.public];
+	}, restapi.autho.public];
+}
+
+// サインイン(管理者用)
+restapi.signinAdmin = function(router, model) {
+	router.post('/signinadmin', authJwt(), function(req, res) {
+		var email = req.body.email;
+		console.log("signinadmin:", email);
+		if (isRoot(req.user)) {
+			model.findOne({ email: email }).exec(function(err, result) {
+				if (err || !result) {
+					return res.status(401).send("エラー：メールアドレスとパスワードが異なる可能性があります。");
+				}
+				var token = generateAccessToken(result._id);
+				res.status(200).send(token);
+			});
+		}
+	})
 }
 
 exports = module.exports = restapi;

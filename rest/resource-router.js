@@ -37,7 +37,7 @@ module.exports = function(router, params) {
 
 	for (let item of params) {
 
-		if (item[3] !== restapi.role.public) { // role もしも、セキュリティが必要なら
+		if (item[3] !== restapi.autho.public) { // role もしも、セキュリティが必要なら
 			router[item[1]](item[0], passport.authenticate(['jwt'], { session: false }), item[2]);
 		} else {
 			router[item[1]](item[0], item[2]);

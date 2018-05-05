@@ -6,8 +6,10 @@ var Schema = mongoose.Schema;
 //
 var DocSchema = new Schema({
 	name: String,		// ŒöŠJ–¼
-	ownerId: Schema.Types.ObjectId,
 	title: String,
+	ownerId: Schema.Types.ObjectId,
+	memberId: Schema.Types.ObjectId,
+	groupId: Schema.Types.ObjectId,
 },{ timestamps: {} });
 DocSchema.plugin(findOrCreate);
 module.exports = mongoose.model('Doc', DocSchema);

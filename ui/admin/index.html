@@ -6,6 +6,7 @@
 	<title>Hello pel</title>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
 	<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+
 </head>
 <body>
 	<div id="app">
@@ -14,7 +15,11 @@
 			<div class="tile is-parent">
 				<div class="tile is-child box">
 					<template v-if="user.name">
-					こんにちは、{{user.name}} さん。プログラミング教育研究所へようこそ。{{user.role}}<br />
+						こんにちは、{{user.name}} さん。プログラミング教育研究所へようこそ。{{user.mainrole}}
+						 <input class="button is-primary" v-on:click.prevent="adminSinout()" value="サインアウト">  <br />
+
+					<input type="checkbox" id="checkbox" v-model="adminUi">管理者画面<br />
+
 					※{{user.name}} さんでは無い場合は、<a v-bind:href="nexturl">サインインし直し</a>てください。
 					</template>
 					<template v-else>
@@ -38,13 +43,12 @@
 								<select v-model="selected" @change="get_items">
 									<option value="doc" selected>すべて</option>
 									<option value="event">イベント</option>
-									<option value="address">連絡先</option>
 									<option value="user">ユーザー情報</option>
 									<option value="join">参加申込</option>
 								</select>
 								<span>{{selected}}-{{showing}}</span>
 
-						  	<div class="control" v-if="user.role==='ROOT'">
+						  	<div class="control" v-if="adminUi">
 							  	<input class="button is-primary" v-on:click.prevent="create_item" value="新規作成">
 							  </div>
 							</div>
@@ -59,8 +63,9 @@
 											<td>
 												{{item.name}}
 											</td>
-											<td v-if="user.role==='ROOT'">
+											<td v-if="adminUi">
 												<button class="button" v-on:click.prevent="delete_item(item)"><i class="far fa-trash-alt"></i></button>
+												<button class="button" v-on:click.prevent="adminSinin(item.email)"><i class="fas fa-sign-in-alt"></i></button>
 											</td>
 										</tr>
 									</tbody>
@@ -68,259 +73,314 @@
 							</div>
 						</div>
 					</article>
-
-
 				</div>
 			</div>
 			<div class="tile is-parent">
 				<div class="tile is-child box">
 
-					<component v-bind:is="selectedComponent" :item="item" :users="users" :local="local" v-on:submit_from_child="child_form_submit" v-on:changepass_2="changepass_child">
-					</component>
+					<template v-if="showing === 'user' && !adminUi">
+						<form v-on:submit.prevent="submitItem">
+							<article class="message is-primary">
+								<div class="content">
+									<div class="message-header">
+										ユーザー情報
+									</div>
+									<div class="message-body">
+
+										<div class="field">
+											会員番号：{{item.number}}
+										</div>
+
+										<div class="field">
+											メール：{{item.email}}
+										</div>
+
+										<div class="field is-horizontal">
+											<div class="field-label is-small">
+												<label class="label">ニックネーム</label>
+											</div>
+											<div class="field-body">
+												<div class="field is-narrow">
+													<input v-model="item.name" class="input" type="text" required>
+												</div>
+											</div>
+										</div>
+
+										<div class="field is-horizontal">
+											<div class="field-label is-normal">
+												<label class="label">主な役割</label>
+											</div>
+											<div class="field-body">
+												<div class="field is-narrow">
+													<select class="select" v-model="item.mainrole" required>
+														<option value="PARENT">保護者</option>
+														<option value="STAFF">ボランティア・スタッフ</option>
+														<option value="STUDENT">生徒</option>
+													</select>
+												</div>
+											</div>
+										</div>
+
+										<div class="field is-horizontal">
+											<div class="field-label is-normal">
+												<label class="label">ふりがな</label>
+											</div>
+											<div class="field-body">
+												<div class="field is-narrow">
+													<input v-model="item.furigana" class="input" type="text" required>
+												</div>
+											</div>
+										</div>
+
+										<div class="field is-horizontal">
+											<div class="field-label is-normal">
+												<label class="label">名前</label>
+											</div>
+											<div class="field-body">
+												<div class="field is-narrow">
+													<input v-model="item.fullname" class="input" type="text" required>
+												</div>
+											</div>
+										</div>
+
+										<div class="field is-horizontal">
+											<div class="field-label is-normal">
+												<label class="label">学年</label>
+											</div>
+											<div class="field-body">
+												<div class="field is-narrow">
+													<select class="select" v-model="item.grade" required>
+														<option value="小1">小1</option>
+														<option value="小2">小2</option>
+														<option value="小3">小3</option>
+														<option value="小4">小4</option>
+														<option value="小5">小5</option>
+														<option value="小6">小6</option>
+														<option value="中1">中1</option>
+														<option value="中2">中2</option>
+														<option value="中3">中3</option>
+														<option value="-">小中学生以外</option>
+													</select>
+												</div>
+											</div>
+										</div>
+
+										<template v-if="item.mainrole === 'STAFF'">
+
+											<p class="help">※ボランティア・スタッフの方は、住所をご記入ください。</p>
+
+											<div class="field is-horizontal">
+												<div class="field-label is-normal">
+													<label class="label">郵便番号</label>
+												</div>
+												<div class="field-body">
+													<div class="field is-narrow">
+														<input v-model="item.zipcode" class="input" type="text" required>
+													</div>
+												</div>
+											</div>
+
+											<div class="field is-horizontal">
+												<div class="field-label is-normal">
+													<label class="label">住所1</label>
+												</div>
+												<div class="field-body">
+													<div class="field is-expanded">
+														<input v-model="item.address1" class="input" type="text" required>
+													</div>
+												</div>
+											</div>
+
+											<div class="field is-horizontal">
+												<div class="field-label is-normal">
+													<label class="label">住所2</label>
+												</div>
+												<div class="field-body">
+													<div class="field is-expanded">
+														<input v-model="item.address2" class="input" type="text">
+													</div>
+												</div>
+											</div>
+
+											<div class="field is-horizontal">
+												<div class="field-label is-normal">
+													<label class="label">電話番号</label>
+												</div>
+												<div class="field-body">
+													<div class="field is-narrow">
+														<input v-model="item.tel" class="input" type="text" required>
+													</div>
+												</div>
+											</div>
+
+											<div class="field">
+
+													<div class="field is-nomail">
+														<input v-model="item.hadInsurance" class="checkbox" type="checkbox">他の<b>ボランティア保険</b>に加入済み<br />
+													</div>
+
+											</div>
+											<p class="help">（他で加入済みなどで、今回新たにボランティア保険加入の<b>必要が無い方</b>はチェックしてください）</p>
+										</template>
+
+										<div class="field is-horizontal">
+											<div class="field-label is-normal">
+											</div>
+											<div class="field-body">
+												<div class="field">
+													<div class="control">
+														<input class="button is-primary" type="submit" value="更新">
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<button class="button is-warning" v-on:click.prevent="openPasswordDlg()">パスワード変更</button>
+
+									</div>
+								</div>
+							</article>
+						</form>
+					</template>
+					<template v-else-if="showing === 'event' && !adminUi">
+						<div>
+							<article class="message is-primary">
+								<div class="content">
+									<div class="message-header">
+										教室・イベント
+									</div>
+									<div class="message-body">
+										名称： {{item.name}}<br />
+										日付： {{item.startDate}}<br />
+										時間： {{item.startTime}}～{{item.endTime}}<br />
+										場所： {{item.place}}<br />
+										説明： {{item.description}}<br />
+
+										<table class="table is-striped">
+											<tbody>
+												<tr>
+													<th>参加者</th>
+													<th>ステータス</th>
+													<th>アクション</th>
+												</tr>
+												<tr v-for="join in item.joins">
+													<td>{{join.name}}</td>
+													<td>{{join.status}}</td>
+													<td>
+														<button click v-on:click.prevent="leave(join)">取消</button>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+
+									</div>
+								</div>
+							</article>
+						</div>
+
+						<article class="message is-primary">
+							<div class="content">
+								<div class="message-header">
+									ユーザー情報
+								</div>
+								<div class="message-body">
+
+									<table class="table is-striped">
+										<tbody>
+											<tr>
+												<th>名前</th>
+												<th>学年</th>
+												<th>アクション</th>
+											</tr>
+											<tr v-for="user in users">
+												<td>{{user.fullname}}</td>
+												<td>{{user.mainrole}} {{user.grade}}</td>
+												<td>
+													<button click v-on:click.prevent="attend(user)">参加申込</button>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+
+									<div class="field">
+										<div class="control">
+											<button class="button is-info" v-on:click.prevent="newuser()">ユーザーを追加する</button>
+										</div>
+									</div>
+
+								</div>
+							</div>
+						</article>
+					</template>
+
+					<template v-else>
+						<form v-on:submit.prevent="submitItem">
+							<article class="message is-primary">
+								<div class="content">
+									<div class="message-header">
+										編集
+									</div>
+									<div class="message-body">
+
+										<template v-for="(value, key) in item">
+											<div class="field">
+												<label class="label">{{ local[key] || key }}</label>
+												<input v-model="item[key]" class="input" type="text">
+											</div>
+										</template>
+
+									<div class="field is-grouped">
+								  	<div class="control has-text-right">
+									  	<input class="button is-primary" type="submit" value="更新">
+									  </div>
+									</div>
+
+									</div>
+								</div>
+							</article>
+						</form>
+					</template>
 
 				</div>
 			</div>
 		</div>
 
-	</div>
+		<template v-if="pwdDialog">
+			<div class="modal is-active" id="password">
+			  <div class="modal-background"></div>
+			  <div class="modal-content">
 
-	<script id="template-home" type="text/x-template">
-		<form v-on:submit.prevent="child_form_submit">
-			<article class="message is-primary">
-				<div class="content">
-					<div class="message-header">
-						編集
-					</div>
-					<div class="message-body">
+					<form v-on:submit.prevent="changepass_child(item)">
+						<article class="message is-primary">
+							<div class="content">
+								<div class="message-header">
+									パスワードを変更する
+								</div>
+								<div class="message-body">
 
-						<template v-for="(value, key) in item">
-							<div class="field">
-								<label class="label">{{ local[key] || key }}</label>
-								<input v-model="item[key]" class="input" type="text">
+									<div class="field">
+										<label class="label">パスワード</label>
+										<input v-model="item.password" class="input" type="password" required pattern="[!-~]{3,}">
+									</div>
+
+									<div class="field">
+								  	<div class="control">
+									  	<input class="button is-primary" value="パスワード変更" type="submit">
+									  </div>
+									</div>
+
+								</div>
 							</div>
-						</template>
+						</article>
+					</form>
+			  </div>
+			  <button class="modal-close is-large" aria-label="close" v-on:click.prevent="closePasswordDlg()"></button>
 
-					<div class="field is-grouped">
-				  	<div class="control has-text-right">
-					  	<input class="button is-primary" type="submit" value="更新">
-					  </div>
-					</div>
-
-					</div>
-				</div>
-			</article>
-		</form>
-	</script>
-
-	<script id="template-user" type="text/x-template">
-
-	<div>
-		<form v-on:submit.prevent="child_form_submit">
-			<article class="message is-primary">
-				<div class="content">
-					<div class="message-header">
-						ユーザー情報
-					</div>
-					<div class="message-body">
-
-						<div class="field">
-							<label class="label">会員番号</label>
-							{{item.number}}
-						</div>
-
-						<div class="field">
-							<label class="label">ニックネーム</label>
-							<input v-model="item.name" class="input" type="text" required>
-						</div>
-
-						<div class="field">
-							<label class="label">ふりがな</label>
-							<input v-model="item.furigana" class="input" type="text" required>
-						</div>
-
-						<div class="field">
-							<label class="label">漢字氏名</label>
-							<input v-model="item.fullname" class="input" type="text" required>
-						</div>
-
-						<div class="field">
-							<label class="label">学年</label>
-								<select v-model="item.grade">
-									<option value="小1">小1</option>
-									<option value="小2">小2</option>
-									<option value="小3">小3</option>
-									<option value="小4">小4</option>
-									<option value="小5">小5</option>
-									<option value="小6">小6</option>
-									<option value="中1">中1</option>
-									<option value="中2">中2</option>
-									<option value="中3">中3</option>
-									<option value="それ以上">それ以上</option>
-								</select>
-						</div>
-
-						<div class="field">
-							<label class="label">メール</label>
-							{{item.email}}
-						</div>
-
-						<div class="field">
-							<div class="control">
-								<input class="button is-primary" type="submit" value="更新">
-							</div>
-						</div>
-
-						<div class="field">
-							<div class="control">
-								<button class="button is-info" v-on:click.prevent="newuser()">新しいユーザーアカウントの追加</button>
-							</div>
-						</div>
-
-					</div>
-				</div>
-			</article>
-		</form>
-
-		<form v-on:submit.prevent="changepass_child">
-			<article class="message is-primary">
-				<div class="content">
-					<div class="message-header">
-						パスワード
-					</div>
-					<div class="message-body">
-
-						<div class="field">
-							<label class="label">パスワード</label>
-							<input v-model="item.password" class="input" type="password" required pattern="[!-~]{3,}">
-						</div>
-
-						<div class="field">
-					  	<div class="control has-text-right">
-						  	<input class="button is-primary" type="submit" value="パスワード変更">
-						  </div>
-						</div>
-
-					</div>
-				</div>
-			</article>
-		</form>
-	</div>
-	</script>
-
-	<script id="template-address" type="text/x-template">
-		<form v-on:submit.prevent="child_form_submit">
-			<article class="message is-primary">
-				<div class="content">
-					<div class="message-header">
-						住所と連絡先
-					</div>
-					<div class="message-body">
-
-						<div class="field">
-							<label class="label">名前</label>
-							<input v-model="item.name" class="input" type="text" v-on:change="change_zip();">
-						</div>
-
-						<div class="field">
-							<label class="label">郵便番号</label>
-							<input v-model="item.zipcode" class="input" type="text" v-on:change="change_zip();">
-						</div>
-
-						<div class="field">
-							<label class="label">住所1</label>
-							<input v-model="item.address1" class="input" type="text" >
-						</div>
-
-						<div class="field">
-							<label class="label">住所2</label>
-							<input v-model="item.address2" class="input" type="text" >
-						</div>
-
-						<div class="field">
-							<label class="label">電話番号</label>
-							<input v-model="item.tel" class="input" type="text" >
-						</div>
-
-						<div class="field is-grouped">
-					  	<div class="control has-text-right">
-						  	<input class="button is-primary" type="submit" value="更新">
-						  </div>
-						</div>
-
-					</div>
-				</div>
-			</article>
-		</form>
-	</script>
-
-	<script id="template-event" type="text/x-template">
-		<section>
-			<div>
-				<article class="message is-primary">
-					<div class="content">
-						<div class="message-header">
-							教室・イベント
-						</div>
-						<div class="message-body">
-							名称： {{item.name}}<br />
-							日付： {{item.startDate}}<br />
-							時間： {{item.startTime}}～{{item.endTime}}<br />
-							場所： {{item.place}}<br />
-							説明： {{item.description}}<br />
-
-							<table class="table is-striped">
-								<tbody>
-									<tr>
-										<th>参加者</th>
-										<th>ステータス</th>
-										<th>アクション</th>
-									</tr>
-									<tr v-for="join in item.joins">
-										<td>{{join.name}}</td>
-										<td>{{join.status}}</td>
-										<td>
-											<button click v-on:click.prevent="leave(join)">取消</button>
-										</td>
-									</tr>
-								</tbody>
-							</table>
-
-						</div>
-					</div>
-				</article>
 			</div>
+		</template>
 
-			<article class="message is-primary">
-				<div class="content">
-					<div class="message-header">
-						ユーザー情報
-					</div>
-					<div class="message-body">
-
-						<table class="table is-striped">
-							<tbody>
-								<tr>
-									<th>名前</th>
-									<th>学年</th>
-									<th>アクション</th>
-								</tr>
-								<tr v-for="user in users">
-									<td>{{user.fullname}}</td>
-									<td>{{user.grade}}</td>
-									<td>
-										<button click v-on:click.prevent="attend(user)">参加申込</button>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-
-					</div>
-				</div>
-			</article>
-
-		</section>
-	</script>
-
+	</div>
+	
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 	<script src="restapi.js"></script>

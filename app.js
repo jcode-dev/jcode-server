@@ -30,10 +30,8 @@ var passport = require('./passport');
 var api_user = require('./rest/api_user');
 var api_event = require('./rest/api_event');
 var api_doc = require('./rest/api_doc');
-var api_address = require('./rest/api_address');
+//var api_address = require('./rest/api_address');
 var api_join = require('./rest/api_join');
-//var api_eventRegistration = require('./rest/api_eventRegistration');
-//var api_registration = require('./rest/api_registration');
 
 console.log ("start express app"); 
 var app = express();
@@ -64,12 +62,11 @@ app.use((req, res, next) => {
 console.log ("setup routers"); 
 
 // サーバーREST API
-app.use('/api/address', api_address);
+//app.use('/api/address', api_address);
 app.use('/api/user', api_user);
 app.use('/api/event', api_event);
 app.use('/api/doc', api_doc);
 app.use('/api/join', api_join);
-//app.use('/api/registration', api_registration);
 // クライアント＝ユーザーインタフェース
 app.use('/ui', express.static(path.join(__dirname, './ui')));
 // サインイン＆リダイレクト

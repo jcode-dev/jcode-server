@@ -9,12 +9,22 @@ var bCrypt = require('bcrypt-nodejs');
 var User = Doc.discriminator('User',
 	new Schema({
 		number: Number,	// 番号
-		grade: String,	// 小1～中1、高校生以上
+		mainrole: String, // PARENT, STUDENT, STAFF
+		grade: String,	// 小1～中1
 		furigana: String,
 		fullname: String,
 		password: String,	// サインイン・パスワード
 		email:String,		// email
-		role: String, //セキュリティ名 ['GUEST', 'USER', 'ADMIN', 'ROOT']
+		
+		zipcode: String,
+		address1: String,
+		address2: String,
+		tel: String,
+		
+		hadInsurance: Boolean, // 別途保険をもってる
+		
+		
+		autho: String, //アクセス権限 ['GUEST', 'USER', 'ADMIN', 'ROOT']
 	}));
 
 // スキーマ毎に連番を振る
@@ -30,7 +40,7 @@ User.schema.pre('save', function(next) {
 			user.number = data[0].number+1;
 		} else {
 			user.number = 1000;
-			user.role = 'ROOT';
+			user.autho = 'ROOT';
 		}
 		return next();
 	});

@@ -27,10 +27,35 @@ restapi.post = function(api, data) {
 restapi.delete = function(api) {
 	return restapi.axios.delete(restapi.base_url+api);
 }
+restapi.pushToken = function(newtoken) {
+	var token = localStorage.getItem('token');
+	var tokenList = localStorage.getItem('tokenList');
+	if (tokenList) {
+		tokenList = JSON.parse(tokenList);
+	} else {
+		tokenList = [];
+	}
+	tokenList.push(token);
+	localStorage.setItem('tokenList', JSON.stringify(tokenList));
+	localStorage.setItem('token', newtoken);
+}
+
+restapi.popToken = function() {
+	var tokenList = localStorage.getItem('tokenList');
+	if (tokenList) {
+		tokenList = JSON.parse(tokenList);
+	} else {
+		tokenList = [];
+	}
+	var token = tokenList.pop();
+	localStorage.setItem('tokenList', JSON.stringify(tokenList));
+	localStorage.setItem('token', token);
+	return token;
+}
+
 
 restapi.local = {
 	_id: 'ID',
-	role: '役割',
 	number:'番号',
 	name:'名前',
 	email:'メール',

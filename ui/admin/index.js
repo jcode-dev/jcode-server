@@ -11,6 +11,12 @@
 		}
 */
 
+function eventdescription(event) {
+return "名称："+event.name+"\n"+
+"日付："+ event.startDate+"\n"+
+"時間："+ event.startTime+"～"+event.endTime+"\n"+
+"場所："+ event.place+"\n";
+}
 
 const app = new Vue({
 	el: '#app',
@@ -74,10 +80,12 @@ const app = new Vue({
 		attend: function(user) {
 			var that = this;
 			var event = this.item;
+			var email = {title: "参加申込しました", body:"参加の申し込みをしました。\n\n参加者氏名："+user.fullname+"\n\n"+eventdescription(event)};
 			restapi.post("join/", {
 				name: user.fullname + ' ' + restapi.getShortDate(event.startDatetime),
 				memberId: user._id,
-				groupId: event._id }).then((response) => {
+				groupId: event._id}).then((response) => {
+					restapi.post("email/", email);
 					console.log("Join:", response);
 					this.get_items(); // 一覧表示
 					this.redrawItem();
@@ -88,7 +96,10 @@ const app = new Vue({
 		// 参加キャンセル
 		leave: function(join) {
 			var that = this;
+			var event = this.item;
+			var email = {title: "参加取消しました", body:"参加の取り消しをしました。\n\n参加者氏名："+join.name+"\n\n"+eventdescription(event)};
 			restapi.delete("join/"+join._id).then((response) => {
+				restapi.post("email/", email);
 				console.log("leave:", response);
 				this.get_items(); // 一覧表示
 				this.redrawItem();

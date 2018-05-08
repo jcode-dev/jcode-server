@@ -102,7 +102,7 @@ restapi.findJoin = function(router, model) {
 		model.find(find).exec(toRes(res));
 	})
 }
-
+// 参加申込
 restapi.createJoin = function(router, model) {
 	router.post('/', authJwt(), function(req, res) {
 		var body = req.body;
@@ -119,6 +119,29 @@ restapi.createJoin = function(router, model) {
 	})
 }
 
+// 参加取消
+restapi.removeJoin = function(router, model) {
+	router.delete('/:_id/', authJwt(), function(req, res) {
+		var id = req.params['_id'];
+		console.log("delete:", model.modelName, id);
+		if (isRoot(req.user)) {
+			model.findByIdAndRemove(id, toRes(res));
+		} else {
+			model.findOne({_id: req.params['_id'], ownerId: req.user._id}, function(err, result) {
+				if (result.status === 'PENDING') {
+					model.findOneAndRemove({_id: req.params['_id'], ownerId: req.user._id}, toRes(res));
+				} else if (result.status === 'APPROVED') {
+					result.status = 'CANCEL';
+					result.save( function(err){
+						res.status(200).send(err);
+					});
+				} else {
+					res.status(401).send("エラー");
+				}
+			});
+		}
+	})
+}
 
 function isRoot(user) {
 	if (user && user.autho === restapi.autho.root) {
@@ -202,29 +225,6 @@ restapi.remove = function(model) {
 		},true];
 }
 
-restapi.removeJoin = function(router, model) {
-	router.delete('/:_id/', authJwt(), function(req, res) {
-		var id = req.params['_id'];
-		console.log("delete:", model.modelName, id);
-		if (isRoot(req.user)) {
-			model.findByIdAndRemove(id, toRes(res));
-		} else {
-			model.findOne({_id: req.params['_id'], ownerId: req.user._id}, function(err, result) {
-				if (result.status === 'PENDING') {
-					model.findOneAndRemove({_id: req.params['_id'], ownerId: req.user._id}, toRes(res));
-				} else if (result.status === 'APPROVED') {
-					result.status = 'CANCEL';
-					result.save( function(err){
-						res.status(200).send(err);
-					});
-				} else {
-					res.status(401).send("エラー");
-				}
-			});
-		}
-	})
-}
-
 restapi.autho = {
 	public: 'PUBLIC',
 	guest:  'GUEST',
@@ -269,6 +269,20 @@ restapi.reset = function(model) {
 		});
 	}, restapi.autho.public];
 }
+
+// メール送信
+restapi.sendemail = function(router) {
+	router.post('/', authJwt(), function(req, res) {
+		var email = req.user.email;
+		var msg = req.body;
+
+		mailer(email, msg.title,
+		 path.join(__dirname, "./emailtemplate.txt"), {subject:msg.title, body: msg.body});
+
+		res.status(200).send("OK");
+	});
+}
+
 // パスワード変更 toDO : bug fix 子どものパスワードを変更できるように
 restapi.password = function(model) {
 	return ['/password', 'post', function(req, res) {

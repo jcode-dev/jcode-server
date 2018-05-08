@@ -67,6 +67,7 @@ app.use('/api/user', api_user);
 app.use('/api/event', api_event);
 app.use('/api/doc', api_doc);
 app.use('/api/join', api_join);
+app.use('/api/email', require('./rest/api_email'));
 // クライアント＝ユーザーインタフェース
 app.use('/ui', express.static(path.join(__dirname, './ui')));
 // サインイン＆リダイレクト

@@ -16,6 +16,7 @@ exports = module.exports = function (to, subject, template, vars) {
 	  var output = mustache.render(data.toString(), vars);
 		let msg = {
 		  to: to,
+		  cc: process.env.SENDGRID_FROM,
 		  from: process.env.SENDGRID_FROM,
 		  subject: subject,
 		  text: output,

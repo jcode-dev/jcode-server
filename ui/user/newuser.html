@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Hello pel</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+	<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+	<style>
+
+	.message {
+		margin: 1.5rem;
+	}
+	.frame {
+		margin: 1.5rem;
+	}
+	.morespace {
+		margin: 0 1rem;
+	}
+	</style>
+
+	
+</head>
+<body>
+	<div id="app">
+
+		<template v-if="!mailDone">
+			<article class="message is-primary">
+				<div class="content">
+					<div class="message-header">
+						メールアドレスを使って会員登録する
+					</div>
+					<div class="message-body">
+
+						<form v-on:submit.prevent="sign_in(user)">
+							<div class="field">
+							  <label class="label">メールアドレス</label>
+							  <div class="control has-icons-left">
+									<input v-model="user.email" class="input" type="email" required  placeholder="someone@j-code.org" autocomplete="email">
+									<span class="icon is-small is-left">
+										<i class="fas fa-envelope"></i>
+									</span>
+							  </div>
+							</div>
+
+							<div class="field">
+								<label class="label">パスワード</label>
+								<input v-model="user.password" type="password" required autocomplete="current-password">
+							</div>
+
+							<div class="field">
+								<label class="label">パスワード（同じものを、もういちど）</label>
+								<input v-model="user.password2" type="password" required autocomplete="current-password">
+							</div>
+							<p class="help is-danger">${errormsg}</p>
+
+							<div class="field">
+						  	<div class="control">
+							  	<input class="button is-primary" value="登録" type="submit">
+							  </div>
+							</div>
+						</form>
+						<p></p>
+						<P>
+						※自分のメールアドレスを持っていない人は、会員登録ができません。保護者や先生に、かわりに登録してもらってください。
+						</P>
+						<p>
+						パスワードを思い出したので、サインインする場合は、<a href="/go{{{nexturl}}}">ここをクリック</a>します。
+						</p>
+						<p>
+						パスワードだけが分からない場合は<a href="/go/password{{{nexturl}}}">ここをクリック</a>します。
+						</p>
+						
+					</div>
+				</div>
+			</article>
+		</template>
+		<template v-else>
+
+			<article class="message is-primary">
+				<div class="content">
+					<div class="message-header">
+						メールを確認してください。
+					</div>
+					<div class="message-body">
+
+						<p>
+						メールのパスワードを使ってサインインしてください。<br />
+						メールの送信には数分かかることがあります。<br />
+						迷惑メールになっていないかご確認ください。<br />
+						</p>
+						<p>
+						もう一度パスワードをリセットして、メールを送るなら、<a v-on:click.prevent="showDlg()">ココ</a>をクリック。
+						</p>
+
+						<a class="button is-primary" href="{{nexturl}}">次へすすむ</a>
+
+						<form v-on:submit="next()">
+							<div class="field">
+						  	<div class="control">
+							  	<input class="button is-primary" value="次へむ" type="submit">
+							  </div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</article>
+
+
+		</template>
+
+	</div>
+
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="/ui/js/restapi.js"></script>
+	<script>
+const app = new Vue({
+	delimiters: ['${', '}'],
+	el: '#app',
+	data: {
+		user:{},
+		mailDone: false,
+		errormsg: "",
+	},
+	methods: {
+		// サインイン
+		sign_in: function (user) {
+			if (user.password === user.password2) {
+				// 新しいアカウントを作成
+				axios.post(location.protocol+"//"+location.host+"/api/user/signup", user).then((response) => {
+
+					restapi.pushToken(response.data);
+					console.log("signin:", response.data);
+					location.href = "/go/profile{{{nexturl}}}";
+
+				}).catch((error) => {
+					this.errormsg = error.response.data;
+				});
+			} else {
+				this.errormsg = "エラー：2つのパスワードが異なります。同じものを2回入れてください。";
+			}
+		},
+	}
+})
+	</script>
+</body>
+</html>

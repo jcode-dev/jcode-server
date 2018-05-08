@@ -6,7 +6,7 @@ restapi.base_url = location.protocol+"//"+location.host+"/api/";
 
 restapi.axios = axios.create({ baseURL: restapi.base_url });
 
-// axios with token
+// axios をセキュリティ token付きで呼び出す
 restapi.axios.interceptors.request.use((config) => {
 	var token = localStorage.getItem('token');
   if (token) {  
@@ -53,7 +53,7 @@ restapi.popToken = function() {
 	return token;
 }
 
-
+// 日本語＆アイコン
 restapi.local = {
 	_id: 'ID',
 	number:'番号',

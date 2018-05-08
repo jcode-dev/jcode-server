@@ -103,6 +103,23 @@ restapi.findJoin = function(router, model) {
 	})
 }
 
+restapi.createJoin = function(router, model) {
+	router.post('/', authJwt(), function(req, res) {
+		var body = req.body;
+		body.ownerId = req.user._id; // created by
+		body.status = 'PENDING';
+		model.findOne({memberId:body.memberId, groupId:body.groupId},function(err, result) {
+			if (err || result) {
+				console.log(result);
+				return res.status(401).send("エラー：申込は既に行われているようです。");
+			} else {
+				model.create(body, toRes(res));
+			}
+		});
+	})
+}
+
+
 function isRoot(user) {
 	if (user && user.autho === restapi.autho.root) {
 		return true;
@@ -185,6 +202,29 @@ restapi.remove = function(model) {
 		},true];
 }
 
+restapi.removeJoin = function(router, model) {
+	router.delete('/:_id/', authJwt(), function(req, res) {
+		var id = req.params['_id'];
+		console.log("delete:", model.modelName, id);
+		if (isRoot(req.user)) {
+			model.findByIdAndRemove(id, toRes(res));
+		} else {
+			model.findOne({_id: req.params['_id'], ownerId: req.user._id}, function(err, result) {
+				if (result.status === 'PENDING') {
+					model.findOneAndRemove({_id: req.params['_id'], ownerId: req.user._id}, toRes(res));
+				} else if (result.status === 'APPROVED') {
+					result.status = 'CANCEL';
+					result.save( function(err){
+						res.status(200).send(err);
+					});
+				} else {
+					res.status(401).send("エラー");
+				}
+			});
+		}
+	})
+}
+
 restapi.autho = {
 	public: 'PUBLIC',
 	guest:  'GUEST',
@@ -195,24 +235,6 @@ restapi.autho = {
 
 	// ユーザー拡張
 
-// ログイン情報
-restapi.whoami = function(model, schema = null) {
-	return ['/whoami', 'get', function(req, res) {
-		console.log("who am I ?:", req.user);
-		var user = null;
-		if (req.user) {
-			user = {
-				_id: req.user.id,
-				name: req.user.name,
-				email: req.user.email,
-				member_id: req.user.member_id,
-				autho: req.user.autho,
-				title: req.user.title,
-			}
-		}
-		res.status(200).send(user);
-	},true];
-}
 // 子どもの一覧
 restapi.children = function(model) {
 	return ['/children', 'get', function(req, res) {
@@ -233,7 +255,7 @@ restapi.reset = function(model) {
 				 return res.status(401).send("エラー：このメールアドレスには送信できません。");
 			}
 			var id = result[0]._id;
-			var password = "78" + Math.ceil(Math.random()*10000);
+			var password = "7" + Math.ceil(Math.random()*100000);
 			mailer(email, 'パスワードリセットのお知らせ',
 			 path.join(__dirname, "./resetpass.txt"), {subject:'パスワードリセットのお知らせ', password: password});
 			 model.findById(id, function (err, user) {
@@ -282,7 +304,8 @@ restapi.signup = function(model) {
 				console.log("new:", newUser);
 				newUser.ownerId = newUser._id;
 				newUser.save(function(err){
-					res.status(200).send(newUser);
+					var token = generateAccessToken(newUser._id);
+					res.status(200).send(token);
 				});
 			});
 		}); 
@@ -322,6 +345,16 @@ restapi.signinAdmin = function(router, model) {
 			});
 		}
 	})
+}
+
+// ログイン情報
+restapi.whoami = function(router, model, fields = '_id name') {
+	router.get('/whoami', authJwt(), function(req, res) {
+		console.log("whoami:", req.user, fields);
+		var updateFields = getFields(req.user, fields);
+		console.log("whoami2:", updateFields);
+		res.status(200).send(updateFields);
+	});
 }
 
 exports = module.exports = restapi;

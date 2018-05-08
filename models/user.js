@@ -22,7 +22,7 @@ var User = Doc.discriminator('User',
 		tel: String,
 		
 		hadInsurance: Boolean, // 別途保険をもってる
-		
+		memo: String,
 		
 		autho: String, //アクセス権限 ['GUEST', 'USER', 'ADMIN', 'ROOT']
 	}));

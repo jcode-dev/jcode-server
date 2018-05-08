@@ -6,22 +6,6 @@ const mustache = require('mustache');
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-/*
-exports = module.exports = function (to, subject, text, html) {
-
-	let msg = {
-	  to: to,
-	  from: process.env.SENDGRID_FROM,
-	  subject: subject,
-	  text: text,
-	  html: html,
-	};
-	console.log("msg:", msg);
-	
-	sgMail.send(msg);
-
-};
-*/
 
 exports = module.exports = function (to, subject, template, vars) {
 
@@ -37,7 +21,13 @@ exports = module.exports = function (to, subject, template, vars) {
 		  text: output,
 		};
 		console.log("msg:", msg);
-		sgMail.send(msg);
+
+		// 今は、送信します
+		// console.log("送信しません！！");
+		if (true) {
+			sgMail.send(msg);
+		}
+
 	});
 };
 

@@ -11,11 +11,6 @@
 		}
 */
 
-const showerror = function(error) {
-	console.log("error:",error);
-	console.log("error:",error.response.data);
-	document.getElementById("errormsg").innerHTML = error.response.data;
-}
 
 const app = new Vue({
 	el: '#app',
@@ -32,22 +27,53 @@ const app = new Vue({
 		local: restapi.local,
 		adminUi: false,
 		pwdDialog: false,
+		signinDialog: false,
+		errormsg: "",
 	},
 	mounted: function() {
 		this.redrawAll();
 	},
 	methods: {
+		showerror: function(error) {
+			if (error && error.response) {
+				console.log("error:",error.response.data);
+				this.errormsg = error.response.data;
+			}
+		},
 		// すべて書き直し
 		redrawAll() {
-			this.whoami();
-			this.getUsers();
-			this.get_items();
+			this.nexturl = '/go/password' + location.pathname + location.search;
+			this.item = {}
+			var that = this;
+			console.log("redrawAll", this.nexturl);
+			restapi.get("user/whoami/").then((response) => {
+				this.user = response.data;
+				console.log("redrawAll:", response);
+				// Query文字列を見る
+				var v = restapi.getUrlVars();
+				var showing = v && v.doc ? v.doc : null;
+				var id  = v && v.id ? v.id : null;
+				if (showing && id) {
+					this.showOne(showing, id);
+				} else {
+					this.showOne('user', this.user._id);
+				}
+
+				this.getUsers();
+				this.get_items();
+
+			}).catch(function(err){
+				//that.user = null;
+				console.log("whoami:", err);
+				that.user = {name: null};
+				that.signinDialog = true;
+				that.showerror(err);
+			});
 		},
 		// 参加申込
 		attend: function(user) {
+			var that = this;
 			var event = this.item;
-			//console.log("ATTEND:", event);
-			//console.log(user);
 			restapi.post("join/", {
 				name: user.fullname + ' ' + restapi.getShortDate(event.startDatetime),
 				memberId: user._id,
@@ -56,15 +82,20 @@ const app = new Vue({
 					this.get_items(); // 一覧表示
 					this.redrawItem();
 			}).catch(function(err){
-				showerror(err);
+				that.showerror(err);
 			});
 		},
 		// 参加キャンセル
 		leave: function(join) {
+			var that = this;
 			restapi.delete("join/"+join._id).then((response) => {
-				console.log("item:", response);
+				console.log("leave:", response);
 				this.get_items(); // 一覧表示
 				this.redrawItem();
+			}).catch(function(err){
+				console.log("leave err:", err);
+				that.showerror(err);
+				that.redrawItem();
 			});
 		},
 		// SUBMIT ボタン
@@ -83,20 +114,6 @@ const app = new Vue({
 				});
 			}
 		},
-		// アカウント情報
-		whoami: function() {
-			this.nexturl = '/go' + location.pathname + location.search;
-			console.log("SIGNIN", this.nexturl);
-
-			var that = this;
-			restapi.get("user/whoami/").then((response) => {
-				that.user = response.data;
-				console.log("contact:", response);
-			}).catch(function(err){
-				that.user = null;
-				showerror(err);
-			});
-		},
 		// ユーザー情報
 		getUsers: function() {
 			var that = this;
@@ -105,7 +122,7 @@ const app = new Vue({
 				console.log("users", that.users);
 			}).catch(function(err){
 				that.users = [];
-				showerror(err);
+				that.showerror(err);
 			});
 		},
 		// 一覧表示
@@ -116,17 +133,15 @@ const app = new Vue({
 			restapi.get(this.selected + "/").then((response) => {
 				that.items = response.data;
 				console.log("contact:", response);
-				if (!this.item._id) {
-						this.edit_item(this.items[0]);
-				}
 			}).catch(function(err){
 				that.items = [];
-				showerror(err);
+				that.showerror(err);
 			});
 
 		},
 		// 右画面のデータ書き直し
 		redrawItem: function() {
+			console.log("redrawItem:", this._id);
 			restapi.get(this.showing +'/'+ this._id).then((response) => {
 				var item = response.data;
 				if (item.__t === 'Event') {
@@ -138,7 +153,7 @@ const app = new Vue({
 						this.item = item;
 					}).catch(function(err){
 						item.joins = [];
-						showerror(err);
+						this.showerror(err);
 						this.item = item;
 					});
 				} else {
@@ -147,14 +162,23 @@ const app = new Vue({
 				this.getUsers();
 			});
 		},
+		// 右に１つ表示
+		showOne: function(doc, id) {
+			console.log("showOne:", id);
+			this.item = {};
+			this.showing = doc;
+			this._id = id;
+			this.redrawItem();
+		},
+
 		// item 編集
 		edit_item: function(item) {
 			if (item.__t === 'Event') {
 				this.showing = 'event';
 			} else if (item.__t === 'User') {
 				this.showing = 'user';
-			//} else if (item.__t === 'Address') {
-			//	this.showing = 'address';
+			} else if (item.__t === 'Join' && this.adminUi) {
+				this.showing = 'join';
 			} else if (item.__t === 'Join') {
 				this.showing = 'event';
 				item._id = item.groupId;
@@ -183,8 +207,8 @@ const app = new Vue({
 			restapi.post("user/password/", item).then((response) => {
 				console.log("password:", response);
 			}).catch(function(err){
-				that.user = null;
-				showerror(err);
+				this.user = {name: null};
+				this.showerror(err);
 			});
 		},
 		// 削除(管理者用)
@@ -193,6 +217,7 @@ const app = new Vue({
 			restapi.delete(this.selected + "/" + item._id).then((response) => {
 				console.log("item:", response);
 				this.get_items(); // 一覧表示
+				this.redrawItem();
 			});
 		},
 		// 新規作成(管理者用)
@@ -207,6 +232,18 @@ const app = new Vue({
 					}
 				}
 				this.item._id = null;
+			});
+		},
+		// サインイン(一般用)
+		signin: function(user) {
+			var that = this;
+			restapi.post("user/signin", {email:user.email, password: user.password}).then((response) => {
+				console.log("signin:", response.data);
+				this.signinDialog = false;
+				restapi.pushToken(response.data);
+				this.redrawAll();
+			}).catch(function(err){
+				that.showerror(err);
 			});
 		},
 		// サインイン(管理者用)

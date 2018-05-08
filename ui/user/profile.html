@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Hello pel</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+	<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+	<style>
+
+	.message {
+		margin: 1.5rem;
+	}
+	.frame {
+		margin: 1.5rem;
+	}
+	.morespace {
+		margin: 0 1rem;
+	}
+	</style>
+
+	
+</head>
+<body>
+	<div id="app">
+
+	<article class="message is-primary">
+		<div class="content">
+			<div class="message-header">
+				プロファイルの登録
+			</div>
+			<div class="message-body">
+
+				<form v-on:submit.prevent="submitItem(item)">
+
+					<div class="field">
+						会員番号：${item.number}
+					</div>
+
+					<div class="field">
+						メール：${item.email}
+					</div>
+
+					<div>
+						<div>
+							<input type="radio" name="mainrole" value="STUDENT" v-model="item.mainrole" required>
+							<label for="STUDENT">私は、生徒です（自分で教室の申し込みを管理します）</label>
+							<br>
+							<input type="radio" name="mainrole" value="PARENT" v-model="item.mainrole">
+							<label for="PARENT">私は、保護者です（子供の教室の申し込みを管理します）</label>
+							<br>
+							<input type="radio" name="mainrole" value="STAFF" v-model="item.mainrole">
+							<label for="STAFF">私は、ボランティア・スタッフです</label>
+							<br>
+						</div>
+					</div>
+					<p class="help">
+						※もっとも当てはまる役割を選んでください:
+					</p>
+
+
+					<div class="field is-horizontal">
+						<div class="field-label is-normal">
+							<label class="label">ふりがな</label>
+						</div>
+						<div class="field-body">
+							<div class="field is-narrow">
+								<input v-model="item.furigana" class="input" type="text" required autocomplete="name">
+							</div>
+						</div>
+					</div>
+
+					<div class="field is-horizontal">
+						<div class="field-label is-normal">
+							<label class="label">名前</label>
+						</div>
+						<div class="field-body">
+							<div class="field is-narrow">
+								<input v-model="item.fullname" class="input" type="text" required autocomplete="name">
+							</div>
+						</div>
+					</div>
+
+					<template v-if="item.mainrole === 'STUDENT'">
+						<div class="field is-horizontal">
+							<div class="field-label is-normal">
+								<label class="label">学年</label>
+							</div>
+							<div class="field-body">
+								<div class="field is-narrow">
+									<select class="select" v-model="item.grade" required>
+										<option value="小1">小1</option>
+										<option value="小2">小2</option>
+										<option value="小3">小3</option>
+										<option value="小4">小4</option>
+										<option value="小5">小5</option>
+										<option value="小6">小6</option>
+										<option value="中1">中1</option>
+										<option value="中2">中2</option>
+										<option value="中3">中3</option>
+										<option value="-">小中学生以外</option>
+									</select>
+								</div>
+							</div>
+						</div>
+					</template>
+
+					<template v-if="item.mainrole === 'STAFF'">
+
+						<p class="help">※ボランティア・スタッフの方は、住所をご記入ください。</p>
+
+						<div class="field is-horizontal">
+							<div class="field-label is-normal">
+								<label class="label">郵便番号</label>
+							</div>
+							<div class="field-body">
+								<div class="field is-narrow">
+									<input v-model="item.zipcode" class="input" type="text" required autocomplete="postal-code">
+								</div>
+							</div>
+						</div>
+
+						<div class="field is-horizontal">
+							<div class="field-label is-normal">
+								<label class="label">住所1</label>
+							</div>
+							<div class="field-body">
+								<div class="field is-expanded">
+									<input v-model="item.address1" class="input" type="text" required autocomplete="address-line1">
+								</div>
+							</div>
+						</div>
+
+						<div class="field is-horizontal">
+							<div class="field-label is-normal">
+								<label class="label">住所2</label>
+							</div>
+							<div class="field-body">
+								<div class="field is-expanded">
+									<input v-model="item.address2" class="input" type="text" autocomplete="address-line2">
+								</div>
+							</div>
+						</div>
+
+						<div class="field is-horizontal">
+							<div class="field-label is-normal">
+								<label class="label">電話番号</label>
+							</div>
+							<div class="field-body">
+								<div class="field is-narrow">
+									<input v-model="item.tel" class="input" type="text" required autocomplete="tel-local">
+								</div>
+							</div>
+						</div>
+
+						<div class="field">
+
+								<div class="field is-nomail">
+									<input v-model="item.hadInsurance" class="checkbox" type="checkbox">他の<b>ボランティア保険</b>に加入済み<br />
+								</div>
+
+						</div>
+						<p class="help">（他で加入済みなどで、今回新たにボランティア保険加入の<b>必要が無い方</b>はチェックしてください）</p>
+					</template>
+					<template v-else-if="item.mainrole === 'PARENT'">
+
+									<table class="table is-striped">
+										<tbody>
+											<tr>
+												<th>お子様のふりがな</th>
+												<th>名前</th>
+												<th>学年</th>
+											</tr>
+											<tr v-for="user in users">
+												<td>${user.furigana}</td>
+												<td>${user.fullname}</td>
+												<td>${user.grade}</td>
+												<td>
+											</tr>
+											<tr v-for="newuser in newusers">
+												<td>
+													<input v-model="newuser.furigana" class="input" type="text" required autocomplete="name">
+												</td>
+												<td>
+													<input v-model="newuser.fullname" class="input" type="text" required autocomplete="name">
+												</td>
+												<td>
+													<select class="select" v-model="newuser.grade" required>
+														<option value="小1">小1</option>
+														<option value="小2">小2</option>
+														<option value="小3">小3</option>
+														<option value="小4">小4</option>
+														<option value="小5">小5</option>
+														<option value="小6">小6</option>
+														<option value="中1">中1</option>
+														<option value="中2">中2</option>
+														<option value="中3">中3</option>
+														<option value="-">小中学生以外</option>
+													</select>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+
+									<button v-on:click.prevent="newusers.push({})">
+										参加者をふやす
+									</button>
+									<button v-on:click.prevent="newusers.pop()">
+										参加者をへらす
+									</button>
+<p class="help">
+※あなたが管理する子どもを全員登録します。<br />
+※「登録して次へ」をクリックすると、後から削除ができませんので気を付けてください。
+</p>
+
+					</template>
+
+										<div class="field">
+												<label class="label">通信欄（メモ）</label>
+													<textarea class="textarea" v-model="item.memo"></textarea>
+										</div>
+
+
+					<div class="field is-horizontal">
+						<div class="field-label is-normal">
+						</div>
+						<div class="field-body">
+							<div class="field">
+								<div class="control">
+									<input class="button is-primary" type="submit" value="登録して次へ">
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</form>
+			</div>
+		</div>
+	</article>
+	</div>
+
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="/ui/js/restapi.js"></script>
+	<script>
+const app = new Vue({
+	delimiters: ['${', '}'],
+	el: '#app',
+	data: {
+		newusers:[{}],
+		mailDone: false,
+		errormsg: "",
+		item: {},
+		users: [],
+	},
+	mounted: function() {
+		this.whoami();
+		this.getUsers();
+	},
+	methods: {
+		// 自分が管理するユーザー情報
+		remove: function() {
+		},
+		// 自分が管理するユーザー情報
+		getUsers: function() {
+			var that = this;
+			restapi.get("user/").then((response) => {
+				that.users = response.data;
+				console.log("users", that.users);
+			}).catch(function(err){
+				that.users = [];
+			});
+		},
+		// 自分の情報
+		whoami: function() {
+			var that = this;
+			restapi.get("user/whoami/").then((response) => {
+				that.item = response.data;
+				console.log("whoami:", that.item);
+			}).catch(function(err){
+				that.item = {};
+			});
+		},
+		// 登録して次へ
+		submitItem: function (user) {
+			user.name = user.name || user.fullname;
+			restapi.post("user/"+user._id, user).then((response) => {
+//				children.each(update(user));
+				// 子どもを追加
+				this.newusers.forEach( function( child ) {
+					console.log( child );
+					child.name = child.name || child.furigana;
+					child.mainrole = child.mainrole || 'STUDENT';
+					if (child.name) {
+						restapi.post("user/", child).then((response) => {
+							console.log( child );
+						});
+					}
+				});
+				location.href = "{{{nexturl}}}";
+			}).catch((error) => {
+				console.log("error:", error );
+				//this.errormsg = error.response.data;
+			});
+		},
+	}
+})
+	</script>
+</body>
+</html>

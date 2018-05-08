@@ -18,203 +18,89 @@
 		margin: 0 1rem;
 	}
 	</style>
+
+	
 </head>
 <body>
+
 	<div id="app">
-		<p>
-			<router-link to="/">About</router-link>
-			<router-link to="/dashboard">Dashboard</router-link>
-			<router-link to="/sendemail">sendemail</router-link>
-			<router-link to="/signup">signup</router-link>
-			<router-link to="/signin">signin</router-link>
-		</p>
-		<router-view @childs-event="parentsMethod" v-bind:val="pmail" ></router-view>
+
+		<article class="message is-primary">
+			<div class="content">
+				<div class="message-header">
+					会員専用画面に入る（サインイン）
+				</div>
+				<div class="message-body">
+
+					<form v-on:submit.prevent="sign_in(user)">
+						<div class="field">
+						  <label class="label">メールアドレス</label>
+						  <div class="control has-icons-left">
+								<input v-model="user.email" class="input" type="email" required  placeholder="someone@j-code.org" autocomplete="email">
+								<span class="icon is-small is-left">
+									<i class="fas fa-envelope"></i>
+								</span>
+						  </div>
+						</div>
+
+						<div class="field">
+							<label class="label">パスワード</label>
+							<input v-model="user.password" type="password" required autocomplete="current-password">
+						</div>
+						<p class="help is-danger">${errmsg}</p>
+
+						<div class="field">
+					  	<div class="control">
+						  	<input class="button is-primary" value="サインイン" type="submit">
+						  </div>
+						</div>
+					</form>
+
+					<p>
+					パスワードだけが分からない場合は<a href="/go/password{{{nexturl}}}">ここをクリック</a>します。
+					</p>
+					<p>
+					あらたに会員登録をする場合は、<a href="/go/newuser{{nexturl}}">ここをクリック</a>します。
+					</p>
+					<P>
+					※自分のメールアドレスを持っていない人は、会員登録ができません。保護者や先生に、かわりに登録してもらってください。
+					</P>
+
+				</div>
+			</div>
+		</article>
 	</div>
-	<div id="app22">
-		<signin-component2
-			v-bind:email="item.email"
-			v-bind:passowrd="item.password"
-			v-on:signin="signin"
-		>
-		</signin-component2>
-	</div>
-	
-	<script type="text/x-template" id="about-component">
 
-		<form v-on:submit.preventDefault="submitfunc">
-				<article class="message is-primary">
-					<div class="content">
-						<div class="message-header">
-							about
-						</div>
-						<div class="message-body">
-							<P>会員登録には、メールアドレスが必要です。<br />
-							自分のメールアドレスを持っていない人は、保護者や先生に、かわりに登録してもらってください。</P>
-					【{{location.href}}】
-					【{{location.search}}】
-					【{{next}}】					【{{id}}】
-							<div class="field">
-								<label class="label">どれか選んで下さい</label>
-								<input type="radio" id="next" value="next" v-model="next">
-								<label for="next">わたしは、まだ会員登録したことはありません。初めて利用します。</label>
-								<br>
-								<input type="radio" id="signin" value="signin" v-model="next">
-								<label for="signin">わたしは、メールアドレスを登録した会員です。</label>
-								<br>
-							</div>
-
-							<div class="field is-grouped">
-						  	<div class="control has-text-right">
-							  	<input class="button is-primary" type="submit" value="次へ">
-							  </div>
-							</div>
-
-						</div>
-					</div>
-				</article>
-		</form>
-
-	</script>
-
-	<script type="text/x-template" id="login-component">
-		<div>
-		  <div>A custom component!</div>
-		  <input type="submit" value="Login" v-on:click="login">
-		</div>
-	</script>
-
-	<script type="text/x-template" id="sendemail-component">
-		<form v-on:submit.preventDefault="submitfunc">
-				<article class="message is-primary">
-					<div class="content">
-						<div class="message-header">
-							サインイン
-						</div>
-						<div class="message-body">
-							<P>会員登録には、メールアドレスが必要です。<br />
-							自分のメールアドレスを持っていない人は、保護者や先生に、かわりに登録してもらってください。</P>
-						
-							{{message}}
-							<div class="field">
-							  <label class="label">メールアドレス</label>
-							  <div class="control has-icons-left">
-									<input v-model="user.email" class="input" type="email" required  placeholder="someone@j-code.org">
-									<span class="icon is-small is-left">
-										<i class="fas fa-envelope"></i>
-									</span>
-							  </div>
-							</div>
-
-							<div class="field is-grouped">
-								<p class="morespace">メールアドレスの確認のために、メールを送信します。受け取ったメールに秘密の番号が書かれていますので、それを入力してください。</p>
-						  	<div class="control has-text-right">
-							  	<input class="button is-primary" type="submit" value="サインイン">
-							  </div>
-							</div>
-
-						</div>
-					</div>
-				</article>
-		</form>
-	</script>
-
-	<script type="text/x-template" id="signup-component">
-		<form v-on:submit.preventDefault="submitfunc">
-				<article class="message is-primary">
-					<div class="content">
-						<div class="message-header">
-							サインイン
-						</div>
-						<div class="message-body">
-
-							{{message}}
-							<p>メールの受け取りには、1～2分かかる場合があります。</p>
-							
-							<div class="field">
-								<label class="label">メールアドレス</label>
-								<div class="control has-icons-left">
-									<input v-model="user.email" class="input" type="email" required  placeholder="someone@j-code.org">
-									<span class="icon is-small is-left">
-										<i class="fas fa-envelope"></i>
-									</span>
-							  </div>
-							</div>
-
-							<div class="field">
-								<label class="label">秘密の数字</label>
-								<input v-model="user.number" class="input" type="number" required  placeholder="受け取ったメールに記載している数字を入力" value="000">
-							</div>
-
-							<div class="field">
-								<label class="label">ニックネーム</label>
-								<p>ニックネームは公開用の名前です。本名でなくともかまいません。</p>
-								<input v-model="user.name" class="input" type="text" required placeholder="なまえをいれてください">
-							</div>
-
-							<div class="field">
-								<label class="label">パスワード</label>
-								<input v-model="user.password" class="input" type="password" required placeholder="パスワード">
-							</div>
-
-							<div class="field">
-								<label class="label">パスワード</label>
-								<input v-model="user.password2" class="input" type="password" required placeholder="パスワード">
-							</div>
-
-							<div class="field is-grouped">
-								<p class="morespace">上記の内容で登録します。確認を押してください。</p>
-						  	<div class="control has-text-right">
-							  	<input class="button is-primary" type="submit" value="確認">
-							  </div>
-							</div>
-
-						</div>
-					</div>
-				</article>
-		</form>
-	</script>
-
-	<script type="text/x-template" id="signin-component">
-		<form v-on:submit.preventDefault="submitfunc">
-				<article class="message is-primary">
-					<div class="content">
-						<div class="message-header">
-							サインイン
-							{{val}}
-						</div>
-						<div class="message-body">
-							<div class="field">
-							  <label class="label">メールアドレス</label>
-							  <div class="control has-icons-left">
-									<input v-model="user.email" class="input" type="email" required  placeholder="someone@j-code.org" value="val">
-									<span class="icon is-small is-left">
-										<i class="fas fa-envelope"></i>
-									</span>
-							  </div>
-							</div>
-
-							<div class="field">
-								<label class="label">パスワード</label>
-								<input v-model="user.password" class="input" type="password" required placeholder="パスワード">
-							</div>
-
-							<div class="field is-grouped">
-								<p class="morespace">メールアドレスとパスワードを使って、会員ページを表示します。</p>
-						  	<div class="control has-text-right">
-							  	<input class="button is-primary" type="submit" value="サインイン">
-							  </div>
-							</div>
-
-						</div>
-					</div>
-				</article>
-		</form>
-	</script>
 
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-	<script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
-	<script src="script.js"></script>
+	<script src="/ui/js/restapi.js"></script>
+	<script>
+const app = new Vue({
+	delimiters: ['${', '}'],
+	el: '#app',
+	data: {
+		user:{},
+		mailDone: false,
+		errmsg: "",
+	},
+	methods: {
+		// サインイン
+		sign_in: function (user) {
 
+			axios.post(location.protocol+"//"+location.host+"/api/user/signin", user).then((response) => {
+				var token = response.data;
+				restapi.pushToken(token);
+				location.href = "{{{nexturl}}}"; // リダイレクト
+
+			}).catch((error) => {
+				console.log("err:", error.response);
+				this.errmsg = error.response.data;
+				restapi.popToken();
+			});
+		},
+	}
+})
+	</script>
 </body>
 </html>

@@ -14,9 +14,19 @@
 		<div class="tile is-ancestor">
 			<div class="tile is-parent">
 				<div class="tile is-child box">
-					こんにちは、{{user.name}} さん。プログラミング教育研究所へようこそ。<br />
-					{{user.name}} さんの作業が終わったら、<input class="button is-primary" v-on:click.prevent="adminSinout()" value="サインアウト">してください。
-					<p class="help" id="errormsg">{{errormsg}}
+					<template v-if="user.name">
+						こんにちは、{{user.name}} さん。プログラミング教育研究所へようこそ。{{user.mainrole}}
+						 <input class="button is-primary" v-on:click.prevent="adminSinout()" value="サインアウト">  <br />
+
+					<input type="checkbox" id="checkbox" v-model="adminUi">管理者画面<br />
+
+					※{{user.name}} さんでは無い場合は、<a v-bind:href="nexturl">サインインし直し</a>てください。
+					</template>
+					<template v-else>
+						このページは、会員専用です。
+						<a v-bind:href="nexturl">サインインして</a>から、表示するひつようがあります。
+					</template>
+					<p id="errormsg">
 					</p>
 				</div>
 			</div>
@@ -38,9 +48,9 @@
 								</select>
 								<span>{{selected}}-{{showing}}</span>
 
-						  	<div class="control" v-if="adminUi">
+							  	<input class="button is-primary" v-on:click.prevent="createEvent" value="新イベント">
 							  	<input class="button is-primary" v-on:click.prevent="create_item" value="新規作成">
-							  </div>
+
 							</div>
 
 							<div class="message-body">
@@ -91,7 +101,7 @@
 											</div>
 											<div class="field-body">
 												<div class="field is-narrow">
-													<input v-model="item.name" class="input" type="text" required autocomplete="name">
+													<input v-model="item.name" class="input" type="text" required>
 												</div>
 											</div>
 										</div>
@@ -117,7 +127,7 @@
 											</div>
 											<div class="field-body">
 												<div class="field is-narrow">
-													<input v-model="item.furigana" class="input" type="text" required autocomplete="name">
+													<input v-model="item.furigana" class="input" type="text" required>
 												</div>
 											</div>
 										</div>
@@ -128,38 +138,31 @@
 											</div>
 											<div class="field-body">
 												<div class="field is-narrow">
-													<input v-model="item.fullname" class="input" type="text" required autocomplete="name">
+													<input v-model="item.fullname" class="input" type="text" required>
 												</div>
 											</div>
 										</div>
 
-										<template v-if="item.mainrole === 'STUDENT'">
-											<div class="field is-horizontal">
-												<div class="field-label is-normal">
-													<label class="label">学年</label>
-												</div>
-												<div class="field-body">
-													<div class="field is-narrow">
-														<select class="select" v-model="item.grade" required>
-															<option value="小1">小1</option>
-															<option value="小2">小2</option>
-															<option value="小3">小3</option>
-															<option value="小4">小4</option>
-															<option value="小5">小5</option>
-															<option value="小6">小6</option>
-															<option value="中1">中1</option>
-															<option value="中2">中2</option>
-															<option value="中3">中3</option>
-															<option value="-">小中学生以外</option>
-														</select>
-													</div>
+										<div class="field is-horizontal">
+											<div class="field-label is-normal">
+												<label class="label">学年</label>
+											</div>
+											<div class="field-body">
+												<div class="field is-narrow">
+													<select class="select" v-model="item.grade" required>
+														<option value="小1">小1</option>
+														<option value="小2">小2</option>
+														<option value="小3">小3</option>
+														<option value="小4">小4</option>
+														<option value="小5">小5</option>
+														<option value="小6">小6</option>
+														<option value="中1">中1</option>
+														<option value="中2">中2</option>
+														<option value="中3">中3</option>
+														<option value="-">小中学生以外</option>
+													</select>
 												</div>
 											</div>
-										</template>
-
-										<div class="field">
-												<label class="label">通信欄（メモ）</label>
-													<textarea class="textarea" v-model="item.memo"></textarea>
 										</div>
 
 										<template v-if="item.mainrole === 'STAFF'">
@@ -172,7 +175,7 @@
 												</div>
 												<div class="field-body">
 													<div class="field is-narrow">
-														<input v-model="item.zipcode" class="input" type="text" required autocomplete="postal-code">
+														<input v-model="item.zipcode" class="input" type="text" required>
 													</div>
 												</div>
 											</div>
@@ -183,7 +186,7 @@
 												</div>
 												<div class="field-body">
 													<div class="field is-expanded">
-														<input v-model="item.address1" class="input" type="text" required autocomplete="address-line1">
+														<input v-model="item.address1" class="input" type="text" required>
 													</div>
 												</div>
 											</div>
@@ -194,7 +197,7 @@
 												</div>
 												<div class="field-body">
 													<div class="field is-expanded">
-														<input v-model="item.address2" class="input" type="text" autocomplete="address-line2">
+														<input v-model="item.address2" class="input" type="text">
 													</div>
 												</div>
 											</div>
@@ -205,7 +208,7 @@
 												</div>
 												<div class="field-body">
 													<div class="field is-narrow">
-														<input v-model="item.tel" class="input" type="text" required autocomplete="tel-local">
+														<input v-model="item.tel" class="input" type="text" required>
 													</div>
 												</div>
 											</div>
@@ -239,6 +242,7 @@
 							</div>
 						</article>
 					</template>
+
 					<template v-else-if="showing === 'event' && !adminUi">
 						<div>
 							<article class="message is-primary">
@@ -247,73 +251,38 @@
 										教室・イベント
 									</div>
 									<div class="message-body">
+										ID： {{item._id}}<br />
 										名称： {{item.name}}<br />
 										日付： {{item.startDate}}<br />
 										時間： {{item.startTime}}～{{item.endTime}}<br />
 										場所： {{item.place}}<br />
 										説明： {{item.description}}<br />
-
-										<table class="table is-striped">
-											<tbody>
-												<tr>
-													<th>参加者</th>
-													<th>ステータス</th>
-													<th>アクション</th>
-												</tr>
-												<tr v-for="join in item.joins">
-													<td>{{join.name}}</td>
-													<td>
-														<select class="select" v-model="join.status">
-														<option value="PENDING">申込中</option>
-														<option value="APPROVED">参加</option>
-														<option value="REJECTED">残念</option>
-														<option value="CANCEL">取消</option>
-														</select>
-													<td>
-														<button click v-on:click.prevent="leave(join)">取消</button>
-													</td>
-												</tr>
-											</tbody>
-										</table>
-
 									</div>
+
+									<form v-on:submit.prevent="submitEvent(item)">
+										<label class="label">名称</label>
+										<input v-model="item.name" class="input" type="text">
+
+										<label class="label">開始</label>
+										<input v-model="item.startDatetime" class="input" type="text">
+
+										<label class="label">終了</label>
+										<input v-model="item.endDatetime" class="input" type="text">
+
+										<label class="label">場所</label>
+										<input v-model="item.place" class="input" type="text">
+
+										<label class="label">説明</label>
+										<input v-model="item.description" class="input" type="text">
+
+										<input class="button is-primary" type="submit" value="更新">
+
+									</form>
+
 								</div>
 							</article>
 						</div>
 
-						<article class="message is-primary">
-							<div class="content">
-								<div class="message-header">
-									ユーザー情報
-								</div>
-								<div class="message-body">
-
-									<table class="table is-striped">
-										<tbody>
-											<tr>
-												<th>名前</th>
-												<th>学年</th>
-												<th>アクション</th>
-											</tr>
-											<tr v-for="user in users">
-												<td>{{user.fullname}}</td>
-												<td>{{user.mainrole}} {{user.grade}}</td>
-												<td>
-													<button click v-on:click.prevent="attend(user)">参加申込</button>
-												</td>
-											</tr>
-										</tbody>
-									</table>
-									<p class="help is-info">名前の横にある「参加申込」をクリックすると、この教室・イベントに参加の申込となります。<p>
-
-									<div class="box">
-											<p class="help">参加希望のユーザーアカウントを追加するには、「ユーザーを追加する」ボタンをクリックします。<p>
-									    <button class="button is-info" v-on:click.prevent="newuser()">ユーザーを追加する</button>
-									</div>
-
-								</div>
-							</div>
-						</article>
 					</template>
 
 					<template v-else>
@@ -363,7 +332,7 @@
 
 									<div class="field">
 										<label class="label">パスワード</label>
-										<input v-model="item.password" class="input" type="password" required pattern="[!-~]{3,}" autocomplete="current-password">
+										<input v-model="item.password" class="input" type="password" required pattern="[!-~]{3,}">
 									</div>
 
 									<div class="field">
@@ -397,7 +366,7 @@
 									<div class="field">
 									  <label class="label">メールアドレス</label>
 									  <div class="control has-icons-left">
-											<input v-model="item.email" class="input" type="email" required  placeholder="someone@j-code.org" autocomplete="email">
+											<input v-model="item.email" class="input" type="email" required  placeholder="someone@j-code.org">
 											<span class="icon is-small is-left">
 												<i class="fas fa-envelope"></i>
 											</span>
@@ -406,9 +375,8 @@
 
 									<div class="field">
 										<label class="label">パスワード</label>
-										<input v-model="item.password" class="input" type="password" required pattern="[!-~]{3,}" autocomplete="current-password">
+										<input v-model="item.password" class="input" type="password" required pattern="[!-~]{3,}">
 									</div>
-						<p class="help is-danger">{{errormsg}}</p>
 
 <p>パスワードを忘れた場合は、<a v-bind:href="nexturl">ここをクリックして</a>ください。</p>
 
@@ -432,7 +400,7 @@
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 	<script src="/ui/js/restapi.js"></script>
-	<script src="index.js"></script>
+	<script src="admin.js"></script>
 
 </body>
 </html>

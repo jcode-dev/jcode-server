@@ -8,19 +8,19 @@ const router = express.Router();
 const addroute = require('./resource-router');
 const restapi =require('./restapi');
 
-	var read = '_id name';
-	var edit = 'name';
+	var read = '';
+	var edit = 'status name memberId groupId';
 
 // create and export a Router, mount it anywhere via .use()
 addroute(router, [
 
 	restapi.schema(model),
-	restapi.create(model),
-	restapi.read(model),
-	restapi.update(model),
-	restapi.remove(model),
+	restapi.read(model, read + edit),
+	restapi.update(model, edit),
 ]);
 
-	restapi.findJoin(router, model),
+	restapi.findJoin(router, model);
+	restapi.createJoin(router, model);
+	restapi.removeJoin(router, model);
 
 exports = module.exports = router;

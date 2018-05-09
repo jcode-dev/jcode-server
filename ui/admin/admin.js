@@ -17,6 +17,15 @@ const showerror = function(error) {
 	document.getElementById("errormsg").innerHTML = error.response.data;
 }
 
+const copyToClipboard = str => {
+  const el = document.createElement('textarea');
+  el.value = str;
+  document.body.appendChild(el);
+  el.select();
+  document.execCommand('copy');
+  document.body.removeChild(el);
+};
+
 const app = new Vue({
 	el: '#app',
 	data: {
@@ -33,13 +42,25 @@ const app = new Vue({
 		adminUi: false,
 		pwdDialog: false,
 		signinDialog: false,
+		joins: [], //参加者一覧
 	},
 	mounted: function() {
-		this.redrawAll();
+		//this.redrawAll();
 	},
 	methods: {
+		// 名簿のコピー（エクセルに貼り付ける用）
+		copy: function() {
+			var str = "";
+			var dl = "\t";
+			var er = "\n";
+			for (let join of this.joins) {
+				var u = join.memberId;
+				str += u.number+dl +u.fullname+dl +u.furigana+dl +er;
+			}
+			copyToClipboard(str);
+		},
 		// すべて書き直し
-		redrawAll() {
+		redrawAll: function() {
 			this.whoami();
 			this.getUsers();
 			this.get_items();
@@ -141,17 +162,37 @@ const app = new Vue({
 					item.startTime = restapi.getTime(item.startDatetime);
 					item.endTime = restapi.getTime(item.endDatetime);
 					restapi.get("join/?gid="+item._id).then((response) => {
-						item.joins = response.data;
 						this.item = item;
+						this.joins = response.data;
+
+/*
+						var that = this;
+						var joins = response.data;
+						var joinslen = joins.length;
+						for (let i=0; i<joins.length; i++) {
+							var join = joins[i];
+							join.check = false;
+							join.user = {};
+							restapi.get('user/'+join.memberId).then((response) => {
+								join.user = response.data;
+								if (--joinslen) {
+								} else {
+									that.item = item;
+									that.joins = joins;
+								}
+							});
+						}
+*/
+
 					}).catch(function(err){
-						item.joins = [];
+						thism.joins = [];
 						showerror(err);
 						this.item = item;
 					});
 				} else {
 					this.item = item;
 				}
-				this.getUsers();
+				//this.getUsers();
 			});
 		},
 		// item 編集

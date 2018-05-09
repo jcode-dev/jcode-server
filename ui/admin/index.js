@@ -35,6 +35,7 @@ const app = new Vue({
 		pwdDialog: false,
 		signinDialog: false,
 		errormsg: "",
+		joins: [], //参加者一覧
 	},
 	mounted: function() {
 		this.redrawAll();
@@ -160,10 +161,10 @@ const app = new Vue({
 					item.startTime = restapi.getTime(item.startDatetime);
 					item.endTime = restapi.getTime(item.endDatetime);
 					restapi.get("join/?gid="+item._id).then((response) => {
-						item.joins = response.data;
+						this.joins = response.data;
 						this.item = item;
 					}).catch(function(err){
-						item.joins = [];
+						this.joins = [];
 						this.showerror(err);
 						this.item = item;
 					});

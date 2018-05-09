@@ -8,6 +8,7 @@ const path = require('path');
 const jwt = require('jsonwebtoken');
 
 
+// パスワードが一致しているかのチェック
 var isValidPassword = function(password, hash){
 	var result = false;
 
@@ -20,7 +21,7 @@ var isValidPassword = function(password, hash){
 	return result;
 }
 
-// Generate an Access Token for the given User ID
+// ユーザーIDを使ったアクセストークンの発行
 function generateAccessToken(userId) {
   // How long will the token be valid for
   const expiresIn = '12 hour';
@@ -38,6 +39,7 @@ function generateAccessToken(userId) {
   return token;
 }
 
+// レスポンス
 var toRes = function (res, status=200) {
 	return (err, thing) => {
 		if (err) {
@@ -55,7 +57,19 @@ var toRes = function (res, status=200) {
 	};
 }
 
+// パスポートのチェック
+function authJwt() {
+	return passport.authenticate(['jwt'], { session: false });
+}
+// ROOT権限ある？
+function isRoot(user) {
+	if (user && user.autho === restapi.autho.root) {
+		return true;
+	}
+	return false;
+}
 
+// APIの定義
 var restapi = {};
 
 restapi.find = function(model, schema) {
@@ -79,6 +93,7 @@ restapi.find = function(model, schema) {
 	}];
 }
 
+// セキュリティに注意（eventのみで使用）
 restapi.findPublic = function(router, model) {
 	router.get('/', function(req, res) {
 		var params = req.query;
@@ -87,19 +102,66 @@ restapi.findPublic = function(router, model) {
 	})
 }
 
-function authJwt() {
-	return passport.authenticate(['jwt'], { session: false });
+// READ 一般
+restapi.read = function(router, model, schema = '_id name') {
+	router.get('/:_id/', authJwt(), function(req, res) {
+		if (isRoot(req.user)) {
+			console.log("readROOT", req.params['_id']);
+			model.findById(req.params['_id']).exec(toRes(res));
+		} else {
+			console.log("read", req.params['_id']);
+			model.findOne({_id: req.params['_id'], ownerId: req.user._id}, schema).exec(toRes(res));
+		}
+	});
+}
+/*
+restapi.read = function(model, schema = '_id name') {
+	return ['/:_id/', 'get', function(req, res) {
+		console.log(schema);
+		if (isRoot(req.user)) {
+			model.findById(req.params['_id']).exec(toRes(res));
+		} else {
+			console.log("user read:",schema);
+			model.findOne({_id: req.params['_id'], ownerId: req.user._id}, schema).exec(toRes(res));
+		}
+	}, false];
+}
+*/
+// READ PUBLIC
+restapi.readPublic = function(router, model) {
+	router.get('/:_id/', function(req, res) {
+		model.findById(req.params['_id']).exec(toRes(res));
+	})
 }
 
+function getFields(body, fields) {
+	var arr = fields.split(' ');
+	var newf = {};
+	for (let key of arr) {
+		if (key in body) {
+			newf[key] = body[key];
+		}
+	}
+	return newf;
+}
+
+// 参加申込の検索
 restapi.findJoin = function(router, model) {
 	router.get('/', authJwt(), function(req, res) {
 		var params = req.query;
-		var find = {ownerId: req.user._id};
+		var find =isRoot(req.user) ? {} : {ownerId: req.user._id};
 		if (params.gid) {
 			find.groupId = params.gid;
 		}
 		console.log("findJoin:", model.modelName, find);
-		model.find(find).exec(toRes(res));
+
+		if (isRoot(req.user)) {
+			model.find(find)
+			.populate('memberId')
+			.exec(toRes(res));
+		} else {
+			model.find(find).exec(toRes(res));
+		}
 	})
 }
 // 参加申込
@@ -143,13 +205,6 @@ restapi.removeJoin = function(router, model) {
 	})
 }
 
-function isRoot(user) {
-	if (user && user.autho === restapi.autho.root) {
-		return true;
-	}
-	return false;
-}
-
 restapi.schema = function(model, schema = {}) {
 	return ['/schema', 'get', function(req, res) {
 		console.log("schema user.autho:", req.user.autho);
@@ -169,34 +224,6 @@ restapi.create = function(model, schema = null) {
 		console.log("create:", model.modelName, body);
 		model.create(body, toRes(res));
 	}];
-}
-
-restapi.read = function(model, schema = '_id name') {
-	return ['/:_id/', 'get', function(req, res) {
-		console.log(schema);
-		if (isRoot(req.user)) {
-			model.findById(req.params['_id']).exec(toRes(res));
-		} else {
-			console.log("user read:",schema);
-			model.findOne({_id: req.params['_id'], ownerId: req.user._id}, schema).exec(toRes(res));
-		}
-	}, false];
-}
-restapi.readPublic = function(router, model) {
-	router.get('/:_id/', function(req, res) {
-		model.findById(req.params['_id']).exec(toRes(res));
-	})
-}
-
-function getFields(body, fields) {
-	var arr = fields.split(' ');
-	var newf = {};
-	for (let key of arr) {
-		if (key in body) {
-			newf[key] = body[key];
-		}
-	}
-	return newf;
 }
 
 restapi.update = function(model, fields = 'name') {

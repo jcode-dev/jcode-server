@@ -12,6 +12,7 @@ const edit = 'mainrole name furigana fullname grade zipcode address1 address2 te
 
 	restapi.signinAdmin(router, model);
 	restapi.whoami(router, model, read+edit);
+	restapi.read(router, model, read+edit),
 
 addroute(router, [
 	restapi.children(model),
@@ -23,7 +24,6 @@ addroute(router, [
 	restapi.find(model, read+edit),
 	restapi.schema(model, edit),
 
-	restapi.read(model, read+edit),
 	restapi.update(model, edit),
 	restapi.remove(model),
 	restapi.create(model),

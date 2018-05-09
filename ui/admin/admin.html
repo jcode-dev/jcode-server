@@ -244,44 +244,65 @@
 					</template>
 
 					<template v-else-if="showing === 'event' && !adminUi">
-						<div>
-							<article class="message is-primary">
-								<div class="content">
-									<div class="message-header">
-										教室・イベント
-									</div>
-									<div class="message-body">
-										ID： {{item._id}}<br />
-										名称： {{item.name}}<br />
-										日付： {{item.startDate}}<br />
-										時間： {{item.startTime}}～{{item.endTime}}<br />
-										場所： {{item.place}}<br />
-										説明： {{item.description}}<br />
-									</div>
-
-									<form v-on:submit.prevent="submitEvent(item)">
-										<label class="label">名称</label>
-										<input v-model="item.name" class="input" type="text">
-
-										<label class="label">開始</label>
-										<input v-model="item.startDatetime" class="input" type="text">
-
-										<label class="label">終了</label>
-										<input v-model="item.endDatetime" class="input" type="text">
-
-										<label class="label">場所</label>
-										<input v-model="item.place" class="input" type="text">
-
-										<label class="label">説明</label>
-										<input v-model="item.description" class="input" type="text">
-
-										<input class="button is-primary" type="submit" value="更新">
-
-									</form>
-
+						<article class="message is-primary">
+							<div class="content">
+								<div class="message-header">
+									教室・イベント
 								</div>
-							</article>
-						</div>
+								<div class="message-body">
+									ID： {{item._id}}<br />
+									名称： {{item.name}}<br />
+									日付： {{item.startDate}}<br />
+									時間： {{item.startTime}}～{{item.endTime}}<br />
+									場所： {{item.place}}<br />
+									説明： {{item.description}}<br />
+								</div>
+
+								<form v-on:submit.prevent="submitEvent(item)">
+									<label class="label">名称</label>
+									<input v-model="item.name" class="input" type="text">
+
+									<label class="label">開始</label>
+									<input v-model="item.startDatetime" class="input" type="text">
+
+									<label class="label">終了</label>
+									<input v-model="item.endDatetime" class="input" type="text">
+
+									<label class="label">場所</label>
+									<input v-model="item.place" class="input" type="text">
+
+									<label class="label">説明</label>
+									<input v-model="item.description" class="input" type="text">
+
+									<input class="button is-primary" type="submit" value="更新">
+								</form>
+							</div>
+						</article>
+
+							申込総数：{{joins.length}}<br />
+
+<button click v-on:click.prevent="copy()">コピー</button>
+
+							<table class="table is-striped">
+								<tbody>
+									<tr>
+										<th>参加者</th>
+										<th>ステータス</th>
+										<th>アクション</th>
+									</tr>
+									<tr v-for="join in joins">
+										<td>
+										<input v-model="join.check" class="checkbox" type="checkbox">
+										{{join.name}}</td>
+										<td>{{join.status}}<td>
+											{{join.memberId.fullname}}
+											{{join.memberId.grade}}
+											{{join.memberId.mainrole}}
+													<button click v-on:click.prevent="leave(join)">取消</button>
+										</td>
+									</tr>
+								</tbody>
+							</table>
 
 					</template>
 

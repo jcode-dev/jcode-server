@@ -8,7 +8,7 @@ var DocSchema = new Schema({
 	name: String,		// ŒöŠJ–¼
 	title: String,
 	ownerId: Schema.Types.ObjectId,
-	memberId: Schema.Types.ObjectId,
+	memberId: {type: Schema.Types.ObjectId, ref: 'User' },
 	groupId: Schema.Types.ObjectId,
 },{ timestamps: {} });
 DocSchema.plugin(findOrCreate);

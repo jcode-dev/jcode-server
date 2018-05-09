@@ -15,9 +15,9 @@ const restapi =require('./restapi');
 addroute(router, [
 
 	restapi.schema(model),
-	restapi.read(model, read + edit),
 	restapi.update(model, edit),
 ]);
+	restapi.read(router, model, read + edit),
 
 	restapi.findJoin(router, model);
 	restapi.createJoin(router, model);

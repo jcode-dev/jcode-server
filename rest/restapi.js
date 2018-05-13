@@ -114,19 +114,6 @@ restapi.read = function(router, model, schema = '_id name') {
 		}
 	});
 }
-/*
-restapi.read = function(model, schema = '_id name') {
-	return ['/:_id/', 'get', function(req, res) {
-		console.log(schema);
-		if (isRoot(req.user)) {
-			model.findById(req.params['_id']).exec(toRes(res));
-		} else {
-			console.log("user read:",schema);
-			model.findOne({_id: req.params['_id'], ownerId: req.user._id}, schema).exec(toRes(res));
-		}
-	}, false];
-}
-*/
 // READ PUBLIC
 restapi.readPublic = function(router, model) {
 	router.get('/:_id/', function(req, res) {
@@ -164,6 +151,7 @@ restapi.findJoin = function(router, model) {
 		}
 	})
 }
+
 // 参加申込
 restapi.createJoin = function(router, model) {
 	router.post('/', authJwt(), function(req, res) {
@@ -202,6 +190,49 @@ restapi.removeJoin = function(router, model) {
 				}
 			});
 		}
+	})
+}
+// アンケート一覧
+restapi.listSurvey = function(router, model) {
+	router.get('/list/:_id/', authJwt(), function(req, res) {
+		console.log("listSurvey", req.params['_id']);
+		if (! isRoot(req.user)) {
+			return res.status(401).send("エラー：データを読み出せません");
+		}
+		model.find({groupId:req.params['_id']}, toRes(res));
+	});
+}
+// アンケート読込 :id=GroupId
+restapi.readSurvey = function(router, model) {
+	router.get('/:_id/', authJwt(), function(req, res) {
+		console.log("readSurvey", req.params['_id']);
+		model.findOne({ownerId:req.user._id, groupId:req.params['_id']},function(err, result) {
+			if (err || !result) {
+				return res.status(401).send("エラー：データを読み出せません");
+			} else {
+				return res.status(200).send(result);
+			}
+		});
+	});
+}
+// アンケート書込、更新 :body.groupId=GroupId
+restapi.updateSurvey = function(router, model) {
+	router.post('/', authJwt(), function(req, res) {
+		console.log("updateSurvey", req.body);
+		req.body.ownerId = req.user._id;
+		delete req.body.__v;
+		delete req.body.createdAt;
+		model.findOneAndUpdate({ownerId:req.body.ownerId, groupId:req.body.groupId}, { $set:req.body }, {upsert: true, returnNewDocument: true}, function(err, result) {
+			if (err) {
+				console.log(err);
+				return res.status(401).send("エラー：データを読み出せません");
+			} else {
+				console.log(result);
+				return res.status(200).send(result);
+			}
+		});
+		//console.log(r);
+		//return res.status(200).send("OK");
 	})
 }
 
@@ -311,11 +342,17 @@ restapi.sendemail = function(router) {
 }
 
 // パスワード変更 toDO : bug fix 子どものパスワードを変更できるように
-restapi.password = function(model) {
-	return ['/password', 'post', function(req, res) {
-		console.log("password:", req.body);
 
-		model.findById(req.user._id, function (err, user) {
+restapi.password = function(router, model) {
+	router.post('/password/:_id/', authJwt(), function(req, res) {
+		console.log("password:", req.body);
+		var find;
+		if (isRoot(req.user)) {
+			find = {_id: req.params['_id']};
+		} else {
+			find = {_id: req.params['_id'], ownerId: req.user._id};
+		}
+		model.findOne(find, function (err, user) {
 			if (err) return res.status(401).send("エラー");
 			user.set({ password: req.body.password });
 			user.save(function (err, updatedUser) {
@@ -323,8 +360,10 @@ restapi.password = function(model) {
 			  res.status(200).send("OK");
 			});
 		});
-	}];
+	});
 }
+
+
 
 // ユーザー登録(公開API)
 restapi.signup = function(model) {

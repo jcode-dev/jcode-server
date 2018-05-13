@@ -9,24 +9,42 @@ go.failureRedirect = '/ui/signin';
 
 router.all('*', function(req, res, next) {
 	var url = req.url.split('/');
-	var html = "../ui/user/";
+	var base = "../ui/user/";
 	var nexturl = "";
+	var html = "";
+	var tbl ={
+		'password': 'password.html', // パスワードのリセットメールを送信
+		'chgpass': 'chgpass.html', // パスワードの変更
+		'newuser': 'newuser.html',	// 新規ユーザー登録
+		'profile': 'profile.html',	// 住所等の追加情報入力
+		'staffs01': 'staffs01.html',	// STAFFアンケート01
+	}
 
-	if (url[1] === 'password') {
-		html = html+'password.html';
-		nexturl = '/' + url.slice(2).join('/');
-	} else if (url[1] === 'newuser') {
-		html = html+'newuser.html';
-		nexturl = '/' + url.slice(2).join('/');
-	} else if (url[1] === 'profile') {
-		html = html+'profile.html';
+	html = tbl[url[1]];
+	if (html) { // tblに存在するなら
 		nexturl = '/' + url.slice(2).join('/');
 	} else {
-		html = html+'index.html';
+		html = 'index.html';		// メールによるサインイン
 		nexturl = '/' + url.slice(1).join('/');
 	}
+/*
+	if (url[1] === 'password') {
+		html = 'password.html';
+		nexturl = '/' + url.slice(2).join('/');
+	} else if (url[1] === 'newuser') {
+		html = 'newuser.html';
+		nexturl = '/' + url.slice(2).join('/');
+	} else if (url[1] === 'profile') {
+		html = 'profile.html';
+		nexturl = '/' + url.slice(2).join('/');
+	} else {
+		html = 'index.html';
+		nexturl = '/' + url.slice(1).join('/');
+	}
+*/
+
 	//go.successRedirect = nexturl;
-  res.render(html, {
+  res.render(base + html, {
 		nexturl:nexturl,
 		//secret:"7878",
   });

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Hello pel</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+	<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+	<style>
+
+	.message {
+		margin: 1.5rem;
+	}
+	.frame {
+		margin: 1.5rem;
+	}
+	.morespace {
+		margin: 0 1rem;
+	}
+	</style>
+
+	
+</head>
+<body>
+	<div id="app">
+
+			<article class="message is-primary">
+				<div class="content">
+					<div class="message-header">
+						パスワード変更
+					</div>
+					<div class="message-body">
+
+						<form v-on:submit.prevent="chgpass(user)">
+							<div class="field">
+								<label class="label">パスワード</label>
+								<input v-model="user.password" type="password" required autocomplete="current-password">
+							</div>
+
+							<div class="field">
+								<label class="label">パスワード（同じものを、もういちど）</label>
+								<input v-model="user.password2" type="password" required autocomplete="current-password">
+							</div>
+							<p class="help is-danger">${errormsg}</p>
+
+							<div class="field">
+						  	<div class="control">
+							  	<input class="button is-primary" value="登録" type="submit">
+							  </div>
+							</div>
+						</form>
+						
+					</div>
+				</div>
+			</article>
+	</div>
+
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="/ui/js/restapi.js"></script>
+	<script>
+const app = new Vue({
+	delimiters: ['${', '}'],
+	el: '#app',
+	data: {
+		user:{},
+		errormsg: "",
+	},
+	mounted: function() {
+		this.whoami();
+	},
+	methods: {
+		whoami: function() {
+			console.log("redrawAll", this.nexturl);
+			restapi.get("user/whoami/").then((response) => {
+				this.user = response.data;
+			});
+		},
+		// サインイン
+		chgpass: function (user) {
+			if (user.password === user.password2) {
+				// 新しいアカウントを作成
+				restapi.post("user/password/"+user._id, {password: user.password}).then((response) => {
+				location.href = "{{{nexturl}}}";
+				}).catch((error) => {
+					this.errormsg = error.response.data;
+				});
+			} else {
+				this.errormsg = "エラー：2つのパスワードが異なります。同じものを2回入れてください。";
+			}
+		},
+	}
+})
+	</script>
+</body>
+</html>

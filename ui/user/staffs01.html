@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Hello pel</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+	<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+	<style>
+
+	.message {
+		margin: 1.5rem;
+	}
+	.frame {
+		margin: 1.5rem;
+	}
+	.morespace {
+		margin: 0 1rem;
+	}
+	input.radio {
+   width: 1.5em;
+   height: 1.5em;
+	}
+	input.checkbox{
+   width: 1.5em;
+   height: 1.5em;
+   margin: 0.5em;
+	}
+	.control {
+		margin-bottom: 2em;
+	}
+	.field {
+		margin-bottom: 2em;
+	}
+	
+	</style>
+
+	
+</head>
+<body>
+	<div id="app">
+
+	<article class="message is-primary">
+		<div class="content">
+			<div class="message-header">
+				アンケート用紙
+			</div>
+			<div class="message-body">
+
+				<form v-on:submit.prevent="submitItem(item)">
+
+					<div class="field">
+						会員番号：${user.number}
+					</div>
+
+					<div class="field">
+						イベント：${event.name}
+					</div>
+
+	<h3 class="is-size-6">活動・運営に深く関わることができる（役員などを引き受ける事ができる）</h3>
+	<div class="control">
+		<label class="radio">
+			そう思わない
+		</label>
+		<label class="radio">
+			1<br /><input type="radio" name="q3" value="1" v-model="item.q_exec" class="radio" required>
+		</label>
+		<label class="radio">
+			2<br /><input type="radio" name="q3" value="2" v-model="item.q_exec" class="radio">
+		</label>
+		<label class="radio">
+			3<br /><input type="radio" name="q3" value="3" v-model="item.q_exec" class="radio">
+		</label>
+		<label class="radio">
+			4<br /><input type="radio" name="q3" value="4" v-model="item.q_exec" class="radio">
+		</label>
+		<label class="radio">
+			5<br /><input type="radio" name="q3" value="5" v-model="item.q_exec" class="radio">
+		</label>
+		<label class="radio">
+			とてもそう思う
+		</label>
+	</div>
+
+	<h3 class="is-size-6">プログラミングにとても興味がある（教育教材の開発・作成などもしたい）</h3>
+	<div class="control">
+		<label class="radio">
+			そう思わない
+		</label>
+		<label class="radio">
+			1<br /><input type="radio" name="q2" value="1" v-model="item.q_program" class="radio" required>
+		</label>
+		<label class="radio">
+			2<br /><input type="radio" name="q2" value="2" v-model="item.q_program" class="radio">
+		</label>
+		<label class="radio">
+			3<br /><input type="radio" name="q2" value="3" v-model="item.q_program" class="radio">
+		</label>
+		<label class="radio">
+			4<br /><input type="radio" name="q2" value="4" v-model="item.q_program" class="radio">
+		</label>
+		<label class="radio">
+			5<br /><input type="radio" name="q2" value="5" v-model="item.q_program" class="radio">
+		</label>
+		<label class="radio">
+			とてもそう思う
+		</label>
+	</div>
+
+	<div class="control">
+		<label class="checkbox is-size-6">
+			参加可能な曜日は（複数選択可）：
+		</label>
+		<label class="checkbox">
+			<br /><input type="checkbox" v-model="item.week_day" class="checkbox">平日
+		</label>
+		<label class="checkbox">
+			<br /><input type="checkbox" v-model="item.sat_am" class="checkbox">土曜 午前
+			<br /><input type="checkbox" v-model="item.sat_pm" class="checkbox">土曜 午後
+		</label>
+		<label class="checkbox">
+			<br /><input type="checkbox" v-model="item.sun_am" class="checkbox">日曜 午前
+			<br /><input type="checkbox" v-model="item.sun_pm" class="checkbox">日曜 午後
+		</label>
+	</div>
+
+	<h3 class="is-size-6">おおよその参加・活動できる回数は？<br />
+	</h3>
+
+	<div class="control">
+		<label class="radio">
+			すくない
+		</label>
+		<label class="radio">
+			年に数回<br /><input type="radio" name="q4" value="1" v-model="item.q_time" class="radio" required>
+		</label>
+		<label class="radio">
+			月1回<br /><input type="radio" name="q4" value="2" v-model="item.q_time" class="radio">
+		</label>
+		<label class="radio">
+			隔週<br /><input type="radio" name="q4" value="3" v-model="item.q_time" class="radio">
+		</label>
+		<label class="radio">
+			週1回<br /><input type="radio" name="q4" value="4" v-model="item.q_time" class="radio">
+		</label>
+		<label class="radio">
+			週2～3回<br /><input type="radio" name="q4" value="5" v-model="item.q_time" class="radio">
+		</label>
+		<label class="radio">
+			おおい
+		</label>
+	</div>
+
+	<div class="field">年齢
+													<select class="select" v-model="item.age_class" required>
+														<option value="10代">10代</option>
+														<option value="20代">20代</option>
+														<option value="30代">30代</option>
+														<option value="40代">40代</option>
+														<option value="50代">50代</option>
+														<option value="60代">60代</option>
+														<option value="70代">70代</option>
+														<option value="80代">80代</option>
+														<option value="90代">90代</option>
+													</select>
+				</div>
+						
+						<div class="field">
+								<label class="label">ご提案、抱負、自己紹介など</label>
+									<textarea class="textarea" v-model="item.memo"></textarea>
+						</div>
+
+					<div class="field is-horizontal">
+						<div class="field-label is-normal">
+						</div>
+						<div class="field-body">
+							<div class="field">
+								<div class="control">
+									<input class="button is-primary" type="submit" value="登録して次へ">
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</form>
+			</div>
+		</div>
+	</article>
+	</div>
+
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="/ui/js/restapi.js"></script>
+	<script>
+const app = new Vue({
+	delimiters: ['${', '}'],
+	el: '#app',
+	data: {
+		newusers:[{}],
+		mailDone: false,
+		errormsg: "",
+		item: {},
+		user: {},
+		event:{},
+	},
+	mounted: function() {
+		this.whoami();
+				// Query文字列を見る
+		var v = restapi.getUrlVars();
+		var id  = v && v.id ? v.id : null;
+		this.getEvent(id);
+		this.getItem(id);
+	},
+	methods: {
+		// イベント情報
+		getEvent: function(id) {
+			restapi.get("event/"+id).then((response) => {
+				this.event = response.data;
+			});
+		},
+		// 自分の情報
+		whoami: function() {
+			restapi.get("user/whoami/").then((response) => {
+				this.user = response.data;
+			}).catch(function(err){
+				this.user = {};
+			});
+		},
+		// サーベイ
+		getItem: function(id) {
+			this.item = {};
+			console.log("staffs01/"+id);
+			restapi.get("staffs01/"+id).then((response) => {
+				this.item = response.data;
+				console.log("get", this.item);
+			}).catch(function(err){
+				this.item = {};
+				console.log("err", this.item);
+			});
+		},
+		// 登録して次へ
+		submitItem: function () {
+			var item = this.item;
+			item.groupId = this.event._id;
+			console.log(item);
+			restapi.post("staffs01/", item);
+			location.href = "{{{nexturl}}}";
+		},
+	}
+})
+	</script>
+</body>
+</html>

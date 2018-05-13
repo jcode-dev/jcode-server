@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>プログラミング教育研究所</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+	<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+
+</head>
+<body>
+	<div id="app">
+
+		<div class="tile is-ancestor">
+			<div class="tile is-parent">
+				<div class="tile is-child box">
+
+					<template v-if="showEvent">
+
+						<article class="message is-primary">
+							<div class="content">
+								<div class="message-header">
+									教室・イベント
+								</div>
+								<div class="message-body">
+
+									<h1 class="title">プログラミング教育研究所</h1>
+										名称： {{event.name}}<br />
+										日付： {{event.startDatetime}}<br />
+										場所： {{event.place}}<br />
+
+
+										<template v-if="signedin">
+											<li>
+												<h2 class="subtitle">{{user.name}}さん、ようこそ</h2>
+												終了したら <a v-on:click.prevent="adminSinout()">サインアウト</a> してください。
+											</li>
+										</template>
+										<template v-else="signedin">
+											<h2>
+											こんにちは、
+												<a v-bind:href="'/go'+nexturl">メールアドレスでサインイン</a>してください。
+											</h2>
+										</template>
+
+
+									<ul class="menu-list">
+										<li>
+											<a v-bind:href="'/go/chgpass' + nexturl">パスワード変更</a>
+										</li>
+										<li>
+											<a v-bind:href="'/go/profile' + nexturl">住所を登録する</a>
+										</li>
+
+										<li>
+											<a href="https://code.org" target="_blank">HTTP://CODE.ORG（コード ドット オルグ）をはじめる</a>
+										</li>
+
+										<li>
+											<a href="https://studio.code.org/sections/" target="_blank">CODE.ORG（コードオルグ）の会員ログイン画面</a>
+										</li>
+
+										<li>
+											<a href="https://makecode.microbit.org" target="_blank">micro:bit（マイクロビット）の開発画面</a>
+										</li>
+
+										<h4 class="menu-label">アンケート</h4>
+
+										<li>
+											<a v-bind:href="'/go/staffs01' + nexturl">アンケートに答える</a>
+										</li>
+
+									</ul>
+								</div>
+							</div>
+						</article>
+					</template>
+					<template v-else>
+
+
+						<article class="message is-primary">
+							<div class="content">
+								<div class="message-header">
+									教室・イベントの選択
+								</div>
+								<div class="message-body">
+									<h1 class="title">本日の教室・イベントを選んで下さい</h1>
+									<ul class="menu-list">
+										<li v-for="event of events">
+											<a v-bind:href="nexturl + '?id=' + event._id">{{event.name}} </a>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</article>
+
+					</template>
+
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="/ui/js/restapi.js"></script>
+	<script>
+
+const app = new Vue({
+	el: '#app',
+	data: {
+		signedin: false,
+		nexturl: "",
+		go_profile: "",
+		user: {},
+		events: [],
+		event:{},
+		showEvent: null,
+	},
+	mounted: function() {
+		this.nexturl = location.pathname + location.search;
+		// Query文字列を見る
+		var v = restapi.getUrlVars();
+		var id  = v && v.id ? v.id : null;
+		if (! id) {
+			this.getEvents();
+			return;
+		}
+		this.getEvent(id);
+		this.whoami();
+	},
+	methods: {
+		// ユーザー情報
+		whoami: function() {
+			console.log("redrawAll", this.nexturl);
+			restapi.get("user/whoami/").then((response) => {
+				this.user = response.data;
+				this.signedin = true;
+			}).catch(function(err){
+				console.log("whoami:", err);
+				this.user = {name: 'ゲスト'};
+				this.signedin = false;
+			});
+		},
+		// イベント一覧
+		getEvents: function() {
+			restapi.get("event/").then((response) => {
+				this.events = response.data;
+			});
+		},
+		// イベント情報
+		getEvent: function(id) {
+			restapi.get("event/"+id).then((response) => {
+				this.event = response.data;
+				this.showEvent = true;
+			});
+		},
+		// サインアウト
+		adminSinout: function() {
+			this.signedin = false;
+			restapi.popToken();
+			this.whoami();
+		},
+	}
+})
+
+	</script>
+
+</body>
+</html>

@@ -27,11 +27,6 @@ mongoose.connect(config.mongodb, {}, function(error) {
   }
  });
 var passport = require('./passport');
-var api_user = require('./rest/api_user');
-var api_event = require('./rest/api_event');
-var api_doc = require('./rest/api_doc');
-//var api_address = require('./rest/api_address');
-var api_join = require('./rest/api_join');
 
 console.log ("start express app"); 
 var app = express();
@@ -62,11 +57,11 @@ app.use((req, res, next) => {
 console.log ("setup routers"); 
 
 // サーバーREST API
-//app.use('/api/address', api_address);
-app.use('/api/user', api_user);
-app.use('/api/event', api_event);
-app.use('/api/doc', api_doc);
-app.use('/api/join', api_join);
+app.use('/api/user', require('./rest/api_user'));
+app.use('/api/event', require('./rest/api_event'));
+app.use('/api/doc', require('./rest/api_doc'));
+app.use('/api/join', require('./rest/api_join'));
+app.use('/api/staffs01', require('./rest/api_staffs01')); // Staffアンケートv1
 app.use('/api/email', require('./rest/api_email'));
 // クライアント＝ユーザーインタフェース
 app.use('/ui', express.static(path.join(__dirname, './ui')));

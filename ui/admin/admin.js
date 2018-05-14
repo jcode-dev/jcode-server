@@ -17,15 +17,6 @@ const showerror = function(error) {
 	document.getElementById("errormsg").innerHTML = error.response.data;
 }
 
-const copyToClipboard = str => {
-  const el = document.createElement('textarea');
-  el.value = str;
-  document.body.appendChild(el);
-  el.select();
-  document.execCommand('copy');
-  document.body.removeChild(el);
-};
-
 const app = new Vue({
 	el: '#app',
 	data: {
@@ -57,7 +48,7 @@ const app = new Vue({
 				var u = join.memberId;
 				str += u.number+dl +u.fullname+dl +u.furigana+dl +er;
 			}
-			copyToClipboard(str);
+			restapi.copyToClipboard(str);
 		},
 		// すべて書き直し
 		redrawAll: function() {

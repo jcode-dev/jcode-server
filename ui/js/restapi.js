@@ -103,3 +103,12 @@ restapi.getTime = function(datetime) {
 	let date = new Date(datetime);
 	return date.getHours()+':' + ('00'+date.getMinutes()).slice(-2); 
 }
+
+restapi.copyToClipboard = function(str) {
+  const el = document.createElement('textarea');
+  el.value = str;
+  document.body.appendChild(el);
+  el.select();
+  document.execCommand('copy');
+  document.body.removeChild(el);
+};

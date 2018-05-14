@@ -105,7 +105,7 @@
 
 						<template v-if="users.length">
 							ユーザー数：${users.length}<br />
-							<button click v-on:click.prevent="copy()">コピー</button><br />
+							<button click v-on:click.prevent="copy()">名簿用コピー</button><br />
 
 							<div class="field is-horizontal">
 								<div class="field-label is-normal">
@@ -137,7 +137,7 @@
 								</div>
 							</form>
 
-							<input v-model="allCheck" class="checkbox" type="checkbox" v-on:change="changeAllCheck()">すべて
+							<input v-model="allCheck" class="checkbox" type="checkbox" v-on:change="changeUserCheck()">すべて
 
 							<table class="table is-striped">
 								<tbody>
@@ -256,6 +256,21 @@ const app = new Vue({
 		this.eventId = id;
 	},
 	methods: {
+		// 名簿のコピー（エクセルに貼り付ける用）
+		copy: function() {
+			var str = "";
+			var dc = '"';
+			var dl = "\t";
+			var er = "\n";
+			for (let u of this.users) {
+				if (u.check) {
+					var tel = u.tel.replace(/[━.*‐.*―.*－.*\-.*ー.*\-]/gi,'');
+					tel = tel.replace(/^(03|\d{3})(\d{3,4})(\d{4})$/, '$1-$2-$3');
+					str += u.fullname+dl + (u.address2 ? dc+u.address1+dl+ er +u.address2+dc : u.address1) +dl + tel+dl +dl + u.number+dl + er;
+				}
+			}
+			restapi.copyToClipboard(str);
+		},
 		changeModel: function() {
 			this.joins = [];
 			this.users = [];
@@ -277,6 +292,12 @@ const app = new Vue({
 						console.log(response);
 					})
 				}
+			}
+		},
+		changeUserCheck: function(){
+			var check = this.allCheck;
+			for (join of this.users) {
+				join.check = check;
 			}
 		},
 		changeAllCheck: function(){

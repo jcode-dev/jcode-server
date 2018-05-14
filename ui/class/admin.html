@@ -166,6 +166,7 @@
 								<tbody>
 									<tr>
 										<th>check</th>
+										<th>名前</th>
 										<th>役員候補</th>
 										<th>プログラミング</th>
 										<th>曜日</th>
@@ -174,7 +175,17 @@
 										<th>メモ</th>
 									</tr>
 									<tr v-for="survey in surveys">
-										<td><input v-model="survey.check" class="checkbox" type="checkbox"></td>
+										<td>
+											<input v-model="survey.check" class="checkbox" type="checkbox">
+											<template v-if="(survey.memberId && survey.memberId._id)">
+												${survey.memberId.number}
+											</template>
+										</td>
+										<td>
+											<template v-if="(survey.memberId && survey.memberId._id)">
+												<ruby>${survey.memberId.fullname}<rt>${survey.memberId.furigana}</rt></ruby>
+											</template>
+										</td>
 										<td>${ survey.q_exec }</td>
 										<td>${ survey.q_program }</td>
 										<td>
@@ -195,7 +206,7 @@
 										</td>
 										<td>${ survey.q_time }</td>
 										<td>${ survey.age_class }</td>
-										<td>${ survey.memo }</td>
+										<td width=600>${ survey.memo }</td>
 									</tr>
 								</tbody>
 							</table>
@@ -215,7 +226,7 @@ const app = new Vue({
 	delimiters: ['${', '}'],
 	el: '#app',
 	data: {
-		currentModel:"joins",
+		currentModel:"users",
 		signedin: false,
 		nexturl: "",
 		go_profile: "",
@@ -322,6 +333,17 @@ const app = new Vue({
 		},
 	}
 })
+/*
+use kids2020
+db.docs.find({__t:"staffs01"});
+db.docs.find({__t:"staffs01"}).snapshot().forEach(
+  function(e){
+    e.memberId = e.ownerId;
+    db.docs.save(e);
+  }
+)
+
+*/
 
 	</script>
 

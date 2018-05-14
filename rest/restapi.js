@@ -143,9 +143,7 @@ restapi.findJoin = function(router, model) {
 		console.log("findJoin:", model.modelName, find);
 
 		if (isRoot(req.user)) {
-			model.find(find)
-			.populate('memberId')
-			.exec(toRes(res));
+			model.find(find).populate('memberId').exec(toRes(res));
 		} else {
 			model.find(find).exec(toRes(res));
 		}
@@ -199,7 +197,8 @@ restapi.listSurvey = function(router, model) {
 		if (! isRoot(req.user)) {
 			return res.status(401).send("エラー：データを読み出せません");
 		}
-		model.find({groupId:req.params['_id']}, toRes(res));
+		//model.find({groupId:req.params['_id']}, toRes(res));
+		model.find({groupId:req.params['_id']}).populate('memberId').exec(toRes(res));
 	});
 }
 // アンケート読込 :id=GroupId
@@ -220,6 +219,7 @@ restapi.updateSurvey = function(router, model) {
 	router.post('/', authJwt(), function(req, res) {
 		console.log("updateSurvey", req.body);
 		req.body.ownerId = req.user._id;
+		req.body.memberId = req.user._id;
 		delete req.body.__v;
 		delete req.body.createdAt;
 		model.findOneAndUpdate({ownerId:req.body.ownerId, groupId:req.body.groupId}, { $set:req.body }, {upsert: true, returnNewDocument: true}, function(err, result) {

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>プログラミング教育研究所</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+	<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+
+</head>
+<body>
+	<div id="app">
+
+		<div class="tile is-ancestor">
+			<div class="tile is-parent">
+				<div class="tile is-child box">
+
+						<article class="message is-primary">
+							<div class="content">
+								<div class="message-header">
+									ユーザー
+								</div>
+								<div class="message-body">
+									ID： ${user._id}<br />
+									番号： ${user.number}<br />
+									名前： ${user.name}<br />
+									ふりがな： ${user.furigana}<br />
+									正式氏名： ${user.fullname}<br />
+									email： ${user.email}<br />
+									<button click v-on:click="adminSinout()">サインアウト</button>
+								</div>
+							</div>
+						</article>
+
+						<template v-if="items.length">
+							総数：${items.length}<br />
+
+							<input v-model="allCheck" class="checkbox" type="checkbox" v-on:change="changeAllCheck()">すべて
+
+							<table class="table is-striped">
+								<tbody>
+									<tr>
+										<th>_id</th>
+										<th>名前</th>
+										<th>__t</th>
+										<th>ownerId</th>
+										<th>memberId</th>
+										<th>groupId</th>
+									</tr>
+									<tr v-for="item in items">
+										<td><input v-model="item.check" class="checkbox" type="checkbox">${item._id}</td>
+										<td>${item.name}</td>
+										<td>${item.__t}</td>
+										<td>${item.ownerId}</td>
+										<td>${item.memberId}</td>
+										<td>${item.groupId}</td>
+										<td>
+											<button v-if="(user._id !== item._id)||(items.length == 1)" class="button is-danger" v-on:click="deleteItem(item._id)">削除</button>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</template>
+
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="/ui/js/restapi.js"></script>
+	<script>
+
+const app = new Vue({
+	delimiters: ['${', '}'],
+	el: '#app',
+	data: {
+		signedin: false,
+		nexturl: "",
+		go_profile: "",
+		users: [],
+		user: {},
+		items: [],
+		allCheck: false,
+		action: "",
+		newPassword:"",
+	},
+	mounted: function() {
+		this.nexturl = location.pathname + location.search;
+		// Query文字列を見る
+		var v = restapi.getUrlVars();
+		var id  = v && v.id ? v.id : null;
+		if (! id) {
+			return;
+		}
+		this.whoami();
+		this.get_items();
+	},
+	methods: {
+		deleteUser: function() {
+			console.log("delete user", this.user._id);
+		},
+		submitAction: function() {
+			var pass = this.newPassword;
+			for (join of this.joins) {
+				if (join.check) {
+					
+					restapi.post("user/password/"+join.memberId._id, {password: pass}).then((response) => {
+						console.log(response);
+					})
+				}
+			}
+		},
+		changeAllCheck: function(){
+			var check = this.allCheck;
+			for (join of this.joins) {
+				join.check = check;
+			}
+		},
+		// ユーザー情報
+		whoami: function() {
+			console.log("redrawAll", this.nexturl);
+			restapi.get("user/whoami/").then((response) => {
+				this.user = response.data;
+				this.signedin = true;
+			}).catch(function(err){
+				console.log("whoami:", err);
+				this.user = {name: 'ゲスト'};
+				this.signedin = false;
+			});
+		},
+		// 一覧表示
+		get_items: function() {
+			var that = this;
+			restapi.get("doc/").then((response) => {
+				that.items = response.data;
+			}).catch(function(err){
+				that.items = [];
+			});
+		},
+		// 削除
+		deleteItem: function(id) {
+			restapi.delete("doc/"+id).then((response) => {
+				this.get_items();
+			});
+		},
+		// サインアウト
+		adminSinout: function() {
+			this.signedin = false;
+			restapi.popToken();
+			this.whoami();
+		},
+	}
+})
+	</script>
+
+</body>
+</html>

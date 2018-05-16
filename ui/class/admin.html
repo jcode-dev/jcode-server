@@ -147,6 +147,8 @@
 										<th>email</th>
 										<th>住所</th>
 										<th>TEL</th>
+										<th>他の保険</th>
+										<th>アクション</th>
 									</tr>
 									<tr v-for="user in users">
 										<td><input v-model="user.check" class="checkbox" type="checkbox">${user.number}</td>
@@ -154,6 +156,11 @@
 										<td>${user.email}</td>
 										<td>${user.zipcode} ${user.address1}<br />${user.address2}</td>
 										<td>${user.tel}</td>
+										<td>${user.hadInsurance}</td>
+										<td>
+											<button class="button" v-on:click.prevent="adminSinin(user.email)">編集</button>
+
+										</td>
 									</tr>
 								</tbody>
 							</table>
@@ -251,9 +258,9 @@ const app = new Vue({
 			return;
 		}
 		this.getEvent(id);
-		this.getJoins(id);
 		this.whoami();
 		this.eventId = id;
+		this.changeModel();
 	},
 	methods: {
 		// 名簿のコピー（エクセルに貼り付ける用）
@@ -266,11 +273,21 @@ const app = new Vue({
 				if (u.check) {
 					var tel = u.tel.replace(/[━.*‐.*―.*－.*\-.*ー.*\-]/gi,'');
 					tel = tel.replace(/^(03|\d{3})(\d{3,4})(\d{4})$/, '$1-$2-$3');
-					str += u.fullname+dl + (u.address2 ? dc+u.address1+dl+ er +u.address2+dc : u.address1) +dl + tel+dl +dl + u.number+dl + er;
+					var s = u.number+dl + u.furigana+dl + u.fullname+dl + u.zipcode+dl + u.address1+dl + (u.address2?u.address2:'')+dl + tel+dl + (!! u.hadInsurance)+dl +  u.email+dl +er;
+					str += s;
 				}
 			}
+			console.log("str", str);
 			restapi.copyToClipboard(str);
 		},
+		// サインイン(管理者用)
+		adminSinin: function(email, password = "") {
+			restapi.post("user/signinadmin", {email:email, password: password}).then((response) => {
+				restapi.pushToken(response.data);
+				window.open('/ui/class/user.html?id=xx', '_blank');
+			});
+		},
+		// 表示モード切替
 		changeModel: function() {
 			this.joins = [];
 			this.users = [];
@@ -321,7 +338,11 @@ const app = new Vue({
 		// アンケート一覧
 		getSurveys: function(id) {
 			restapi.get("staffs01/list/"+id).then((response) => {
-				this.surveys = response.data;
+				var arr = response.data;
+				arr.sort(function(a, b){
+					return a.memberId.number -b.memberId.number
+				});
+				this.surveys = arr;
 			});
 		},
 		// ユーザー覧

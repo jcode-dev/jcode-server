@@ -28,34 +28,75 @@
 		<article class="message is-primary">
 			<div class="content">
 				<div class="message-header">
-					会員専用画面に入る（サインイン）
+					サインインしてください
 				</div>
 				<div class="message-body">
 
-					<form v-on:submit.prevent="sign_in(user)">
-						<div class="field">
-						  <label class="label">メールアドレス</label>
-						  <div class="control has-icons-left">
-								<input v-model="user.email" class="input" type="email" required  placeholder="someone@j-code.org" autocomplete="email">
-								<span class="icon is-small is-left">
-									<i class="fas fa-envelope"></i>
-								</span>
-						  </div>
+					<div class="box">
+
+						<div class="tabs is-boxed">
+						  <ul>
+								<li v-on:click="signinMode = 'number'" v-bind:class="{'is-active': signinMode == 'number'}"><a>会員番号</a></li>
+								<li v-on:click="signinMode = 'email'" v-bind:class="{'is-active': signinMode == 'email'}"><a>メールアドレス</a></li>
+						  </ul>
 						</div>
 
-						<div class="field">
-							<label class="label">パスワード</label>
-							<input v-model="user.password" type="password" required autocomplete="current-password">
-						</div>
-						<p class="help is-danger">${errmsg}</p>
+						<template v-if="signinMode == 'number'">
+							<form v-on:submit.prevent="signinNumber(user)">
+								<p>
+									<ruby>会員番号<rt>かいいんばんごう</rt></ruby></label>とパスワードでサインインしてください。<br />
+								</p>
+								<div class="field">
+									<label class="label">会員番号</label>
+									<div class="control">
+										<input v-model="user.number" class="input" type="number" required>
+									</div>
+								</div>
 
-						<div class="field">
-					  	<div class="control">
-						  	<input class="button is-primary" value="サインイン" type="submit">
-						  </div>
-						</div>
-					</form>
+								<div class="field">
+									<label class="label">パスワード</label>
+									<input v-model="user.password" type="password" required autocomplete="current-password">
+								</div>
+								<p class="help is-danger">${errmsg}</p>
 
+								<div class="field">
+							  	<div class="control">
+								  	<input class="button is-primary" value="サインイン" type="submit">
+								  </div>
+								</div>
+							</form>
+						</template>
+
+						<template v-if="signinMode == 'email'">
+							<form v-on:submit.prevent="signinEmail(user)">
+								<p>
+									メールアドレスとパスワードでサインインしてください。<br />
+								</p>
+								<div class="field">
+								  <label class="label">メールアドレス</label>
+								  <div class="control has-icons-left">
+										<input v-model="user.email" class="input" type="email" required  placeholder="someone@j-code.org" autocomplete="email">
+										<span class="icon is-small is-left">
+											<i class="fas fa-envelope"></i>
+										</span>
+								  </div>
+								</div>
+
+								<div class="field">
+									<label class="label">パスワード</label>
+									<input v-model="user.password" type="password" required autocomplete="current-password">
+								</div>
+								<p class="help is-danger">${errmsg}</p>
+
+								<div class="field">
+							  	<div class="control">
+								  	<input class="button is-primary" value="サインイン" type="submit">
+								  </div>
+								</div>
+							</form>
+						</template>
+
+					</div>
 					<p>
 					パスワードだけが分からない場合は<a href="/go/password{{{nexturl}}}">ここをクリック</a>します。
 					</p>
@@ -80,13 +121,27 @@ const app = new Vue({
 	delimiters: ['${', '}'],
 	el: '#app',
 	data: {
+		signinMode: 'number',
 		user:{},
-		mailDone: false,
 		errmsg: "",
 	},
 	methods: {
 		// サインイン
-		sign_in: function (user) {
+		signinNumber: function (user) {
+
+			axios.post(location.protocol+"//"+location.host+"/api/user/nsignin", user).then((response) => {
+				var token = response.data;
+				restapi.pushToken(token);
+				location.href = "{{{nexturl}}}"; // リダイレクト
+
+			}).catch((error) => {
+				console.log("err:", error.response);
+				this.errmsg = error.response.data;
+				restapi.popToken();
+			});
+		},
+		// サインイン
+		signinEmail: function (user) {
 
 			axios.post(location.protocol+"//"+location.host+"/api/user/signin", user).then((response) => {
 				var token = response.data;

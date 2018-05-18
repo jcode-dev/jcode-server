@@ -20,6 +20,7 @@ addroute(router, [
 	restapi.reset(model),
 	restapi.signup(model),
 	restapi.signin(model),
+	restapi.nsignin(model),
 
 	restapi.find(model, read+edit),
 	restapi.schema(model, edit),

@@ -62,6 +62,7 @@ app.use('/api/event', require('./rest/api_event'));
 app.use('/api/doc', require('./rest/api_doc'));
 app.use('/api/join', require('./rest/api_join'));
 app.use('/api/staffs01', require('./rest/api_staffs01')); // Staffアンケートv1
+app.use('/api/students01', require('./rest/api_students01')); // Staffアンケートv1
 app.use('/api/email', require('./rest/api_email'));
 // クライアント＝ユーザーインタフェース
 app.use('/ui', express.static(path.join(__dirname, './ui')));

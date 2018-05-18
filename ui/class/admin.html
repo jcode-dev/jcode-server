@@ -166,7 +166,7 @@
 							</table>
 						</template>
 
-						<template v-if="surveys.length">
+						<template v-if="0">
 							アンケート回答総数：${surveys.length}<br />
 
 							<table class="table is-striped">
@@ -197,22 +197,59 @@
 										<td>${ survey.q_program }</td>
 										<td>
 										
-												<label class="checkbox">
-			<br /><input type="checkbox" v-model="survey.week_day" class="checkbox">平日
-		</label>
-		<label class="checkbox">
-			<br /><input type="checkbox" v-model="survey.sat_am" class="checkbox">土曜 午前
-			<br /><input type="checkbox" v-model="survey.sat_pm" class="checkbox">土曜 午後
-		</label>
-		<label class="checkbox">
-			<br /><input type="checkbox" v-model="survey.sun_am" class="checkbox">日曜 午前
-			<br /><input type="checkbox" v-model="survey.sun_pm" class="checkbox">日曜 午後
-		</label>
+											<label class="checkbox">
+												<br /><input type="checkbox" v-model="survey.week_day" class="checkbox">平日
+											</label>
+											<label class="checkbox">
+												<br /><input type="checkbox" v-model="survey.sat_am" class="checkbox">土曜 午前
+												<br /><input type="checkbox" v-model="survey.sat_pm" class="checkbox">土曜 午後
+											</label>
+											<label class="checkbox">
+												<br /><input type="checkbox" v-model="survey.sun_am" class="checkbox">日曜 午前
+												<br /><input type="checkbox" v-model="survey.sun_pm" class="checkbox">日曜 午後
+											</label>
 
-										
 										</td>
 										<td>${ survey.q_time }</td>
 										<td>${ survey.age_class }</td>
+										<td width=600>${ survey.memo }</td>
+									</tr>
+								</tbody>
+							</table>
+						</template>
+
+						<template v-if="surveys.length">
+							アンケート回答総数：${surveys.length}<br />
+
+							<table class="table is-striped">
+								<tbody>
+									<tr>
+										<th>check</th>
+										<th>名前</th>
+										<th>学年</th>
+										<th>たのしかった</th>
+										<th>あたまつかった</th>
+										<th>せんせいはわかりやすい</th>
+										<th>またやりたい</th>
+										<th>メモ</th>
+									</tr>
+									<tr v-for="survey in surveys">
+										<td>
+											<input v-model="survey.check" class="checkbox" type="checkbox">
+											<template v-if="(survey.memberId && survey.memberId._id)">
+												${survey.memberId.number}
+											</template>
+										</td>
+										<td>
+											<template v-if="(survey.memberId && survey.memberId._id)">
+												<ruby>${survey.memberId.fullname}<rt>${survey.memberId.furigana}</rt></ruby>
+											</template>
+										</td>
+										<td>${ survey.grade }</td>
+										<td>${ survey.q_fun }</td>
+										<td>${ survey.q_brain }</td>
+										<td>${ survey.q_teacher }</td>
+										<td>${ survey.q_again }</td>
 										<td width=600>${ survey.memo }</td>
 									</tr>
 								</tbody>
@@ -271,8 +308,11 @@ const app = new Vue({
 			var er = "\n";
 			for (let u of this.users) {
 				if (u.check) {
-					var tel = u.tel.replace(/[━.*‐.*―.*－.*\-.*ー.*\-]/gi,'');
-					tel = tel.replace(/^(03|\d{3})(\d{3,4})(\d{4})$/, '$1-$2-$3');
+					var tel = "";
+					if (u.tel) {
+						tel = u.tel.replace(/[━.*‐.*―.*－.*\-.*ー.*\-]/gi,'');
+						tel = tel.replace(/^(03|\d{3})(\d{3,4})(\d{4})$/, '$1-$2-$3');
+					}
 					var s = u.number+dl + u.furigana+dl + u.fullname+dl + u.zipcode+dl + u.address1+dl + (u.address2?u.address2:'')+dl + tel+dl + (!! u.hadInsurance)+dl +  u.email+dl +er;
 					str += s;
 				}
@@ -337,6 +377,16 @@ const app = new Vue({
 		},
 		// アンケート一覧
 		getSurveys: function(id) {
+			restapi.get("students01/list/"+id).then((response) => {
+				var arr = response.data;
+				arr.sort(function(a, b){
+					return a.memberId.number -b.memberId.number
+				});
+				this.surveys = arr;
+			});
+		},
+		// アンケート一覧
+		getSurveys2: function(id) {
 			restapi.get("staffs01/list/"+id).then((response) => {
 				var arr = response.data;
 				arr.sort(function(a, b){

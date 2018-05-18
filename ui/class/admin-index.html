@@ -21,25 +21,10 @@
 									教室・イベントの選択
 								</div>
 								<div class="message-body">
-									<h1 class="title">本日の教室・イベントを選んで下さい</h1>
+									<h1 class="title">管理する教室・イベントを選んで下さい</h1>
 									<ul class="menu-list">
 										<li v-for="event of events">
-											<a v-bind:href="'./student.html?id=' + event._id">{{event.name}} </a>
-										</li>
-									</ul>
-								</div>
-							</div>
-						</article>
-
-						<article class="message is-primary">
-							<div class="content">
-								<div class="message-header">
-									管理画面
-								</div>
-								<div class="message-body">
-									<ul class="menu-list">
-										<li>
-											<a href="./admin-index.html">管理画面</a>
+											<a v-bind:href="'./admin.html?id=' + event._id">{{event.name}} </a>
 										</li>
 									</ul>
 								</div>

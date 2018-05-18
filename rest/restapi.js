@@ -75,6 +75,15 @@ var restapi = {};
 restapi.find = function(model, schema) {
 	return ['/', 'get', function(req, res) {
 		var params = req.query;
+		console.log("find id:", req.user._id);
+		var find =isRoot(req.user) ? {} : {ownerId: req.user._id};
+		model.find(find).exec(toRes(res));
+	}];
+}
+
+restapi.find2 = function(model, schema) {
+	return ['/', 'get', function(req, res) {
+		var params = req.query;
 		console.log("find:", model.modelName, params);
 		console.log("find id:", req.user._id);
 		//console.dir();
@@ -399,6 +408,25 @@ restapi.signin = function(model) {
 		var email = req.body.email;
 		var password = req.body.password;
 		model.findOne({ email: email }).exec(function(err, result) {
+		
+			console.log("signin:", result);
+			if (err || !result || !isValidPassword(password, result.password)) {
+				return res.status(401).send("エラー：メールアドレスとパスワードが異なる可能性があります。");
+			}
+			var token = generateAccessToken(result._id);
+			res.status(200).send(token);
+		});
+	}, restapi.autho.public];
+}
+
+// 会員番号でサインイン(公開API)
+restapi.nsignin = function(model) {
+	return ['/nsignin', 'post', function(req, res) {
+		console.log("nsignin:", req.body);
+
+		var number = req.body.number;
+		var password = req.body.password;
+		model.findOne({ number: number }).exec(function(err, result) {
 		
 			console.log("signin:", result);
 			if (err || !result || !isValidPassword(password, result.password)) {

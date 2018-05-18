@@ -15,6 +15,69 @@
 			<div class="tile is-parent">
 				<div class="tile is-child box">
 
+					<template v-if="showEvent">
+
+						<article class="message is-primary">
+							<div class="content">
+								<div class="message-header">
+									教室・イベント
+								</div>
+								<div class="message-body">
+
+									<h1 class="title">プログラミング教育研究所</h1>
+										名称： {{event.name}}<br />
+										日付： {{event.startDatetime}}<br />
+										場所： {{event.place}}<br />
+
+
+										<template v-if="signedin">
+											<li>
+												<h2 class="subtitle">{{user.name}}さん、ようこそ</h2>
+												終了したら <a v-on:click.prevent="adminSinout()">サインアウト</a> してください。
+											</li>
+										</template>
+										<template v-else="signedin">
+											<h2>
+											こんにちは、
+												<a v-bind:href="'/go'+nexturl">メールアドレスでサインイン</a>してください。
+											</h2>
+										</template>
+
+
+									<ul class="menu-list">
+										<li>
+											<a v-bind:href="'/go/chgpass' + nexturl">パスワード変更</a>
+										</li>
+										<li>
+											<a v-bind:href="'/go/profile' + nexturl">住所を登録する</a>
+										</li>
+
+										<li>
+											<a href="https://code.org" target="_blank">HTTP://CODE.ORG（コード ドット オルグ）をはじめる</a>
+										</li>
+
+										<li>
+											<a href="https://studio.code.org/sections/" target="_blank">CODE.ORG（コードオルグ）の会員ログイン画面</a>
+										</li>
+
+										<li>
+											<a href="https://makecode.microbit.org" target="_blank">micro:bit（マイクロビット）の開発画面</a>
+										</li>
+
+										<h4 class="menu-label">アンケート</h4>
+
+										<li>
+											<a v-bind:href="'/go/staffs01' + nexturl">アンケートに答える</a>
+										</li>
+
+									</ul>
+								</div>
+							</div>
+						</article>
+					</template>
+					<template v-else>
+
+
 						<article class="message is-primary">
 							<div class="content">
 								<div class="message-header">
@@ -24,27 +87,14 @@
 									<h1 class="title">本日の教室・イベントを選んで下さい</h1>
 									<ul class="menu-list">
 										<li v-for="event of events">
-											<a v-bind:href="'./student.html?id=' + event._id">{{event.name}} </a>
+											<a v-bind:href="nexturl + '?id=' + event._id">{{event.name}} </a>
 										</li>
 									</ul>
 								</div>
 							</div>
 						</article>
 
-						<article class="message is-primary">
-							<div class="content">
-								<div class="message-header">
-									管理画面
-								</div>
-								<div class="message-body">
-									<ul class="menu-list">
-										<li>
-											<a href="./admin-index.html">管理画面</a>
-										</li>
-									</ul>
-								</div>
-							</div>
-						</article>
+					</template>
 
 				</div>
 			</div>

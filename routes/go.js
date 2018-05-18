@@ -18,6 +18,7 @@ router.all('*', function(req, res, next) {
 		'newuser': 'newuser.html',	// 新規ユーザー登録
 		'profile': 'profile.html',	// 住所等の追加情報入力
 		'staffs01': 'staffs01.html',	// STAFFアンケート01
+		'students01': 'students01.html',	// 生徒アンケート01
 	}
 
 	html = tbl[url[1]];

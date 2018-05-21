@@ -1,0 +1,55 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Icon/Image Select: Nano Example (Javascript)</title>
+
+        <link rel="stylesheet" type="text/css" href="../iconselect/css/lib/control/iconselect.css" >
+        <script type="text/javascript" src="../iconselect/lib/control/iconselect.js"></script>
+        
+        <script type="text/javascript" src="../iconselect/lib/iscroll.js"></script>
+        
+        <script>
+            
+        var iconSelect;
+        var selectedText;
+        
+        window.onload = function(){
+
+           selectedText = document.getElementById('selected-text');
+            
+            document.getElementById('my-icon-select').addEventListener('changed', function(e){
+               selectedText.value = iconSelect.getSelectedValue();
+            });
+
+            iconSelect = new IconSelect("my-icon-select", 
+                {'selectedIconWidth':48,
+                'selectedIconHeight':48,
+                'selectedBoxPadding':1,
+                'iconsWidth':96,
+                'iconsHeight':96,
+                'boxIconSpace':1,
+                'vectoralIconNumber':6,
+                'horizontalIconNumber':6});
+            var icons = [];
+
+var list = "alien_thumb@2x.png bat_thumb@2x.png bird_thumb@2x.png cat_thumb@2x.png dinosaur_thumb@2x.png dog_thumb@2x.png dragon_thumb@2x.png ghost_thumb@2x.png knight_thumb@2x.png monster_thumb@2x.png ninja2_thumb@2x.png ninja_thumb@2x.png octopus_thumb@2x.png penguin_thumb@2x.png pirate_thumb@2x.png princess_thumb@2x.png robot_thumb@2x.png spacebot_thumb@2x.png squirrel_thumb@2x.png unicorn_thumb@2x.png witch_thumb@2x.png wizard_thumb@2x.png zombie_thumb@2x.png";
+var arr = list.split(' ');
+	for (var name of arr) {
+            icons.push({'iconFilePath':'../img/'+name, 'iconValue': name });
+	}
+            iconSelect.refresh(icons);
+
+        };
+            
+        </script>
+        
+    </head>
+    <body>
+        
+        <h2>Icon/Image Select: Nano Example (Javascript)</h2>
+        
+        <div id="my-icon-select"></div>
+        <input type="text" id="selected-text" name="selected-text" style="width:265px;">
+        
+    </body>
+</html>

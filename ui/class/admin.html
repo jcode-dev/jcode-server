@@ -6,7 +6,11 @@
 	<title>プログラミング教育研究所</title>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
 	<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
-
+	<style>
+	.button {
+		margin: 0.5rem;
+	}
+	</style>
 </head>
 <body>
 	<div id="app">
@@ -28,7 +32,7 @@
 									場所： ${event.place}<br />
 									説明： ${event.description}<br />
 								</div>
-							</div>
+							</div>png
 						</article>
 						<div class="control">
 							<label class="radio">
@@ -40,42 +44,33 @@
 							<label class="radio">
 								surveys<br /><input type="radio" name="q4" value="surveys" v-model="currentModel" class="radio" v-on:change="changeModel">
 							</label>
+							<label class="radio">
+								staff surveys<br /><input type="radio" name="q4" value="surveys2" v-model="currentModel" class="radio" v-on:change="changeModel">
+							</label>
 						</div>
 
 						<template v-if="joins.length">
 							申込総数：${joins.length}<br />
 
-							<button click v-on:click.prevent="copy()">コピー</button><br />
+							<p>
+								チェックされたものを
+								<button click v-on:click.prevent="copyJoins()">名簿用コピー</button>
+								<button click v-on:click.prevent="businesscards()">名刺印刷</button>
+								<a class="button" href="/ui/class/icon-select.html" target="_blank">アイコンセレクタ</a><br />
 
-							<div class="field is-horizontal">
-								<div class="field-label is-normal">
-									<label class="label">アクション</label>
-								</div>
-								<div class="field-body">
-									<div class="field is-narrow">
-										<select class="select" v-model="action" required>
-											<option value="password">パスワード変更</option>
-											<option value="status">ステータス変更</option>
-										</select>
-									</div>
+								<a class="button is-info" v-on:click.prevent="copyPassword()">パスワードをランダムに</a>
+								<a class="button is-info" v-on:click.prevent="copyCdosection()">CODE.ORGセクションをコピー</a><br />
+
+								<a class="button is-danger" v-on:click.prevent="submitAction()">パスワードを書きこみ更新</a>
+								<a class="button is-danger" v-on:click.prevent="updateCdo()">CODE.ORG情報を書きみ更新</a>
+							</p>
+
+							<div class="field-body">
+								<div class="field is-narrow">
+									<label class="label">新しい値</label>
+									<input v-model="newPassword" class="input" type="text">
 								</div>
 							</div>
-
-							<form v-on:submit.prevent="submitAction">
-								<div class="field is-horizontal">
-									<div class="field-label is-normal">
-										<label class="label">パスワード</label>
-									</div>
-									<div class="field-body">
-										<div class="field is-narrow">
-											<input v-model="newPassword" class="input" type="text">
-										</div>
-									</div>
-								</div>
-								<div class="control">
-									<input class="button is-primary" type="submit" value="更新">
-								</div>
-							</form>
 
 							<input v-model="allCheck" class="checkbox" type="checkbox" v-on:change="changeAllCheck()">すべて
 
@@ -84,14 +79,20 @@
 									<tr>
 										<th>番号</th>
 										<th>名前</th>
-										<th>email</th>
+										<th>パスワード</th>
+										<th>CODE.ORGセクション</th>
+										<th>CODE.ORG画像</th>
 										<th>ステータス</th>
 										<th>アクション</th>
 									</tr>
 									<tr v-for="join in joins">
 										<td><input v-model="join.check" class="checkbox" type="checkbox">${join.memberId.number}</td>
 										<td><ruby>${join.memberId.fullname}<rt>${join.memberId.furigana}</rt></ruby></td>
-										<td>${join.memberId.email}</td>
+										<td><input v-model="join.memberId.newpass" type="text"></td>
+										<td><input v-model="join.memberId.cdosection" type="text"></td>
+										<td><img v-bind:src="'../img/'+join.memberId.cdopassword" width=32 height=32></img>
+										<input v-model="join.memberId.cdopassword" type="text"></td>
+
 										<td>${join.status}</td>
 										<td>
 											${join.memberId.grade}
@@ -105,8 +106,9 @@
 
 						<template v-if="users.length">
 							ユーザー数：${users.length}<br />
-							<button click v-on:click.prevent="copy()">名簿用コピー</button><br />
-
+							<p>
+								チェックされたものを <button click v-on:click.prevent="copyUsers()">名簿用コピー</button><br />
+							</p>
 							<div class="field is-horizontal">
 								<div class="field-label is-normal">
 									<label class="label">アクション</label>
@@ -220,6 +222,8 @@
 
 						<template v-if="surveys.length">
 							アンケート回答総数：${surveys.length}<br />
+							 <button click v-on:click.prevent="copySurveys()">子どもコピー</button><br />
+							 <button click v-on:click.prevent="copySurveys2()">大人コピー</button><br />
 
 							<table class="table is-striped">
 								<tbody>
@@ -266,11 +270,21 @@
 	<script src="/ui/js/restapi.js"></script>
 	<script>
 
+// 電話番号の整形
+function copyTel(tel) {
+	if (!tel) {
+		return "";
+	}
+	tel = tel.replace(/[━.*‐.*―.*－.*\-.*ー.*\-]/gi,'');
+	tel = tel.replace(/^(03|\d{3})(\d{3,4})(\d{4})$/, '$1-$2-$3');
+	return tel;
+}
+
 const app = new Vue({
 	delimiters: ['${', '}'],
 	el: '#app',
 	data: {
-		currentModel:"users",
+		currentModel:"joins",
 		signedin: false,
 		nexturl: "",
 		go_profile: "",
@@ -300,24 +314,68 @@ const app = new Vue({
 		this.changeModel();
 	},
 	methods: {
-		// 名簿のコピー（エクセルに貼り付ける用）
-		copy: function() {
+		// 名簿用コピー（エクセルに貼り付ける用）
+		copyMeibo: function(users, cb) {
 			var str = "";
-			var dc = '"';
-			var dl = "\t";
-			var er = "\n";
-			for (let u of this.users) {
-				if (u.check) {
-					var tel = "";
-					if (u.tel) {
-						tel = u.tel.replace(/[━.*‐.*―.*－.*\-.*ー.*\-]/gi,'');
-						tel = tel.replace(/^(03|\d{3})(\d{3,4})(\d{4})$/, '$1-$2-$3');
-					}
-					var s = u.number+dl + u.furigana+dl + u.fullname+dl + u.zipcode+dl + u.address1+dl + (u.address2?u.address2:'')+dl + tel+dl + (!! u.hadInsurance)+dl +  u.email+dl +er;
-					str += s;
+			for (let user of users) {
+				if (user.check) {
+					str += cb(user);
 				}
 			}
-			console.log("str", str);
+			restapi.copyToClipboard(str);
+		},
+		// 名簿用コピー
+		copyUsers: function() {
+
+			this.copyMeibo(this.users, function(u) {
+				var dc = '"';
+				var dl = "\t";
+				var er = "\n";
+				var s = "";
+				var tel = copyTel(u.tel);
+				s = u.number+dl + u.furigana+dl + u.fullname+dl + u.zipcode+dl + u.address1+dl + (u.address2?u.address2:'')+dl + tel+dl + (!! u.hadInsurance)+dl +  u.email+dl +er;
+				return s;
+			});
+		},
+		// アンケートのコピー
+		copySurveys: function() {
+
+			var str = "";
+			this.surveys.forEach(function(survey) {
+				var dc = '"';
+				var u = survey.memberId;
+				var dl = "\t";
+				var er = "\n";
+				var s = u.number+dl + u.furigana+dl + u.fullname+dl
+					+ survey.grade +dl
+					+ survey.q_fun +dl
+					+ survey.q_brain +dl
+					+ survey.q_teacher +dl
+					+ survey.q_again +dl
+					+ (survey.memo ? dc + survey.memo.trim() +dc : "")
+					+er;
+				str += s;
+			});
+			restapi.copyToClipboard(str);
+		},
+		// アンケートのコピー
+		copySurveys2: function() {
+
+			var str = "";
+			this.surveys.forEach(function(survey) {
+				var dc = '"';
+				var u = survey.memberId;
+				var dl = "\t";
+				var er = "\n";
+				var s = u.number+dl + u.furigana+dl + u.fullname+dl
+					+ survey.age_class +dl
+					+ survey.q_exec +dl
+					+ survey.q_program +dl
+					+ survey.q_time +dl
+					+ (survey.memo ? dc + survey.memo.trim() +dc : "")
+					+er;
+				str += s;
+			});
 			restapi.copyToClipboard(str);
 		},
 		// サインイン(管理者用)
@@ -338,18 +396,89 @@ const app = new Vue({
 				this.getUsers(this.eventId);
 			} else if (this.currentModel === "surveys") {
 				this.getSurveys(this.eventId);
+			} else if (this.currentModel === "surveys2") {
+				this.getSurveys2(this.eventId);
 			}
 		},
+		// 名簿用コピー
+		copyJoins: function() {
+			this.copyMeibo(this.joins, function(join) {
+				var u = join.memberId;
+				return u.number+" "+u.name+"\n";
+			});
+		},
+		//パスワードランダムに
+		copyPassword: function() {
+			console.log("aaaa");
+			for(let i in this.joins) {
+				var join  = this.joins[i];
+				if (join.check) {
+					if (this.newPassword) {
+						join.memberId.newpass = this.newPassword;
+					} else {
+						join.memberId.newpass = ("0000" + Math.ceil(Math.random()*10000)).substr(-3,3);
+					}
+					Vue.set(this.joins, i, join)
+				}
+			}
+		},
+		//CODE.ORGセクションコピー
+		copyCdosection: function() {
+			for(let i in this.joins) {
+				var join  = this.joins[i];
+				if (join.check) {
+					join.memberId.cdosection = this.newPassword;
+					Vue.set(this.joins, i, join)
+				}
+			}
+		},
+		//パスワード書込み
 		submitAction: function() {
-			var pass = this.newPassword;
 			for (join of this.joins) {
 				if (join.check) {
 					
-					restapi.post("user/password/"+join.memberId._id, {password: pass}).then((response) => {
+					restapi.post("user/password/"+join.memberId._id, {password: join.memberId.newpass}).then((response) => {
 						console.log(response);
 					})
 				}
 			}
+		},
+		//ユーザー情報(CODE.ORG)書き変え
+		updateCdo: function() {
+			for (join of this.joins) {
+				if (join.check) {
+					var user = join.memberId;
+					restapi.post("user/"+user._id, {cdosection: user.cdosection, cdopassword: user.cdopassword}).then((response) => {
+						console.log(response);
+					})
+				}
+			}
+		},
+		// 名刺印刷
+		businesscards: function() {
+			var users = [];
+			for (join of this.joins) {
+				if (join.check) {
+					var user = join.memberId;
+					users.push({number: user.number, furigana: user.furigana, fullname: user.fullname,
+					 address1: "NPO法人プログラミング教育研究所",address2:"HTTP://J-CODE.ORG", cdopassword: user.cdopassword})
+					users.push({number: user.newpass,
+					 address1: "コードドットオルグ",address2:"https://studio.code.org/sections/"+user.cdosection, cdopassword: user.cdopassword})
+				}
+			}
+			axios({
+			  url: '/api/print/businesscards',
+			  method: 'POST',
+			  responseType: 'blob', // important
+			  data: {users: users}, 
+			}).then((response) => {
+			  const url = window.URL.createObjectURL(new Blob([response.data]));
+			  const link = document.createElement('a');
+			  link.href = url;
+			  link.setAttribute('download', 'file.pdf');
+			  document.body.appendChild(link);
+			  link.click();
+			});
 		},
 		changeUserCheck: function(){
 			var check = this.allCheck;
@@ -425,17 +554,6 @@ const app = new Vue({
 		},
 	}
 })
-/*
-use kids2020
-db.docs.find({__t:"staffs01"});
-db.docs.find({__t:"staffs01"}).snapshot().forEach(
-  function(e){
-    e.memberId = e.ownerId;
-    db.docs.save(e);
-  }
-)
-
-*/
 
 	</script>
 

@@ -18,15 +18,33 @@
 						<article class="message is-primary">
 							<div class="content">
 								<div class="message-header">
-									教室・イベントの選択
+									プログラミング教室
 								</div>
 								<div class="message-body">
-									<h1 class="title">本日の教室・イベントを選んで下さい</h1>
-									<ul class="menu-list">
-										<li v-for="event of events">
-											<a v-bind:href="'./student.html?id=' + event._id">{{event.name}} </a>
-										</li>
-									</ul>
+										会員番号：${user.number}<br />
+										<h2 class="subtitle"><ruby>${user.fullname}<rt>${user.furigana}</rt></ruby><font size="3">さん、</font>ようこそ</h2>
+
+										<p>
+											プログラミング教室の3つの約束
+										</p>
+																		<h1 class="title">はしらない</h1>
+										<p>
+											はしったり、ものを<ruby>振り回<rt>ふりまわ</rt></ruby>したり、しないでください。
+										</p>
+										
+																		<h1 class="title">がまんしない</h1>
+										<p>
+											トイレに<ruby>行<rt>い</rt></ruby>きたくなったり、きもちわるくなったら、がまんしないで、すぐに<ruby>教<rt>おし</rt></ruby>えてください。<br />
+											せんせいに なにか<ruby>聞<rt>き</rt></ruby>きたいときは <ruby>手<rt>て</rt></ruby>をあげて よんでください。
+										</p>
+										
+																		<h1 class="title">おはなしをきく</h1>
+										<p>
+											せんせいが「きいてください」といったら、さぎょうの<ruby>手<rt>て</rt></ruby>をとめて、せんせいの<ruby>話<rt>はなし</rt></ruby>をきいてください。<br />
+										</p>
+										
+
+									<a class="button is-info" href="./student.html">プログラミングをはじめる</a>
 								</div>
 							</div>
 						</article>
@@ -34,12 +52,21 @@
 						<article class="message is-primary">
 							<div class="content">
 								<div class="message-header">
-									管理画面
+									設定と管理
 								</div>
 								<div class="message-body">
 									<ul class="menu-list">
 										<li>
-											<a href="./admin-index.html">管理画面</a>
+											<a v-bind:href="'/go/chgpass' + nexturl">パスワード変更</a>
+										</li>
+										<li>
+											<a v-bind:href="'/go/profile' + nexturl">名前や連絡先を確認・訂正する</a>
+										</li>
+										<li>
+											<a href="./admin-index.html">管理者画面</a>
+										</li>
+										<li>
+											<a v-bind:href="'/go' + nexturl">サインイン画面</a>
 										</li>
 									</ul>
 								</div>
@@ -57,6 +84,7 @@
 	<script>
 
 const app = new Vue({
+	delimiters: ['${', '}'],
 	el: '#app',
 	data: {
 		signedin: false,
@@ -69,27 +97,18 @@ const app = new Vue({
 	},
 	mounted: function() {
 		this.nexturl = location.pathname + location.search;
-		// Query文字列を見る
-		var v = restapi.getUrlVars();
-		var id  = v && v.id ? v.id : null;
-		if (! id) {
-			this.getEvents();
-			return;
-		}
-		this.getEvent(id);
 		this.whoami();
 	},
 	methods: {
 		// ユーザー情報
 		whoami: function() {
-			console.log("redrawAll", this.nexturl);
+			var user = this.user;
+			console.log("whoami", this.nexturl);
 			restapi.get("user/whoami/").then((response) => {
 				this.user = response.data;
-				this.signedin = true;
 			}).catch(function(err){
 				console.log("whoami:", err);
-				this.user = {name: 'ゲスト'};
-				this.signedin = false;
+				user._id = null;
 			});
 		},
 		// イベント一覧

@@ -8,7 +8,7 @@ const addroute = require('./resource-router');
 const restapi =require('./restapi');
 
 const read = '_id number email ';
-const edit = 'mainrole name furigana fullname grade zipcode address1 address2 tel hadInsurance memo';
+const edit = 'mainrole name furigana fullname grade zipcode address1 address2 tel hadInsurance memo cdosection cdopassword';
 
 	restapi.signinAdmin(router, model);
 	restapi.whoami(router, model, read+edit);

@@ -15,8 +15,6 @@
 			<div class="tile is-parent">
 				<div class="tile is-child box">
 
-					<template v-if="showEvent">
-
 						<article class="message is-primary">
 							<div class="content">
 								<div class="message-header">
@@ -24,75 +22,64 @@
 								</div>
 								<div class="message-body">
 
-									<h1 class="title">プログラミング教育研究所</h1>
-										名称： {{event.name}}<br />
-										日付： {{event.startDatetime}}<br />
-										場所： {{event.place}}<br />
-
-
-										<template v-if="signedin">
-											<h2 class="subtitle">{{user.name}}<font size="3">さん、</font>ようこそ</h2>
-											終了したら <a v-on:click.prevent="adminSinout()">サインアウト</a> してください。
-										</template>
-										<template v-else="signedin">
-											<h2>
-											こんにちは、
-												<a v-bind:href="'/go'+nexturl">メールアドレスでサインイン</a>してください。
-											</h2>
-										</template>
-
+									<template v-if="user._id">
+										会員番号：${user.number}<br />
+										<h2 class="subtitle"><ruby>${user.fullname}<rt>${user.furigana}</rt></ruby><font size="3">さん、</font>ようこそ</h2>
+									</template>
+									<template v-else>
+										<h2>
+										こんにちは、
+											<a v-bind:href="'/go'+nexturl">サインイン</a>してください。
+										</h2>
+									</template>
 
 									<ul class="menu-list">
-										<li>
-											<a v-bind:href="'/go/chgpass' + nexturl">パスワード変更</a>
-										</li>
-										<li>
-											<a v-bind:href="'/go/profile' + nexturl">プロファイルを見る</a>
-										</li>
 
 										<li>
-											<a href="https://code.org" target="_blank">HTTP://CODE.ORG（コード ドット オルグ）をはじめる</a>
+											<a href="http://kita.j-code.org/kitaku/2017/02/07/touchtyping/" target="_blank">キーボード（タッチタイピングの<ruby>練習<rt>れんしゅう</rt></ruby>）</a>
 										</li>
 
+										<template v-if="user.cdosection">
+											<li>
+												<a v-bind:href="'https://studio.code.org/sections/' + user.cdosection" target="_blank"><ruby>CODE.ORG<rt>コード ドット オルグ</rt></ruby>をはじめる</a>
+											</li>
+										</template>
+										<template v-else>
+											<li>
+												<a href="https://code.org" target="_blank"><ruby>CODE.ORG<rt>コード ドット オルグ</rt></ruby>をはじめる</a>
+											</li>
+										</template>
+
 										<li>
-											<a href="https://studio.code.org/sections/" target="_blank">CODE.ORG（コードオルグ）の会員ログイン画面</a>
+											<a href="https://makecode.microbit.org" target="_blank"><ruby>micro:bit<rt>マイクロビット</rt></ruby>をはじめる</a>
 										</li>
 
-										<li>
-											<a href="https://makecode.microbit.org" target="_blank">micro:bit（マイクロビット）の開発画面</a>
-										</li>
+										<h4 class="menu-label">かえるまえにアンケート</h4>
 
-										<h4 class="menu-label">アンケート</h4>
+										<div class="box">
+											<template v-if="showEvent">
+												なまえ： ${event.name}<br />
+												ばしょ： ${event.place}<br />
+												<a v-bind:href="'/go/students01' + nexturl">アンケートに<ruby>答<rt>こた</rt></ruby>える</a>
+											</template>
+											<template v-else>
+												<h4 class="menu-label">きょうのプログラミング<ruby>教室<rt>きょうしつ</rt></ruby>は、どれですか？</h4>
+												<ul class="menu-list">
+													<li v-for="event of events">
+														<a v-bind:href="nexturl + '?id=' + event._id">${event.name} </a>
+													</li>
+												</ul>
+											</template>
+										</div>
 
-										<li>
-											<a v-bind:href="'/go/students01' + nexturl">アンケートに答える</a>
+										<li v-if="user._id">
+											ぜんぶおわったので <span class="button" v-on:click.prevent="adminSinout()">サインアウト</span> する
 										</li>
 
 									</ul>
 								</div>
 							</div>
 						</article>
-					</template>
-					<template v-else>
-
-
-						<article class="message is-primary">
-							<div class="content">
-								<div class="message-header">
-									教室・イベントの選択
-								</div>
-								<div class="message-body">
-									<h1 class="title">本日の教室・イベントを選んで下さい</h1>
-									<ul class="menu-list">
-										<li v-for="event of events">
-											<a v-bind:href="nexturl + '?id=' + event._id">{{event.name}} </a>
-										</li>
-									</ul>
-								</div>
-							</div>
-						</article>
-
-					</template>
 
 				</div>
 			</div>
@@ -105,9 +92,9 @@
 	<script>
 
 const app = new Vue({
+	delimiters: ['${', '}'],
 	el: '#app',
 	data: {
-		signedin: false,
 		nexturl: "",
 		go_profile: "",
 		user: {},
@@ -122,22 +109,21 @@ const app = new Vue({
 		var id  = v && v.id ? v.id : null;
 		if (! id) {
 			this.getEvents();
-			return;
+		} else {
+			this.getEvent(id);
 		}
-		this.getEvent(id);
 		this.whoami();
 	},
 	methods: {
 		// ユーザー情報
 		whoami: function() {
-			console.log("redrawAll", this.nexturl);
+			var user = this.user;
+			console.log("whoami", this.nexturl);
 			restapi.get("user/whoami/").then((response) => {
 				this.user = response.data;
-				this.signedin = true;
 			}).catch(function(err){
 				console.log("whoami:", err);
-				this.user = {name: 'ゲスト'};
-				this.signedin = false;
+				user._id = null;
 			});
 		},
 		// イベント一覧
@@ -155,7 +141,6 @@ const app = new Vue({
 		},
 		// サインアウト
 		adminSinout: function() {
-			this.signedin = false;
 			restapi.popToken();
 			this.whoami();
 		},

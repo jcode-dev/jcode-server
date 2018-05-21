@@ -25,6 +25,10 @@ var User = Doc.discriminator('User',
 		memo: String,
 		
 		autho: String, //アクセス権限 ['GUEST', 'USER', 'ADMIN', 'ROOT']
+
+		cdosection: String,
+		cdopassword: String,
+
 	}));
 
 // スキーマ毎に連番を振る

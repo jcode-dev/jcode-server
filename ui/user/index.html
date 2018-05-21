@@ -17,6 +17,15 @@
 	.morespace {
 		margin: 0 1rem;
 	}
+	.content ul {
+		margin: 0;
+	}
+	.tabs:not(:last-child) {
+    margin-bottom: 0;
+	}
+	.help {
+    margin-left: 6rem;
+	}
 	</style>
 
 	
@@ -24,95 +33,130 @@
 <body>
 
 	<div id="app">
+		<template v-if="user._id">
 
-		<article class="message is-primary">
-			<div class="content">
-				<div class="message-header">
-					サインインしてください
-				</div>
-				<div class="message-body">
+			<article class="message is-primary">
+				<div class="content">
+					<div class="message-header">
+						会員サイト入口
+					</div>
+					<div class="message-body">
+						<div class="box">
 
-					<div class="box">
-
-						<div class="tabs is-boxed">
-						  <ul>
-								<li v-on:click="signinMode = 'number'" v-bind:class="{'is-active': signinMode == 'number'}"><a>会員番号</a></li>
-								<li v-on:click="signinMode = 'email'" v-bind:class="{'is-active': signinMode == 'email'}"><a>メールアドレス</a></li>
-						  </ul>
+							<h3>
+								おかえりなさい<br />
+							</h3>
+							<p>
+								ばんごう: ${user.number}<br />
+								なまえ：<ruby>${user.fullname}<rt>${user.furigana}</rt></ruby><br />
+							</p>
+							<p>
+								あなたの なまえが <ruby>出<rt>で</rt></ruby>ていたら、<ruby>次<rt>つぎ</rt></ruby>へすすんでください。<br />
+							 	<a class="button is-primary" href="{{{nexturl}}}">つぎへ</a>
+							</p>
 						</div>
+						<p>
+							ちがう人の なまえが、出ていたら、サインアウトしてください。<br />
+						 	<button class="button is-warning" v-on:click="signout()">サインアウト</button>
+						</p>
+					</div>
+				</div>
+			</article>
+		</template>
+		<template v-else>
+			<article class="message is-primary">
+				<div class="content">
+					<div class="message-header">
+						サインインしてください
+					</div>
+					<div class="message-body">
 
-						<template v-if="signinMode == 'number'">
-							<form v-on:submit.prevent="signinNumber(user)">
-								<p>
-									<ruby>会員番号<rt>かいいんばんごう</rt></ruby></label>とパスワードでサインインしてください。<br />
-								</p>
-								<div class="field">
-									<label class="label">会員番号</label>
-									<div class="control">
-										<input v-model="user.number" class="input" type="number" required>
+						<div class="box">
+
+							<div class="tabs is-boxed">
+							  <ul>
+									<li v-on:click="signinMode = 'number'" v-bind:class="{'is-active': signinMode == 'number'}"><a>会員番号</a></li>
+									<li v-on:click="signinMode = 'email'" v-bind:class="{'is-active': signinMode == 'email'}"><a>メールアドレス</a></li>
+							  </ul>
+							</div>
+						  <p class="help">※メールアドレスに切り替えることもできます。</p>
+
+							<template v-if="signinMode == 'number'">
+								<form v-on:submit.prevent="signinNumber(user)">
+									<p>
+										<ruby>会員番号<rt>かいいんばんごう</rt></ruby></label>とパスワードでサインインしてください。<br />
+									</p>
+									<div class="field">
+										<label class="label">会員番号</label>
+										<div class="control is-narrow">
+											<input v-model="user.number" type="number" class="input is-info" required>
+										</div>
 									</div>
-								</div>
 
-								<div class="field">
-									<label class="label">パスワード</label>
-									<input v-model="user.password" type="password" required autocomplete="current-password">
-								</div>
-								<p class="help is-danger">${errmsg}</p>
+									<div class="field">
+										<label class="label">パスワード</label>
+										<div class="control is-narrow">
+											<input v-model="user.password" type="password" class="input is-info" required autocomplete="current-password">
+										</div>
+									</div>
+									<p class="help is-danger">${errmsg}</p>
 
-								<div class="field">
-							  	<div class="control">
-								  	<input class="button is-primary" value="サインイン" type="submit">
-								  </div>
-								</div>
-							</form>
-						</template>
+									<div class="field">
+								  	<div class="control">
+									  	<input class="button is-primary" value="サインイン" type="submit">
+									  </div>
+									</div>
+								</form>
+							</template>
 
-						<template v-if="signinMode == 'email'">
-							<form v-on:submit.prevent="signinEmail(user)">
-								<p>
-									メールアドレスとパスワードでサインインしてください。<br />
-								</p>
-								<div class="field">
-								  <label class="label">メールアドレス</label>
-								  <div class="control has-icons-left">
-										<input v-model="user.email" class="input" type="email" required  placeholder="someone@j-code.org" autocomplete="email">
-										<span class="icon is-small is-left">
-											<i class="fas fa-envelope"></i>
-										</span>
-								  </div>
-								</div>
+							<template v-if="signinMode == 'email'">
+								<form v-on:submit.prevent="signinEmail(user)">
+									<p>
+										メールアドレスとパスワードでサインインしてください。<br />
+									</p>
+									<div class="field">
+									  <label class="label">メールアドレス</label>
+									  <div class="control has-icons-left">
+											<input v-model="user.email" type="email" class="input is-info" required  placeholder="someone@j-code.org" autocomplete="email">
+											<span class="icon is-small is-left">
+												<i class="fas fa-envelope"></i>
+											</span>
+									  </div>
+									</div>
 
-								<div class="field">
-									<label class="label">パスワード</label>
-									<input v-model="user.password" type="password" required autocomplete="current-password">
-								</div>
-								<p class="help is-danger">${errmsg}</p>
+									<div class="field">
+										<label class="label">パスワード</label>
+										<div class="control is-narrow">
+											<input v-model="user.password" type="password" class="input is-info" required autocomplete="current-password">
+										</div>
+									</div>
+									<p class="help is-danger">${errmsg}</p>
 
-								<div class="field">
-							  	<div class="control">
-								  	<input class="button is-primary" value="サインイン" type="submit">
-								  </div>
-								</div>
-							</form>
-						</template>
+									<div class="field">
+								  	<div class="control">
+									  	<input class="button is-primary" value="サインイン" type="submit">
+									  </div>
+									</div>
+								</form>
+							</template>
+
+						</div>
+						<p>
+						パスワードだけが分からない場合は<a href="/go/password{{{nexturl}}}">ここをクリック</a>します。
+						</p>
+						<p>
+						あらたに会員登録をする場合は、<a href="/go/newuser{{nexturl}}">ここをクリック</a>します。
+						</p>
+						<P>
+						※自分のメールアドレスを持っていない人は、会員登録ができません。保護者や先生に、かわりに登録してもらってください。
+						</P>
 
 					</div>
-					<p>
-					パスワードだけが分からない場合は<a href="/go/password{{{nexturl}}}">ここをクリック</a>します。
-					</p>
-					<p>
-					あらたに会員登録をする場合は、<a href="/go/newuser{{nexturl}}">ここをクリック</a>します。
-					</p>
-					<P>
-					※自分のメールアドレスを持っていない人は、会員登録ができません。保護者や先生に、かわりに登録してもらってください。
-					</P>
-
 				</div>
-			</div>
-		</article>
+			</article>
+
+		</template>
 	</div>
-
-
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 	<script src="/ui/js/restapi.js"></script>
@@ -125,7 +169,18 @@ const app = new Vue({
 		user:{},
 		errmsg: "",
 	},
+	mounted: function() {
+		this.whoami();
+	},
 	methods: {
+		// ユーザー情報
+		whoami: function() {
+			restapi.get("user/whoami/").then((response) => {
+				this.user = response.data;
+			}).catch((error) => {
+				this.user = {};
+			})
+		},
 		// サインイン
 		signinNumber: function (user) {
 
@@ -153,6 +208,11 @@ const app = new Vue({
 				this.errmsg = error.response.data;
 				restapi.popToken();
 			});
+		},
+		// サインアウト
+		signout: function() {
+			restapi.popToken();
+			this.whoami();
 		},
 	}
 })

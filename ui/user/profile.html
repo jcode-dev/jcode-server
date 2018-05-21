@@ -61,6 +61,20 @@
 
 					<div class="field is-horizontal">
 						<div class="field-label is-normal">
+							<label class="label">公開名</label>
+						</div>
+						<div class="field-body">
+							<div class="field is-narrow">
+								<input v-model="item.name" class="input" type="text" required autocomplete="name">
+							</div>
+						</div>
+						<p class="help">
+							※ニックネーム
+						</p>
+					</div>
+
+					<div class="field is-horizontal">
+						<div class="field-label is-normal">
 							<label class="label">ふりがな</label>
 						</div>
 						<div class="field-body">

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>プログラミング教育研究所</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+	<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+
+</head>
+<body>
+	<div id="app">
+
+		<div class="tile is-ancestor">
+			<div class="tile is-parent">
+				<div class="tile is-child box">
+
+					<form name="namae" method="post"  v-on:submit="submitAction" target="_blank">
+
+						<div class="field">
+								<label class="label">ご提案、抱負、自己紹介など</label>
+									<textarea class="textarea" v-model="user.memo" name="field1" ></textarea>
+						</div>
+
+						<input v-model="user" name="field2" >
+
+
+					<div class="field is-horizontal">
+						<div class="field-label is-normal">
+						</div>
+						<div class="field-body">
+							<div class="field">
+								<div class="control">
+									<input class="button is-primary" type="submit" value="PDF">
+								</div>
+							</div>
+						</div>
+					</div>
+					</form>
+
+					<button v-on:click="submitAction">PDF</button>
+
+
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="/ui/js/restapi.js"></script>
+	<script>
+	
+function businesscards(users) {
+
+	axios({
+	  url: '/api/print/businesscards',
+	  method: 'POST',
+	  responseType: 'blob', // important
+	  data: {users: users}, 
+	}).then((response) => {
+	  const url = window.URL.createObjectURL(new Blob([response.data]));
+	  const link = document.createElement('a');
+	  link.href = url;
+	  link.setAttribute('download', 'file.pdf');
+	  document.body.appendChild(link);
+	  link.click();
+	});
+	
+}
+
+const app = new Vue({
+	el: '#app',
+	data: {
+		user: {},
+	},
+	mounted: function() {
+		this.nexturl = location.pathname + location.search;
+		// Query文字列を見る
+		var v = restapi.getUrlVars();
+		var id  = v && v.id ? v.id : null;
+		if (! id) {
+			this.getEvents();
+			return;
+		}
+		this.getEvent(id);
+		this.whoami();
+	},
+	methods: {
+		// ユーザー情報
+		whoami: function() {
+			console.log("redrawAll", this.nexturl);
+			restapi.get("user/whoami/").then((response) => {
+				this.user = response.data;
+				this.signedin = true;
+			}).catch(function(err){
+				console.log("whoami:", err);
+				this.user = {name: 'ゲスト'};
+				this.signedin = false;
+			});
+		},
+		// イベント一覧
+		getEvents: function() {
+			restapi.get("event/").then((response) => {
+				this.events = response.data;
+			});
+		},
+		// イベント情報
+		getEvent: function(id) {
+			restapi.get("event/"+id).then((response) => {
+				this.event = response.data;
+				this.showEvent = true;
+			});
+		},
+		// 名刺
+		submitAction: function() {
+			var users = [];
+			users.push({number: 1, furigana: "いとうこういち", fullname: "伊藤 功一"})
+			users.push({number: 2, furigana: "いとうこういち", fullname: "伊藤 功一"})
+			users.push({number: 3, furigana: "いとうこういち", fullname: "伊藤 功一"})
+			users.push({number: 4, furigana: "いとうこういち", fullname: "伊藤 功一"})
+			users.push({number: 5, furigana: "いとうこういち", fullname: "伊藤 功一"})
+			users.push({number: 6, furigana: "いとうこういち", fullname: "伊藤 功一"})
+			users.push({number: 7, furigana: "いとうこういち", fullname: "伊藤 功一"})
+			users.push({number: 8, furigana: "いとうこういち", fullname: "伊藤 功一"})
+			users.push({number: 9, furigana: "いとうこういち", fullname: "伊藤 功一"})
+			users.push({number: 10, furigana: "いとうこういち", fullname: "伊藤 功一"})
+			users.push({number: 11, furigana: "いとうこういち", fullname: "伊藤 功一"})
+			users.push({number: 12, furigana: "いとうこういち", fullname: "伊藤 功一"})
+			users.push({number: 1, furigana: "いとうこういち", fullname: "伊藤 功一"})
+			users.push({number: 1, furigana: "いとうこういち", fullname: "伊藤 功一"})
+			users.push({number: 1, furigana: "いとうこういち", fullname: "伊藤 功一"})
+			businesscards(users);
+		},
+	}
+})
+
+	</script>
+
+</body>
+</html>

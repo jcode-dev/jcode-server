@@ -103,6 +103,12 @@ restapi.getTime = function(datetime) {
 	let date = new Date(datetime);
 	return date.getHours()+':' + ('00'+date.getMinutes()).slice(-2); 
 }
+// 書込み可能な形のローカルタイムに変換
+// YYYY/MM/DD hh:mm
+restapi.localDatetime = function(datetime) {
+	let date = new Date(datetime);
+	return date.getFullYear()+'/'+(date.getMonth()+1)+'/'+date.getDate()+' '+date.getHours()+':' + ('00'+date.getMinutes()).slice(-2);
+}
 
 restapi.copyToClipboard = function(str) {
   const el = document.createElement('textarea');

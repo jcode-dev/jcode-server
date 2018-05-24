@@ -390,9 +390,9 @@ restapi.signup = function(model) {
 			newUser.password = req.body.password;
 			newUser.autho = 'GUEST';
 			newUser.save(function(err){
+				if (err) {return res.status(401).send("エラー")};
 				console.log("new:", newUser);
-				newUser.ownerId = newUser._id;
-				newUser.save(function(err){
+				model.findByIdAndUpdate(newUser._id, {ownerId: newUser._id}, function(err){
 					var token = generateAccessToken(newUser._id);
 					res.status(200).send(token);
 				});

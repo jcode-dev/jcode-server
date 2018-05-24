@@ -61,17 +61,17 @@
 
 					<div class="field is-horizontal">
 						<div class="field-label is-normal">
-							<label class="label">公開名</label>
+							<label class="label">ニックネーム</label>
 						</div>
 						<div class="field-body">
 							<div class="field is-narrow">
 								<input v-model="item.name" class="input" type="text" required autocomplete="name">
 							</div>
 						</div>
-						<p class="help">
-							※ニックネーム
-						</p>
 					</div>
+					<p class="help">
+						※プライバシーが気になる方は、ニックネームをご利用ください。
+					</p>
 
 					<div class="field is-horizontal">
 						<div class="field-label is-normal">
@@ -178,62 +178,61 @@
 					</template>
 					<template v-else-if="item.mainrole === 'PARENT'">
 
-									<table class="table is-striped">
-										<tbody>
-											<tr>
-												<th>お子様のふりがな</th>
-												<th>名前</th>
-												<th>学年</th>
-											</tr>
-											<tr v-for="user in users">
-												<td>${user.furigana}</td>
-												<td>${user.fullname}</td>
-												<td>${user.grade}</td>
-												<td>
-											</tr>
-											<tr v-for="newuser in newusers">
-												<td>
-													<input v-model="newuser.furigana" class="input" type="text" required autocomplete="name">
-												</td>
-												<td>
-													<input v-model="newuser.fullname" class="input" type="text" required autocomplete="name">
-												</td>
-												<td>
-													<select class="select" v-model="newuser.grade" required>
-														<option value="小1">小1</option>
-														<option value="小2">小2</option>
-														<option value="小3">小3</option>
-														<option value="小4">小4</option>
-														<option value="小5">小5</option>
-														<option value="小6">小6</option>
-														<option value="中1">中1</option>
-														<option value="中2">中2</option>
-														<option value="中3">中3</option>
-														<option value="-">小中学生以外</option>
-													</select>
-												</td>
-											</tr>
-										</tbody>
-									</table>
+						<table class="table is-striped">
+							<tbody>
+								<tr>
+									<th>お子様のふりがな</th>
+									<th>名前</th>
+									<th>学年</th>
+								</tr>
+								<tr v-for="user in users">
+									<td>${user.furigana}</td>
+									<td>${user.fullname}</td>
+									<td>${user.grade}</td>
+									<td>
+								</tr>
+								<tr v-for="newuser in newusers">
+									<td>
+										<input v-model="newuser.furigana" class="input" type="text" required autocomplete="name">
+									</td>
+									<td>
+										<input v-model="newuser.fullname" class="input" type="text" required autocomplete="name">
+									</td>
+									<td>
+										<select class="select" v-model="newuser.grade" required>
+											<option value="小1">小1</option>
+											<option value="小2">小2</option>
+											<option value="小3">小3</option>
+											<option value="小4">小4</option>
+											<option value="小5">小5</option>
+											<option value="小6">小6</option>
+											<option value="中1">中1</option>
+											<option value="中2">中2</option>
+											<option value="中3">中3</option>
+											<option value="-">小中学生以外</option>
+										</select>
+									</td>
+								</tr>
+							</tbody>
+						</table>
 
-									<button v-on:click.prevent="newusers.push({})">
-										参加者をふやす
-									</button>
-									<button v-on:click.prevent="newusers.pop()">
-										参加者をへらす
-									</button>
-<p class="help">
-※あなたが管理する子どもを全員登録します。<br />
-※「登録して次へ」をクリックすると、後から削除ができませんので気を付けてください。
-</p>
+						<button v-on:click.prevent="newusers.push({})">
+							参加者をふやす
+						</button>
+						<button v-on:click.prevent="newusers.pop()">
+							参加者をへらす
+						</button>
+						<p class="help">
+						※あなたが管理する子どもを全員登録します。<br />
+						※「登録して次へ」をクリックすると、後から削除ができませんので気を付けてください。
+						</p>
 
 					</template>
 
-										<div class="field">
-												<label class="label">通信欄（メモ）</label>
-													<textarea class="textarea" v-model="item.memo"></textarea>
-										</div>
-
+					<div class="field">
+							<label class="label">通信欄（メモ）</label>
+								<textarea class="textarea" v-model="item.memo"></textarea>
+					</div>
 
 					<div class="field is-horizontal">
 						<div class="field-label is-normal">

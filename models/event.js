@@ -10,5 +10,6 @@ module.exports = Event = Doc.discriminator('Event',
 		endDatetime: Date,
 		place: String,
 		description: String,
-	}));
+	})
+);
 

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Hello pel</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+	<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+
+</head>
+<body>
+	<div id="app">
+
+		<div class="tile is-ancestor">
+			<div class="tile is-parent">
+				<div class="tile is-child box">
+
+					<article class="message is-primary">
+						<div class="content">
+							<div class="message-header">
+								プログラミング教室・イベント参加申込
+							</div>
+
+							<div class="message-body">
+
+								<div class="message-body">
+									ID： ${event._id}<br />
+									名称： ${event.name}<br />
+									日付： ${event.startDate}<br />
+									時間： ${event.startTime}～${event.endTime}<br />
+									場所： ${event.place}<br />
+									説明： ${event.description}<br />
+									
+									生徒募集人数：${event.studentMax} 名（申込：${event.studentApplicant} 名）<br />
+									スタッフ募集：${event.staffMax} 名（申込：${event.staffApplicant} 名）<br />
+
+								</div>
+
+								<div class="message-body">
+									<table class="table is-striped">
+										<tbody>
+											<tr>
+												<th>会員番号</th>
+												<th>名前</th>
+												<th>役割</th>
+												<th>ステータス</th>
+												<th>アクション</th>
+											</tr>
+											<tr v-for="join in joins">
+												<td>${join.memberId.number}</td>
+												<td>${join.memberId.fullname}</td>
+												<td>${getMainrole(join.mainrole)}</td>
+												<td>${getStaus(join.status)}</td>
+												<td>
+													<button click v-on:click.prevent="leave(join)">参加取消</button>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+
+
+								<div class="message-body">
+									<table class="table is-striped">
+										<tbody>
+											<tr>
+												<th>会員番号</th>
+												<th>名前</th>
+												<th>役割</th>
+												<th>学年</th>
+												<th>アクション</th>
+											</tr>
+											<tr v-for="user in users">
+												<template v-if="checkUser(user)">
+													<td>${user.number}</td>
+													<td>${user.fullname}</td>
+													<td>${getMainrole(user.mainrole)}</td>
+													<td>${user.grade}</td>
+													<td>
+															<button click v-on:click.prevent="attend(user)">参加申込</button>
+													</td>
+												</template>
+											</tr>
+										</tbody>
+									</table>
+									<p class="help is-info">名前の横にある「参加申込」をクリックすると、この教室・イベントに参加の申込となります。<p>
+
+									<div class="box">
+											<p class="help">参加者の追加・削除、名前の変更は以下のボタンをクリック。<p>
+									    <button class="button is-info" v-on:click.prevent="manageUser()">参加者の管理</button>
+									</div>
+
+								</div>
+
+
+							</div>
+						</div>
+					</article>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="/ui/js/restapi.js"></script>
+	<script>
+	
+	
+	"use strict";
+
+const showerror = function(error) {
+	console.log("error:",error);
+	console.log("error:",error.response.data);
+	document.getElementById("errormsg").innerHTML = error.response.data;
+}
+
+const app = new Vue({
+	delimiters: ['${', '}'],
+	el: '#app',
+	data: {
+		event: {},
+		users: [],
+		user:{},
+		joins: [], //参加者一覧
+	},
+	mounted: function() {
+		// Query文字列を見る
+		var v = restapi.getUrlVars();
+		var id  = v && v.id ? v.id : null;
+		this.getEvent(id);
+		this.whoami();
+		this.getUsers();
+	},
+	methods: {
+		// 表示するか？
+		checkUser: function(user) {
+			if (user.mainrole == 'PARENT')
+				return false;
+			var found = this.joins.find(function(join) {
+				return join.memberId._id == user._id;
+			});
+			return (!found);
+		},
+		redraw: function() {
+			this.getEvent(this.event._id);
+		},
+		// ユーザー管理画面
+		manageUser: function() {
+			location.href = '/go/profile' + location.pathname + location.search;
+		},
+		// アカウント情報
+		whoami: function() {
+			var that = this;
+			restapi.get("user/whoami/").then((response) => {
+				that.user = response.data;
+				console.log("contact:", response);
+			}).catch(function(err){
+				//that.user = null;
+				that.user = {name: null};
+				that.signinDialog = true;
+				showerror(err);
+			});
+		},
+		// ユーザー情報
+		getUsers: function() {
+			var that = this;
+			restapi.get("user/").then((response) => {
+				that.users = response.data;
+				console.log("users", that.users);
+			}).catch(function(err){
+				that.users = [];
+				that.showerror(err);
+			});
+		},
+		// joins
+		getJoins: function(id) {
+			restapi.get("join/?gid="+id).then((response) => {
+				this.joins = response.data;
+			}).catch(function(err){
+				this.joins = [];
+				this.showerror(err);
+			});
+		},
+		// 役割
+		getMainrole: function(role) {
+			var mainrole = {STUDENT:'生徒',PARENT:'保護者',STAFF:'スタッフ'};
+			return mainrole[role];
+		},
+		getStaus: function(s) {
+			var status = {PENDING:'申込中',APPROVED:'参加確定',CANCEL:'取消中',REJECTED:'抽選に外れました'};
+			return status[s];
+		},
+		// イベント情報
+		getEvent: function(id) {
+			restapi.get("event/"+id).then((response) => {
+				var event = response.data;
+				event.startDate = restapi.getDate(event.startDatetime);
+				event.startTime = restapi.getTime(event.startDatetime);
+				event.endTime = restapi.getTime(event.endDatetime);
+				this.event = event;
+				this.getJoins(event._id);
+			});
+		},
+		// 参加申込
+		attend: function(user) {
+			var event = this.event;
+			restapi.post("join/", {
+				name: user.fullname + ' ' + restapi.getShortDate(event.startDatetime),
+				mainrole: user.mainrole,
+				memberId: user._id,
+				groupId: event._id }).then((response) => {
+					restapi.get("event/statusupdate/"+event._id).then((response) => {
+						console.log("Join:", response);
+						this.redraw();
+					});
+			}).catch(function(err){
+				this.redraw();
+			});
+		},
+		// 参加キャンセル
+		leave: function(join) {
+			var id = join.groupId;
+			restapi.delete("join/"+join._id).then((response) => {
+				restapi.get("event/statusupdate/"+id).then((response) => {
+					console.log("leave:", response);
+					this.redraw();
+				});
+			}).catch(function(err){
+				console.log("leave err:", err);
+				this.redraw();
+			});
+		},
+	}
+})
+
+
+	</script>
+
+</body>
+</html>

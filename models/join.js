@@ -8,5 +8,6 @@ var Join = Doc.discriminator('Join',
 	new Schema({
 		request: String,
 		status: String,
+		mainrole: String, // PARENT, STUDENT, STAFF
 	}));
 module.exports = Join;

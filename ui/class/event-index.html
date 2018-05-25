@@ -18,15 +18,7 @@
 					<article class="message is-primary">
 						<div class="content">
 							<div class="message-header">
-
-								<select v-model="selected" @change="get_items">
-									<option value="doc" selected>すべて</option>
-									<option value="event">イベント</option>
-									<option value="user">ユーザー情報</option>
-									<option value="join">参加申込</option>
-								</select>
-						  	<input class="button is-primary" v-on:click.prevent="createEvent" value="新規イベント">
-						  	<input class="button is-primary" v-on:click.prevent="create_item" value="新規コピー">
+								プログラミング教室・イベント一覧
 							</div>
 
 							<div class="message-body">
@@ -34,13 +26,13 @@
 									<tbody>
 										<tr>
 											<th>
-											〇
+												日時<br />名称
 											</th>
 											<th>
-												日付
+												参加状況
 											</th>
 											<th>
-												名称
+												ボランティア<br />スタッフ
 											</th>
 											<th>
 												アクション
@@ -49,13 +41,17 @@
 
 										<tr v-for="item in items" v-on:click.prevent="edit_item(item._id)">
 											<td>
-											<span v-html="local[item.__t]"></span>
+												日時：${localDatetime(item.startDatetime)}<br />
+												名称：${item.name}<br />
+												説明：${item.description}<br />
 											</td>
 											<td>
-												${localDatetime(item.startDatetime)}
+												定員：${item.studentMax}<br />
+												応募数：${item.studentAplicant}
 											</td>
 											<td>
-												${item.name}
+												定員：${item.staffMax}<br />
+												応募数：${item.staffAplicant}
 											</td>
 											<td v-if="adminUi">
 												<button class="button" v-on:click.prevent="delete_item(item)"><i class="far fa-trash-alt"></i></button>
@@ -67,88 +63,6 @@
 							</div>
 						</div>
 					</article>
-				</div>
-			</div>
-			<div class="tile is-parent">
-				<div class="tile is-child box">
-
-						<article class="message is-primary">
-							<div class="content">
-								<div class="message-header">
-									教室・イベント
-								</div>
-								<template v-if="!waiting">
-									<div class="message-body">
-										ID： ${item._id}<br />
-										名称： ${item.name}<br />
-										日付： ${item.startDate}<br />
-										時間： ${item.startTime}～${item.endTime}<br />
-										場所： ${item.place}<br />
-										説明： ${item.description}<br />
-									</div>
-								</template>
-
-								<form v-on:submit.prevent="submitEvent(item)">
-									<label class="label">名称</label>
-									<input v-model="item.name" class="input" type="text">
-
-									<label class="label">開始</label>
-									<input v-model="item.startDatetime" class="input" type="text">
-
-									<label class="label">終了</label>
-									<input v-model="item.endDatetime" class="input" type="text">
-
-									<label class="label">場所</label>
-									<input v-model="item.place" class="input" type="text">
-
-									<label class="label">説明</label>
-									<textarea class="textarea" v-model="item.description"></textarea>
-
-									<label class="label">何日前にスタッフ応募締切</label>
-									<input v-model="item.staffBefore" class="input" type="Number">
-									<label class="label">スタッフ定員</label>
-									<input v-model="item.staffMax" class="input" type="Number">
-									<label class="label">スタッフ応募数</label>
-									<input v-model="item.staffApplicant" class="input" type="Number">
-
-									<label class="label">何日前に生徒応募締切</label>
-									<input v-model="item.studentBefore" class="input" type="Number">
-									<label class="label">生徒の定員</label>
-									<input v-model="item.studentMax" class="input" type="Number">
-									<label class="label">生徒の応募数</label>
-									<input v-model="item.studentApplicant" class="input" type="Number">
-
-									<input class="button is-primary" type="submit" value="更新">
-
-								</form>
-							</div>
-						</article>
-
-							申込総数：${joins.length}<br />
-
-<button click v-on:click.prevent="copy()">コピー</button>
-
-							<table class="table is-striped">
-								<tbody>
-									<tr>
-										<th>参加者</th>
-										<th>ステータス</th>
-										<th>アクション</th>
-									</tr>
-									<tr v-for="join in joins">
-										<td>
-										<input v-model="join.check" class="checkbox" type="checkbox">
-										${join.name}</td>
-										<td>${join.status}<td>
-											${join.memberId.fullname}
-											${join.memberId.grade}
-											${join.memberId.mainrole}
-													<button click v-on:click.prevent="leave(join)">取消</button>
-										</td>
-									</tr>
-								</tbody>
-							</table>
-
 				</div>
 			</div>
 		</div>
@@ -316,8 +230,7 @@ const app = new Vue({
 		},
 		// item 編集
 		edit_item: function(id) {
-			this._id = id;
-			this.redrawItem();
+			location.href = "./event.html?id="+id;
 		},
 		// 削除(管理者用)
 		delete_item: function(item) {

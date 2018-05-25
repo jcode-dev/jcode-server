@@ -103,11 +103,13 @@ restapi.find2 = function(model, schema) {
 }
 
 // セキュリティに注意（eventのみで使用）
+// /api/event/?sort=-startDatetime
 restapi.findPublic = function(router, model) {
+
 	router.get('/', function(req, res) {
-		var params = req.query;
-		console.log("findPub:", model.modelName, params);
-		model.find().exec(toRes(res));
+		var sort = req.query.sort; // ソート項目
+		console.log("findPub:", model.modelName, sort);
+		model.find().sort(sort).exec(toRes(res));
 	})
 }
 
@@ -126,6 +128,7 @@ restapi.read = function(router, model, schema = '_id name') {
 // READ PUBLIC
 restapi.readPublic = function(router, model) {
 	router.get('/:_id/', function(req, res) {
+		console.log("readPublic:", model.modelName);
 		model.findById(req.params['_id']).exec(toRes(res));
 	})
 }
@@ -154,7 +157,7 @@ restapi.findJoin = function(router, model) {
 		if (isRoot(req.user)) {
 			model.find(find).populate('memberId').exec(toRes(res));
 		} else {
-			model.find(find).exec(toRes(res));
+			model.find(find).populate('memberId').exec(toRes(res));
 		}
 	})
 }
@@ -199,6 +202,35 @@ restapi.removeJoin = function(router, model) {
 		}
 	})
 }
+// 応募者数の更新
+restapi.eventStatusUpdate = function(router, event, join) {
+	router.get('/statusupdate/:_id/', authJwt(), function(req, res) {
+		console.log("statusupdate");
+
+		var id = req.params['_id'];
+		event.findOne({_id: id}, function(err, result) {
+		console.log("aggregate", id);
+
+			join.find({groupId: id}, function (err, joins) {
+				var role = {};
+				role['STUDENT'] = 0;
+				role['STAFF'] = 0;
+				for (var j of joins) {
+					if (j.mainrole in role) {
+						role[j.mainrole]++;
+					}
+				}
+				console.log(role['STUDENT'], role['STAFF']);
+				result.studentApplicant = role['STUDENT'];
+				result.staffApplicant = role['STAFF'];
+				result.save(function(err){
+					res.status(200).send(err);
+				});
+			});
+		});
+	});
+}
+
 // アンケート一覧
 restapi.listSurvey = function(router, model) {
 	router.get('/list/:_id/', authJwt(), function(req, res) {

@@ -41,7 +41,8 @@ var User = Doc.discriminator('User',
 
 		cdosection: String,
 		cdopassword: String,
-
+		microbitLending: String,
+		insurance2018: Boolean,
 	}));
 
 // パスワードは暗号化する
@@ -81,6 +82,8 @@ counter.findById(settings_id, function (err, settings) {
 // I make sure this is the last pre-save middleware (just in case)
 User.schema.pre('save', function(next) {
 	var user = this;
+	if (user.number) return next();
+
 	// You have to know the settings_id, for me, I store it in memory: app.current.settings.id
 	counter.findByIdAndUpdate( settings_id, { $inc: { nextSeqNumber: 1 } }, function (err, counter) { // return the original, インクリメントする前の数が返る
 		if (err) next(err);

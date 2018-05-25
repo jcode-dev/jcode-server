@@ -90,8 +90,10 @@
 										<td><ruby>${join.memberId.fullname}<rt>${join.memberId.furigana}</rt></ruby></td>
 										<td><input v-model="join.memberId.newpass" type="text"></td>
 										<td><input v-model="join.memberId.cdosection" type="text"></td>
-										<td><img v-bind:src="'../img/'+join.memberId.cdopassword" width=32 height=32></img>
-										<input v-model="join.memberId.cdopassword" type="text"></td>
+										<td>
+											<img v-if="join.memberId.cdopassword" v-bind:src="'../img/'+join.memberId.cdopassword" width=32 height=32></img>
+											<input v-model="join.memberId.cdopassword" type="text">
+										</td>
 
 										<td>${join.status}</td>
 										<td>

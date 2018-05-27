@@ -58,21 +58,6 @@
 						※もっとも当てはまる役割を選んでください:
 					</p>
 
-
-					<div class="field is-horizontal">
-						<div class="field-label is-normal">
-							<label class="label">ニックネーム</label>
-						</div>
-						<div class="field-body">
-							<div class="field is-narrow">
-								<input v-model="item.name" class="input" type="text" required autocomplete="name">
-							</div>
-						</div>
-					</div>
-					<p class="help">
-						※プライバシーが気になる方は、ニックネームをご利用ください。
-					</p>
-
 					<div class="field is-horizontal">
 						<div class="field-label is-normal">
 							<label class="label">ふりがな</label>
@@ -94,6 +79,20 @@
 							</div>
 						</div>
 					</div>
+
+					<div class="field is-horizontal">
+						<div class="field-label is-normal">
+							<label class="label">ニックネーム</label>
+						</div>
+						<div class="field-body">
+							<div class="field is-narrow">
+								<input v-model="item.name" class="input" type="text" autocomplete="name">
+							</div>
+						</div>
+					</div>
+					<p class="help">
+						※ニックネームに本名以外を入れると、プライバシーがより高まります。何もいれないと本名がそのままニックネームになります。
+					</p>
 
 					<template v-if="item.mainrole === 'STUDENT'">
 						<div class="field is-horizontal">
@@ -176,57 +175,116 @@
 						</div>
 						<p class="help">（他で加入済みなどで、今回新たにボランティア保険加入の<b>必要が無い方</b>はチェックしてください）</p>
 					</template>
-					<template v-else-if="item.mainrole === 'PARENT'">
 
-						<table class="table is-striped">
-							<tbody>
-								<tr>
-									<th>お子様のふりがな</th>
-									<th>名前</th>
-									<th>学年</th>
-								</tr>
-								<tr v-for="user in users">
-									<td>${user.furigana}</td>
-									<td>${user.fullname}</td>
-									<td>${user.grade}</td>
-									<td>
-								</tr>
-								<tr v-for="newuser in newusers">
-									<td>
-										<input v-model="newuser.furigana" class="input" type="text" required autocomplete="name">
-									</td>
-									<td>
-										<input v-model="newuser.fullname" class="input" type="text" required autocomplete="name">
-									</td>
-									<td>
-										<select class="select" v-model="newuser.grade" required>
-											<option value="小1">小1</option>
-											<option value="小2">小2</option>
-											<option value="小3">小3</option>
-											<option value="小4">小4</option>
-											<option value="小5">小5</option>
-											<option value="小6">小6</option>
-											<option value="中1">中1</option>
-											<option value="中2">中2</option>
-											<option value="中3">中3</option>
-											<option value="-">小中学生以外</option>
-										</select>
-									</td>
-								</tr>
-							</tbody>
-						</table>
+					<template v-if="item.mainrole != 'STUDENT'">
+						<div class="box">
+							<b>あなたが管理する児童生徒</b>
 
-						<button v-on:click.prevent="newusers.push({})">
-							参加者をふやす
-						</button>
-						<button v-on:click.prevent="newusers.pop()">
-							参加者をへらす
-						</button>
-						<p class="help">
-						※あなたが管理する子どもを全員登録します。<br />
-						※「登録して次へ」をクリックすると、後から削除ができませんので気を付けてください。
-						</p>
+							<table class="table is-striped">
+								<tbody>
+									<tr>
+										<th>会員番号</th>
+										<th>ふりがな</th>
+										<th>名前</th>
+										<th>ニックネーム</th>
+										<th>学年</th>
+										<th>編集</th>
+									</tr>
+									<tr v-for="user in users">
 
+										<template v-if="item._id != user._id">
+											<template v-if="!user.check">
+												<td>${user.number}</td>
+												<td>${user.furigana}</td>
+												<td>${user.fullname}</td>
+												<td>${user.name}</td>
+												<td>${user.grade}</td>
+												<td>
+													<input v-model="user.check" class="checkbox is-large is-info" type="checkbox">編集
+												</td>
+											</template>
+											<template v-if="user.check">
+												<td>${user.number}</td>
+												<td>
+													<input v-model="user.furigana" class="input" type="text" required autocomplete="name">
+												</td>
+												<td>
+													<input v-model="user.fullname" class="input" type="text" required autocomplete="name">
+												</td>
+												<td>
+													<input v-model="user.name" class="input" type="text" autocomplete="name">
+												</td>
+												<td>
+													<select class="select" v-model="user.grade" required>
+														<option value="小1">小1</option>
+														<option value="小2">小2</option>
+														<option value="小3">小3</option>
+														<option value="小4">小4</option>
+														<option value="小5">小5</option>
+														<option value="小6">小6</option>
+														<option value="中1">中1</option>
+														<option value="中2">中2</option>
+														<option value="中3">中3</option>
+														<option value="-">小中学生以外</option>
+													</select>
+												</td>
+												<td>
+												</td>
+											</template>
+										</template>
+									</tr>
+									<tr v-for="newuser in newusers">
+										<td></td>
+										<td>
+											<input v-model="newuser.furigana" class="input" type="text" required autocomplete="name">
+										</td>
+										<td>
+											<input v-model="newuser.fullname" class="input" type="text" required autocomplete="name">
+										</td>
+										<td>
+											<input v-model="newuser.name" class="input" type="text" autocomplete="name">
+										</td>
+										<td>
+											<select class="select" v-model="newuser.grade" required>
+												<option value="小1">小1</option>
+												<option value="小2">小2</option>
+												<option value="小3">小3</option>
+												<option value="小4">小4</option>
+												<option value="小5">小5</option>
+												<option value="小6">小6</option>
+												<option value="中1">中1</option>
+												<option value="中2">中2</option>
+												<option value="中3">中3</option>
+												<option value="-">小中学生以外</option>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td></td>
+										<td>
+											<button class="button is-info is-small" v-on:click.prevent="newusers.push({})">児童生徒をふやす</button>
+										</td>
+										<td></td>
+										<td></td>
+										<td></td>
+									</tr>
+									<tr v-if="newusers.length">
+										<td></td>
+										<td>
+											<button class="button is-info is-small" v-on:click.prevent="newusers.pop()">ふやすのをやめる</button>
+										</td>
+										<td></td>
+										<td></td>
+										<td></td>
+									</tr>
+								</tbody>
+							</table>
+
+							<p class="help">
+							※「登録して次へ」をクリックすると、児童生徒は後から削除ができませんので気を付けてください。
+							</p>
+
+						</div>
 					</template>
 
 					<div class="field">
@@ -260,7 +318,7 @@ const app = new Vue({
 	delimiters: ['${', '}'],
 	el: '#app',
 	data: {
-		newusers:[{}],
+		newusers:[],
 		mailDone: false,
 		errormsg: "",
 		item: {},
@@ -271,8 +329,10 @@ const app = new Vue({
 		this.getUsers();
 	},
 	methods: {
-		// 自分が管理するユーザー情報
-		remove: function() {
+		changeStudentName: function(user) {
+			if (!user.name) {
+				user.name = user.furigana;
+			}
 		},
 		// 自分が管理するユーザー情報
 		getUsers: function() {
@@ -306,6 +366,17 @@ const app = new Vue({
 					child.mainrole = child.mainrole || 'STUDENT';
 					if (child.name) {
 						restapi.post("user/", child).then((response) => {
+							console.log( child );
+						});
+					}
+				});
+				// 子どもの編集を保存
+				this.users.forEach( function( child ) {
+					console.log( child );
+					child.name = child.name || child.furigana;
+					child.mainrole = child.mainrole || 'STUDENT';
+					if (child.check && child.name) {
+						restapi.post("user/"+child._id, child).then((response) => {
 							console.log( child );
 						});
 					}

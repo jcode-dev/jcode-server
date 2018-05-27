@@ -47,19 +47,19 @@
 											</th>
 										</tr>
 
-										<tr v-for="item in items" v-on:click.prevent="edit_item(item._id)">
+										<tr v-for="item in items">
 											<td>
 											<span v-html="local[item.__t]"></span>
 											</td>
 											<td>
 												${localDatetime(item.startDatetime)}
 											</td>
-											<td>
+											<td  v-on:click.prevent="edit_item(item._id)">
 												${item.name}
 											</td>
 											<td v-if="adminUi">
-												<button class="button" v-on:click.prevent="delete_item(item)"><i class="far fa-trash-alt"></i></button>
-												<button class="button" v-on:click.prevent="adminSinin(item.email)"><i class="fas fa-sign-in-alt"></i></button>
+												<button class="button is-danger" v-on:click.prevent="delete_item(item)"><i class="far fa-trash-alt"></i>削除</button><br />
+												<a v-bind:href="'../class/admin.html?id=' + item._id"><i class="fas fa-sign-in-alt"></i>管理画面</a>
 											</td>
 										</tr>
 									</tbody>
@@ -104,19 +104,19 @@
 									<label class="label">説明</label>
 									<textarea class="textarea" v-model="item.description"></textarea>
 
-									<label class="label">何日前にスタッフ応募締切</label>
-									<input v-model="item.staffBefore" class="input" type="Number">
-									<label class="label">スタッフ定員</label>
-									<input v-model="item.staffMax" class="input" type="Number">
-									<label class="label">スタッフ応募数</label>
-									<input v-model="item.staffApplicant" class="input" type="Number">
+								<select v-model="item.mainrole">
+									<option value="STAFF">STAFF</option>
+									<option value="STUDENT">STUDENT</option>
+								</select>
 
-									<label class="label">何日前に生徒応募締切</label>
+									<label class="label">何日前に締切</label>
 									<input v-model="item.studentBefore" class="input" type="Number">
-									<label class="label">生徒の定員</label>
+									<label class="label">定員</label>
 									<input v-model="item.studentMax" class="input" type="Number">
-									<label class="label">生徒の応募数</label>
+									<label class="label">申込数</label>
 									<input v-model="item.studentApplicant" class="input" type="Number">
+
+									<input v-model="item.studentPublic" class="checkbox" type="checkbox">公開イベント
 
 									<input class="button is-primary" type="submit" value="更新">
 
@@ -268,10 +268,10 @@ const app = new Vue({
 				showerror(err);
 			});
 		},
-		// 一覧表示
+		// イベントの一覧表示
 		get_items: function() {
 			var that = this;
-			restapi.get(this.selected + "/").then((response) => {
+			restapi.get("event/?role=ALL&period=ALL").then((response) => {
 				that.items = response.data;
 				if (!this._id) {
 						this._id = this.items[0]._id;
@@ -355,17 +355,7 @@ const app = new Vue({
 		},
 		// 新規作成(管理者用)
 		create_item: function() {
-			console.log("crear id:", this.item._id);
-			restapi.get(this.selected + "/" + 'schema').then((response) => {
-				console.log("schema:", response.data);
-				//this.item = response.data;
-				for (var key in response.data) {
-					if (!(key in this.item)) {
-						this.item[key] = null;
-					}
-				}
-				this.item._id = null;
-			});
+			this.item._id = null;
 		},
 		// サインイン(一般用)
 		signin: function(user) {

@@ -6,6 +6,20 @@ const express = require('express');
 const router = express.Router();
 const PDFDocument = require('pdfkit')
 
+// 均等割り付け
+function kinto(doc, msg, x, y, width, size) {
+
+	var dx = (width - size) / (msg.length - 1);
+
+	for (var i = 0; i < msg.length; i++) {
+		var c = msg.substr(i, 1);
+		doc.text(c, x, y)
+		x += dx;
+	}
+}
+
+
+
 // 名刺PDF出力
 router.post('/businesscards', (req, res) => {
 
@@ -35,9 +49,12 @@ router.post('/businesscards', (req, res) => {
 		var y = sy + (dy * parseInt(n / 2));
 		doc.fontSize (14)
 		doc.text(user.number  , x+10, y+10)
-		doc.text(user.furigana, x+20, y+50, {width: 200, align: 'center'})
+		//doc.text(user.furigana, x+20, y+50, {width: 200, align: 'center'})
+		kinto(doc, user.furigana, x+40, y+44, 160, 14);
+
 		doc.fontSize (18)
-		doc.text(user.fullname, x+20, y+70, {width: 200, align: 'center'})
+		//doc.text(user.fullname, x+20, y+70, {width: 200, align: 'center'})
+		kinto(doc, user.fullname, x+40, y+70, 160, 18);
 		doc.fontSize (11)
 		doc.text(user.address1, x+16, y+115)
 		doc.text(user.address2, x+16, y+130)

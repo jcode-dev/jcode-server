@@ -9,15 +9,18 @@ var eventSchema = new Schema({
 	endDatetime: Date,
 	place: String,
 	description: String,
-	staffBefore: Number,		// スタッフ応募期日
-	staffMax: Number,		// スタッフ定員
-	staffApplicant: Number,		// スタッフ応募数
+
+	mainrole: String, // 誰向けのイベントか？ PARENT, STUDENT, STAFF
+
 	studentBefore: Number, // 生徒の応募期日（何日前まで）0=受付終了
 	studentMax: Number, // 生徒の定員
 	studentApplicant: Number, // 生徒の応募数
-	VisitorBefore: Number,
-	VisitorMax: Number,
-	VisitorApplicant: Number,
+	studentPublic: Boolean, // 一般生徒に公開するイベントか？
+/*
+	staffBefore: Number,		// 廃止
+	staffMax: Number,		// 廃止
+	staffApplicant: Number,		// 廃止
+*/
 })
 /*
 var virtual = eventSchema.virtual('localStartDatetime');

@@ -9,8 +9,25 @@
 
 </head>
 <body>
-	<div id="app">
+	<nav class="navbar" role="navigation" aria-label="main navigation">
+		<div class="navbar-brand">
+			<a class="navbar-item is-size-3-desktop" href="https://j-code.org">
+				NPO法人プログラミング教育研究所
+			</a>
+		</div>
+		<div class="navbar-start">
+			<a class="navbar-item" href="/ui/class/">
+			  はじめにもどる
+			</a>
+		</div>
+		<div class="navbar-end">
+			<a class="navbar-item" href="/go/ui/class/">
+			  サインアウト
+			</a>
+		</div>
+	</nav>
 
+	<div id="app">
 		<div class="tile is-ancestor">
 			<div class="tile is-parent">
 				<div class="tile is-child box">
@@ -22,40 +39,36 @@
 							</div>
 
 							<div class="message-body">
+								場所でしぼりこむ：
+								<select class="select" v-model="place" v-on:click.prevent="get_events">
+									<option value="赤羽文化センター">赤羽文化センター</option>
+									<option value="中央公園文化センター">中央公園文化センター</option>
+									<option value="滝野川文化センター">滝野川文化センター</option>
+									<option value="" selected>すべて</option>
+								</select>
+
 								<table class="table is-striped">
 									<tbody>
 										<tr>
 											<th>
-												日時<br />名称
+												日時／名称
 											</th>
 											<th>
-												参加状況
-											</th>
-											<th>
-												ボランティア<br />スタッフ
-											</th>
-											<th>
-												アクション
+												参加
 											</th>
 										</tr>
 
-										<tr v-for="item in items" v-on:click.prevent="edit_item(item._id)">
+										<tr v-for="event in events" v-on:click.prevent="edit_item(event._id)">
 											<td>
-												日時：${localDatetime(item.startDatetime)}<br />
-												名称：${item.name}<br />
-												説明：${item.description}<br />
+												<span class="has-text-link is-size-5"> ${event.name}</span><br />
+												<i class="far fa-calendar-alt"></i>： ${localDatetimeLong(event.startDatetime, event.endDatetime)}<br />
+												<i class="fas fa-map-marker-alt"></i>： ${event.place}<br />
+												<span class="has-text-grey-dark is-size-7"> ${event.description}</span><br />
 											</td>
 											<td>
-												定員：${item.studentMax}<br />
-												応募数：${item.studentAplicant}
-											</td>
-											<td>
-												定員：${item.staffMax}<br />
-												応募数：${item.staffAplicant}
-											</td>
-											<td v-if="adminUi">
-												<button class="button" v-on:click.prevent="delete_item(item)"><i class="far fa-trash-alt"></i></button>
-												<button class="button" v-on:click.prevent="adminSinin(item.email)"><i class="fas fa-sign-in-alt"></i></button>
+												申込：${event.studentApplicant}<br />
+												定員：${event.studentMax}<br />
+												${deadline(event.startDatetime, event.studentBefore)}<br />
 											</td>
 										</tr>
 									</tbody>
@@ -76,84 +89,35 @@
 	
 	"use strict";
 
-const showerror = function(error) {
-	console.log("error:",error);
-	console.log("error:",error.response.data);
-	document.getElementById("errormsg").innerHTML = error.response.data;
-}
-
 const app = new Vue({
 	delimiters: ['${', '}'],
 	el: '#app',
 	data: {
-		selected:'event',
-		items: [],
-		_id: "",
-		item:{},
-		users:[],
 		user:{},
-		joins: [],
-		nexturl: "",
-		local: restapi.local,
-		adminUi: true,
-		pwdDialog: false,
-		signinDialog: false,
-		joins: [], //参加者一覧
-		waiting: false,
+		events: [],
+		role: "",
+		place: "",
 	},
 	mounted: function() {
+		// Query文字列を見る
+		var v = restapi.getUrlVars();
+		this.role  = v && v.role ? v.role : null;
 		this.whoami();
-		this.redrawAll();
+		this.get_events();
 	},
 	methods: {
-		// すべて書き直し
-		redrawAll: function() {
-			//this.getUsers();
-			this.get_items();
-		},
-		// 参加申込
-		attend: function(user) {
-			var event = this.item;
-			//console.log("ATTEND:", event);
-			//console.log(user);
-			restapi.post("join/", {
-				name: user.fullname + ' ' + restapi.getShortDate(event.startDatetime),
-				memberId: user._id,
-				groupId: event._id }).then((response) => {
-					console.log("Join:", response);
-					this.get_items(); // 一覧表示
-					this.redrawItem();
-			}).catch(function(err){
-				showerror(err);
-			});
-		},
-		// 参加キャンセル
-		leave: function(join) {
-			restapi.delete("join/"+join._id).then((response) => {
-				console.log("leave:", response);
-				this.get_items(); // 一覧表示
-				this.redrawItem();
-			}).catch(function(err){
-				console.log("leave err:", err);
-				showerror(err);
-				this.redrawItem();
-			});
-		},
-		// SUBMIT ボタン
-		submitItem: function() {
-			var item = this.item;
-			console.log("submitItem !!!", item);
-			if (item._id) { // 更新
-				restapi.post('event/'+ item._id, item).then((response) => {
-					console.log("item:", response);
-					this.get_items(); // 一覧表示
-				});
-			} else { // 新規
-				restapi.post('event/', item).then((response) => {
-					console.log("item:", response);
-					this.get_items(); // 一覧表示
-				});
+		deadline: function(date, before) {
+			var dt = new Date(date);
+			var msg = "";
+			if (!before) {
+				return "参加予約はしていません";
 			}
+			dt.setDate(dt.getDate() - before);
+			if (dt < new Date()) {
+				return "募集は終了しました";
+			}
+			msg = "締切"+before+"日前("+this.localDatetime(dt)+")まで"
+			return msg;
 		},
 		// アカウント情報
 		whoami: function() {
@@ -168,138 +132,30 @@ const app = new Vue({
 				//that.user = null;
 				that.user = {name: null};
 				that.signinDialog = true;
-				showerror(err);
-			});
-		},
-		// ユーザー情報
-		getUsers: function() {
-			var that = this;
-			restapi.get("user/").then((response) => {
-				that.users = response.data;
-				console.log("users", that.users);
-			}).catch(function(err){
-				that.users = [];
-				showerror(err);
 			});
 		},
 		// 一覧表示
-		get_items: function() {
+		get_events: function() {
 			var that = this;
-			restapi.get(this.selected + "/").then((response) => {
-				that.items = response.data;
-				if (!this._id) {
-						this._id = this.items[0]._id;
-				}
-				this.redrawItem();
+			console.log(this.role);
+			restapi.get("event/"+(this.role?"?role="+this.role : "")+(this.place?"&place="+this.place : "")).then((response) => {
+				that.events = response.data;
 			}).catch(function(err){
-				that.items = [];
-				showerror(err);
+				that.events = [];
 			});
-
 		},
+		//
 		localDatetime(t) {
 			return restapi.localDatetime(t);
 		},
-		// 右画面のデータ書き直し
-		redrawItem: function() {
-			var item = {};
-			restapi.get('event/'+ this._id).then((response) => {
-				var item = response.data;
-				if (item.__t === 'Event') {
-					item.startDate = restapi.getDate(item.startDatetime);
-					item.startTime = restapi.getTime(item.startDatetime);
-					item.endTime = restapi.getTime(item.endDatetime);
-
-					item.startDatetime = restapi.localDatetime(item.startDatetime);
-					item.endDatetime = restapi.localDatetime(item.endDatetime);
-
-					restapi.get("join/?gid="+item._id).then((response) => {
-						this.item = item;
-						this.joins = response.data;
-
-					}).catch(function(err){
-						thism.joins = [];
-						showerror(err);
-						this.item = item;
-					});
-				} else {
-					this.item = item;
-				}
-				//this.getUsers();
-			});
+		localDatetimeLong(s, e) {
+			return restapi.getDate(s) + restapi.getTime(s) +"～"+ restapi.getTime(e);
 		},
 		// item 編集
 		edit_item: function(id) {
-			location.href = "./event.html?id="+id;
+			location.href = "./event.html?id="+id+(this.role?"&role="+this.role : "");
 		},
-		// 削除(管理者用)
-		delete_item: function(item) {
-			console.log("delete:", item);
-			restapi.delete(this.selected + "/" + item._id).then((response) => {
-				console.log("item:", response);
-				this.get_items(); // 一覧表示
-				this._id = null;
-				this.redrawItem();
-			});
-		},
-		// 新規作成(管理者用)
-		createEvent: function() {
-			this.item = {};
-		},
-		// イベント登録・更新
-		submitEvent: function(item) {
-			this.waiting = true;
-			console.log("EVENT:", item);
-			if (item._id) {
-				restapi.post('event/'+item._id, item).then((response) => {
-					this.waiting = false
-					this.get_items(); // 書き直し
-				}).catch(function(err){
-					this.waiting = false
-				})
-			} else {
-				restapi.post('event/', item).then((response) => {
-					this.waiting = false
-					this.get_items(); // 書き直し
-				}).catch(function(err){
-					this.waiting = false
-				})
-			}
-		},
-		// 新規作成(管理者用)
-		create_item: function() {
-			console.log("crear id:", this.item._id);
-			restapi.get(this.selected + "/" + 'schema').then((response) => {
-				console.log("schema:", response.data);
-				//this.item = response.data;
-				for (var key in response.data) {
-					if (!(key in this.item)) {
-						this.item[key] = null;
-					}
-				}
-				this.item._id = null;
-			});
-		},
-		// サインイン(一般用)
-		signin: function(user) {
-			restapi.post("user/signin", {email:user.email, password: user.password}).then((response) => {
-				this.signinDialog = false;
-				restapi.pushToken(response.data);
-				this.redrawAll();
-			});
-		},
-		// サインイン(管理者用)
-		adminSinin: function(email, password = "") {
-			restapi.post("user/signinadmin", {email:email, password: password}).then((response) => {
-				restapi.pushToken(response.data);
-				this.redrawAll();
-			});
-		},
-		// サインアウト(管理者用)
-		adminSinout: function() {
-			restapi.popToken();
-			this.redrawAll();
-		},
+
 	}
 })
 

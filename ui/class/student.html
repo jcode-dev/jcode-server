@@ -15,6 +15,36 @@
 			<div class="tile is-parent">
 				<div class="tile is-child box">
 
+						<article v-if="!understand" class="message is-primary">
+							<div class="content">
+								<div class="message-header">
+									プログラミング教室
+								</div>
+								<div class="message-body">
+										<p>
+											プログラミング教室の3つの約束
+										</p>
+																		<h1 class="title">はしらない</h1>
+										<p>
+											はしったり、ものを<ruby>振り回<rt>ふりまわ</rt></ruby>したり、しないでください。
+										</p>
+										
+																		<h1 class="title">がまんしない</h1>
+										<p>
+											トイレに<ruby>行<rt>い</rt></ruby>きたくなったり、きもちわるくなったら、がまんしないで、すぐに<ruby>教<rt>おし</rt></ruby>えてください。<br />
+											せんせいに なにか<ruby>聞<rt>き</rt></ruby>きたいときは <ruby>手<rt>て</rt></ruby>をあげて よんでください。
+										</p>
+										
+																		<h1 class="title">おはなしをきく</h1>
+										<p>
+											せんせいが「きいてください」といったら、さぎょうの<ruby>手<rt>て</rt></ruby>をとめて、せんせいの<ruby>話<rt>はなし</rt></ruby>をきいてください。<br />
+										</p>
+										
+										<button class="button is-info" v-on:click.prevent="understand = true">わかりました</button>
+								</div>
+							</div>
+						</article>
+
 						<article class="message is-primary">
 							<div class="content">
 								<div class="message-header">
@@ -101,6 +131,7 @@ const app = new Vue({
 		events: [],
 		event:{},
 		showEvent: null,
+		understand: false,
 	},
 	mounted: function() {
 		this.nexturl = location.pathname + location.search;
@@ -128,7 +159,7 @@ const app = new Vue({
 		},
 		// イベント一覧
 		getEvents: function() {
-			restapi.get("event/").then((response) => {
+			restapi.get("event/?role=ALL&period=NOW").then((response) => {
 				this.events = response.data;
 			});
 		},

@@ -9,7 +9,7 @@ const router = express.Router();
 const addroute = require('./resource-router');
 const restapi =require('./restapi');
 
-	var edit = 'name startDatetime endDatetime place description staffBefore staffMax staffApplicant studentBefore studentMax studentApplicant VisitorBefore VisitorMax VisitorApplicant';
+	var edit = 'name startDatetime endDatetime place description mainrole studentBefore studentMax studentApplicant studentPublic'; // staffBefore staffMax staffApplicant';
 
 	restapi.eventStatusUpdate(router, model, join); // ‰•åÒ”‚ÌXV
 

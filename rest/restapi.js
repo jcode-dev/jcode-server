@@ -81,6 +81,22 @@ restapi.find = function(model, schema) {
 	}];
 }
 
+// ユーザー検索
+restapi.findUser = function(router, model, schema) {
+	router.get('/', authJwt(), function(req, res) {
+		var find = {};
+		if (isRoot(req.user)) {
+			if (req.query.number) {
+				find.number = req.query.number;
+			}
+		} else {
+			find.ownerId = req.user._id;
+		}
+		console.log("find", find);
+		model.find(find).exec(toRes(res));
+	});
+}
+
 restapi.find2 = function(model, schema) {
 	return ['/', 'get', function(req, res) {
 		var params = req.query;
@@ -102,14 +118,33 @@ restapi.find2 = function(model, schema) {
 	}];
 }
 
-// セキュリティに注意（eventのみで使用）
-// /api/event/?sort=-startDatetime
+/*
+	 セキュリティに注意（eventのみで使用）
+ 	/api/event/?
+		sort=-startDatetime
+		role=STUDENT | STAFF | ALL
+*/
 restapi.findPublic = function(router, model) {
 
 	router.get('/', function(req, res) {
-		var sort = req.query.sort; // ソート項目
-		console.log("findPub:", model.modelName, sort);
-		model.find().sort(sort).exec(toRes(res));
+		var sort = req.query.sort || 'startDatetime';  // ソート項目
+		var role = req.query.role;  // 絞り込み
+		var find = {};
+		if (role && role != 'ALL') {
+			find.mainrole = role;
+		}
+		var period = req.query.period || 'FUTURE'; // PAST, ALL
+		if (period == 'ALL') {
+		} else if (period == 'FUTURE') {
+			find.startDatetime = {$gt: new Date()};
+		}
+		var place = req.query.place || ''; // PAST, ALL
+		if (place == '') {
+		} else {
+			find.place = place;
+		}
+		console.log("findPub:", model.modelName, find, sort);
+		model.find(find).sort(sort).exec(toRes(res));
 	})
 }
 
@@ -168,6 +203,7 @@ restapi.createJoin = function(router, model) {
 		var body = req.body;
 		body.ownerId = req.user._id; // created by
 		body.status = 'PENDING';
+		console.log("createJoin",body);
 		model.findOne({memberId:body.memberId, groupId:body.groupId},function(err, result) {
 			if (err || result) {
 				console.log(result);
@@ -212,6 +248,7 @@ restapi.eventStatusUpdate = function(router, event, join) {
 		console.log("aggregate", id);
 
 			join.find({groupId: id}, function (err, joins) {
+/*
 				var role = {};
 				role['STUDENT'] = 0;
 				role['STAFF'] = 0;
@@ -221,8 +258,10 @@ restapi.eventStatusUpdate = function(router, event, join) {
 					}
 				}
 				console.log(role['STUDENT'], role['STAFF']);
-				result.studentApplicant = role['STUDENT'];
 				result.staffApplicant = role['STAFF'];
+				result.studentApplicant = role['STUDENT'];
+*/
+				result.studentApplicant = joins.length;
 				result.save(function(err){
 					res.status(200).send(err);
 				});
@@ -490,9 +529,8 @@ restapi.signinAdmin = function(router, model) {
 // ログイン情報
 restapi.whoami = function(router, model, fields = '_id name') {
 	router.get('/whoami', authJwt(), function(req, res) {
-		console.log("whoami:", req.user, fields);
 		var updateFields = getFields(req.user, fields);
-		console.log("whoami2:", updateFields);
+		console.log("whoami", updateFields);
 		res.status(200).send(updateFields);
 	});
 }

@@ -9,8 +9,25 @@
 
 </head>
 <body>
-	<div id="app">
+	<nav class="navbar" role="navigation" aria-label="main navigation">
+		<div class="navbar-brand">
+			<a class="navbar-item is-size-3-desktop" href="https://j-code.org">
+				NPO法人プログラミング教育研究所
+			</a>
+		</div>
+		<div class="navbar-start">
+			<a class="navbar-item" href="/ui/class/">
+			  はじめにもどる
+			</a>
+		</div>
+		<div class="navbar-end">
+			<a class="navbar-item" href="/go/ui/class/">
+			  サインアウト
+			</a>
+		</div>
+	</nav>
 
+	<div id="app">
 		<div class="tile is-ancestor">
 			<div class="tile is-parent">
 				<div class="tile is-child box">
@@ -18,33 +35,14 @@
 						<article class="message is-primary">
 							<div class="content">
 								<div class="message-header">
-									プログラミング教室
+									こんにちは
 								</div>
 								<div class="message-body">
-										会員番号：${user.number}<br />
-										<h2 class="subtitle"><ruby>${user.fullname}<rt>${user.furigana}</rt></ruby><font size="3">さん、</font>ようこそ</h2>
+									会員番号：${user.number}<br />
+									<h2 class="subtitle"><ruby>${user.fullname}<rt>${user.furigana}</rt></ruby><font size="3">さん、</font>ようこそ</h2>
 
-										<p>
-											プログラミング教室の3つの約束
-										</p>
-																		<h1 class="title">はしらない</h1>
-										<p>
-											はしったり、ものを<ruby>振り回<rt>ふりまわ</rt></ruby>したり、しないでください。
-										</p>
-										
-																		<h1 class="title">がまんしない</h1>
-										<p>
-											トイレに<ruby>行<rt>い</rt></ruby>きたくなったり、きもちわるくなったら、がまんしないで、すぐに<ruby>教<rt>おし</rt></ruby>えてください。<br />
-											せんせいに なにか<ruby>聞<rt>き</rt></ruby>きたいときは <ruby>手<rt>て</rt></ruby>をあげて よんでください。
-										</p>
-										
-																		<h1 class="title">おはなしをきく</h1>
-										<p>
-											せんせいが「きいてください」といったら、さぎょうの<ruby>手<rt>て</rt></ruby>をとめて、せんせいの<ruby>話<rt>はなし</rt></ruby>をきいてください。<br />
-										</p>
-										
-
-									<a class="button is-info" href="./student.html">プログラミングをはじめる</a>
+									ボランティア保険加入：${user.insurance2018}<br />
+									マイクロビット貸出：${user.microbitLending}<br />
 								</div>
 							</div>
 						</article>
@@ -52,21 +50,90 @@
 						<article class="message is-primary">
 							<div class="content">
 								<div class="message-header">
-									設定と管理
+									プログラミング
+								</div>
+								<div class="message-body">
+
+									<ul class="menu-list">
+
+										<li>
+											<a href="http://kita.j-code.org/kitaku/2017/02/07/touchtyping/" target="_blank">キーボード（タッチタイピングの<ruby>練習<rt>れんしゅう</rt></ruby>）</a>
+										</li>
+
+										<template v-if="user.cdosection">
+											<li>
+												<a v-bind:href="'https://studio.code.org/sections/' + user.cdosection" target="_blank"><ruby>CODE.ORG<rt>コード ドット オルグ</rt></ruby>をはじめる</a>
+											</li>
+										</template>
+										<template v-else>
+											<li>
+												<a href="https://code.org" target="_blank"><ruby>CODE.ORG<rt>コード ドット オルグ</rt></ruby>をはじめる</a>
+											</li>
+										</template>
+
+										<li>
+											<a href="https://makecode.microbit.org" target="_blank"><ruby>micro:bit<rt>マイクロビット</rt></ruby>をはじめる</a>
+										</li>
+
+									</ul>
+
+									<a class="button is-info" href="http://j-code.org/ui/home/2018.05.27.html">きょうのプログラミング教室へ</a>
+
+								</div>
+							</div>
+						</article>
+
+						<article class="message is-primary">
+							<div class="content">
+								<div class="message-header">
+									保護者用のメニュー
 								</div>
 								<div class="message-body">
 									<ul class="menu-list">
 										<li>
-											<a v-bind:href="'/go/chgpass' + nexturl">パスワード変更</a>
+											<a href="./event-index.html?role=STUDENT">教室の申込管理（保護者用）</a>
 										</li>
 										<li>
-											<a v-bind:href="'/go/profile' + nexturl">名前や連絡先を確認・訂正する</a>
+											<a v-bind:href="'/go/profile' + nexturl">名前や児童生徒の管理</a>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</article>
+
+						<article class="message is-primary">
+							<div class="content">
+								<div class="message-header">
+									ボランティア・スタッフ用のメニュー
+								</div>
+								<div class="message-body">
+									<ul class="menu-list">
+										<li>
+											<a href="./event-index.html?role=STAFF">教室の申込管理（ボランティア・スタッフ用）</a>
+										</li>
+										<li>
+											<a v-bind:href="'/go/profile' + nexturl">名前や連絡先の管理</a>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</article>
+
+						<article class="message is-primary">
+							<div class="content">
+								<div class="message-header">
+									管理メニュー
+								</div>
+								<div class="message-body">
+									<ul class="menu-list">
+										<li>
+											<a v-bind:href="'/go/chgpass' + nexturl">自分のパスワード変更</a>
+										</li>
+										<li>
+											<a v-bind:href="'/go' + nexturl">サインイン画面にもどる</a>
 										</li>
 										<li>
 											<a href="./admin-index.html">管理者画面</a>
-										</li>
-										<li>
-											<a v-bind:href="'/go' + nexturl">サインイン画面</a>
 										</li>
 									</ul>
 								</div>

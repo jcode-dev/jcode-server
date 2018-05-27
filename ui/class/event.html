@@ -9,8 +9,25 @@
 
 </head>
 <body>
-	<div id="app">
+	<nav class="navbar" role="navigation" aria-label="main navigation">
+		<div class="navbar-brand">
+			<a class="navbar-item is-size-3-desktop" href="https://j-code.org">
+				NPO法人プログラミング教育研究所
+			</a>
+		</div>
+		<div class="navbar-start">
+			<a class="navbar-item" href="/ui/class/">
+			  はじめにもどる
+			</a>
+		</div>
+		<div class="navbar-end">
+			<a class="navbar-item" href="/go/ui/class/">
+			  サインアウト
+			</a>
+		</div>
+	</nav>
 
+	<div id="app">
 		<div class="tile is-ancestor">
 			<div class="tile is-parent">
 				<div class="tile is-child box">
@@ -24,19 +41,20 @@
 							<div class="message-body">
 
 								<div class="message-body">
-									ID： ${event._id}<br />
-									名称： ${event.name}<br />
+									<span class="is-size-3">${event.name}</span><br />
 									日付： ${event.startDate}<br />
 									時間： ${event.startTime}～${event.endTime}<br />
 									場所： ${event.place}<br />
 									説明： ${event.description}<br />
 									
-									生徒募集人数：${event.studentMax} 名（申込：${event.studentApplicant} 名）<br />
-									スタッフ募集：${event.staffMax} 名（申込：${event.staffApplicant} 名）<br />
-
+									定員：${event.studentMax} 名<br />
+									申込：${event.studentApplicant} 名<br />
+									<span class="help">${deadline(event.startDatetime, event.studentBefore)}</span><br />
 								</div>
 
 								<div class="message-body">
+
+									申込したひと
 									<table class="table is-striped">
 										<tbody>
 											<tr>
@@ -59,8 +77,10 @@
 									</table>
 								</div>
 
-
 								<div class="message-body">
+									<h3 class="is-warning">${deadline(event.startDatetime, event.studentBefore)}</h3>
+
+									参加の申込をしてください
 									<table class="table is-striped">
 										<tbody>
 											<tr>
@@ -71,24 +91,27 @@
 												<th>アクション</th>
 											</tr>
 											<tr v-for="user in users">
-												<template v-if="checkUser(user)">
-													<td>${user.number}</td>
-													<td>${user.fullname}</td>
-													<td>${getMainrole(user.mainrole)}</td>
-													<td>${user.grade}</td>
-													<td>
-															<button click v-on:click.prevent="attend(user)">参加申込</button>
-													</td>
-												</template>
+												<td>${user.number}</td>
+												<td>${user.fullname}</td>
+												<td>${getMainrole(user.mainrole)}</td>
+												<td>${user.grade}</td>
+												<td>
+													<button v-if="checkUser(user)" click v-on:click.prevent="attend(user)">参加申込</button>
+												</td>
 											</tr>
 										</tbody>
 									</table>
-									<p class="help is-info">名前の横にある「参加申込」をクリックすると、この教室・イベントに参加の申込となります。<p>
+									<p class="help is-info">
+										名前の横にある「参加申込」をクリックすると、この教室・イベントに参加の申込となります。<br />
+										申込を受け付けていない場合は、ボタンが表示されません。
+									<p>
 
 									<div class="box">
 											<p class="help">参加者の追加・削除、名前の変更は以下のボタンをクリック。<p>
 									    <button class="button is-info" v-on:click.prevent="manageUser()">参加者の管理</button>
 									</div>
+
+							    <button class="button is-info" v-on:click.prevent="eventList()">教室の一覧を見る</button>
 
 								</div>
 
@@ -123,6 +146,7 @@ const app = new Vue({
 		users: [],
 		user:{},
 		joins: [], //参加者一覧
+		studentAllow: false,
 	},
 	mounted: function() {
 		// Query文字列を見る
@@ -131,11 +155,38 @@ const app = new Vue({
 		this.getEvent(id);
 		this.whoami();
 		this.getUsers();
+
 	},
 	methods: {
+		checkDeadline: function(date, before) {
+			var dt = new Date(date);
+			if (!before) {
+				return false;
+			}
+			dt.setDate(dt.getDate() - before);
+			if (dt < new Date()) {
+				return false;
+			}
+			return true;
+		},
+		deadline: function(date, before) {
+			var dt = new Date(date);
+			var msg = "";
+			if (!before) {
+				return "参加予約はしていません";
+			}
+			dt.setDate(dt.getDate() - before);
+			if (dt < new Date()) {
+				return "募集は終了しました";
+			}
+			msg = "締切"+before+"日前まで"
+			return msg;
+		},
 		// 表示するか？
 		checkUser: function(user) {
 			if (user.mainrole == 'PARENT')
+				return false;
+			if (user.mainrole == 'STUDENT' && !this.studentAllow)
 				return false;
 			var found = this.joins.find(function(join) {
 				return join.memberId._id == user._id;
@@ -148,6 +199,10 @@ const app = new Vue({
 		// ユーザー管理画面
 		manageUser: function() {
 			location.href = '/go/profile' + location.pathname + location.search;
+		},
+		// イベント一覧画面
+		eventList: function() {
+			location.href = './event-index.html' + location.search;
 		},
 		// アカウント情報
 		whoami: function() {
@@ -200,6 +255,7 @@ const app = new Vue({
 				event.endTime = restapi.getTime(event.endDatetime);
 				this.event = event;
 				this.getJoins(event._id);
+				this.studentAllow = event.studentPublic && this.checkDeadline(event.startDatetime, event.studentBefore);
 			});
 		},
 		// 参加申込

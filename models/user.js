@@ -23,12 +23,13 @@ var User = Doc.discriminator('User',
 		},	// 番号
 		mainrole: String, // PARENT, STUDENT, STAFF
 		grade: String,	// 小1～中1
+		sno: String,	// 出席番号等
 		furigana: String,
 		fullname: String,
 		password: String,	// サインイン・パスワード
 		email: {
 			type: String, unique: true, sparse: true
-		},	// 番号
+		},
 		zipcode: String,
 		address1: String,
 		address2: String,
@@ -41,6 +42,7 @@ var User = Doc.discriminator('User',
 
 		cdosection: String,
 		cdopassword: String,
+		groupname:  String,
 		microbitLending: String,
 		insurance2018: Boolean,
 	}));

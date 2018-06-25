@@ -6,14 +6,25 @@ restapi.base_url = location.protocol+"//"+location.host+"/api/";
 
 restapi.axios = axios.create({ baseURL: restapi.base_url });
 
+restapi.axios.interceptors.request.use(function(config) {
+	// axios のキャッシュを無効にする
+	if (typeof config.params === 'undefined') {
+		config.params = {};
+	}
+	if (typeof config.params === 'object') {
+		if (typeof URLSearchParams === 'function' && config.params instanceof URLSearchParams)
+			config.params.append('_', Date.now());
+		else
+			config.params._ = Date.now();
+	}
+//	if (config.method == 'get') {
+//	}
 // axios をセキュリティ token付きで呼び出す
-restapi.axios.interceptors.request.use((config) => {
 	var token = localStorage.getItem('token');
-  if (token) {  
-    config.headers.Authorization = `Bearer ${token}`
-    return config
-  }
-  return config
+	if (token) {
+		config.headers.Authorization = 'Bearer '+token;
+	}
+	return config
 }, function (error) {
   return Promise.reject(error)
 });

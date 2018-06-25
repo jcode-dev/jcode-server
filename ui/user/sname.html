@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Hello pel</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+	<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+	<style>
+
+	.message {
+		margin: 1.5rem;
+	}
+	.frame {
+		margin: 1.5rem;
+	}
+	.morespace {
+		margin: 0 1rem;
+	}
+	</style>
+
+	
+</head>
+<body>
+	<div id="app">
+
+	<article class="message is-primary">
+		<div class="content">
+			<div class="message-header">
+				名前と学年
+			</div>
+			<div class="message-body">
+
+				<form v-on:submit.prevent="submitItem(user)">
+
+					<div class="field">
+						<h1>会員番号：${user.number}</h1>
+					</div>
+
+					<div class="field is-horizontal">
+						<div class="field-label is-normal">
+							<label class="label">ニックネーム</label>
+						</div>
+						<div class="field-body">
+							<div class="field is-narrow">
+								<input v-model="user.name" class="input" type="text" autocomplete="name" >
+							</div>
+						</div>
+					</div>
+
+					<div class="field is-horizontal">
+						<div class="field-label is-normal">
+							<label class="label">学年</label>
+						</div>
+						<div class="field-body">
+							<div class="field is-narrow">
+								<select class="select" v-model="user.grade" >
+									<option value="小1">小1</option>
+									<option value="小2">小2</option>
+									<option value="小3">小3</option>
+									<option value="小4">小4</option>
+									<option value="小5">小5</option>
+									<option value="小6">小6</option>
+									<option value="中1">中1</option>
+									<option value="中2">中2</option>
+									<option value="中3">中3</option>
+									<option value="-">小中学生以外</option>
+								</select>
+							</div>
+						</div>
+					</div>
+
+					<div class="field is-horizontal">
+						<div class="field-label is-normal">
+						</div>
+						<div class="field-body">
+							<div class="field">
+								<div class="control">
+									<input class="button is-primary" type="submit" value="登録して次へ">
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</form>
+			</div>
+		</div>
+	</article>
+	</div>
+
+	<script>window.Promise || document.write('<script src="//www.promisejs.org/polyfills/promise-7.0.4.min.js"><\/script>');</script>
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="/ui/js/restapi.js"></script>
+	<script>
+const app = new Vue({
+	delimiters: ['${', '}'],
+	el: '#app',
+	data: {
+		errormsg: "",
+		user: {},
+	},
+	mounted: function() {
+		this.whoami();
+	},
+	methods: {
+		// ユーザー情報
+		whoami: function() {
+			var that = this;
+			restapi.get("user/whoami/?_="+Date.now()).then(function(response) {
+				that.user = response.data;
+			}).catch(function(error) {
+				that.user = {};
+			})
+		},
+		// 登録して次へ
+		submitItem: function (user) {
+			var that = this;
+			restapi.post("user/"+user._id, user).then(function(response){
+				location.href = "{{{nexturl}}}";
+			}).catch(function(error) {
+				console.log("error:", error );
+			});
+		},
+	}
+})
+	</script>
+</body>
+</html>

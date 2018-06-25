@@ -81,6 +81,7 @@
 		</div>
 	</div>
 	
+	<script>window.Promise || document.write('<script src="//www.promisejs.org/polyfills/promise-7.0.4.min.js"><\/script>');</script>
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 	<script src="/ui/js/restapi.js"></script>
@@ -125,11 +126,10 @@ const app = new Vue({
 			console.log("SIGNIN", this.nexturl);
 
 			var that = this;
-			restapi.get("user/whoami/").then((response) => {
+			restapi.get("user/whoami/?_="+Date.now()).then(function(response) {
 				that.user = response.data;
 				console.log("contact:", response);
 			}).catch(function(err){
-				//that.user = null;
 				that.user = {name: null};
 				that.signinDialog = true;
 			});
@@ -138,17 +138,17 @@ const app = new Vue({
 		get_events: function() {
 			var that = this;
 			console.log(this.role);
-			restapi.get("event/"+(this.role?"?role="+this.role : "")+(this.place?"&place="+this.place : "")).then((response) => {
+			restapi.get("event/"+(this.role?"?role="+this.role : "")+(this.place?"&place="+this.place : "")).then(function(response) {
 				that.events = response.data;
 			}).catch(function(err){
 				that.events = [];
 			});
 		},
 		//
-		localDatetime(t) {
+		localDatetime: function(t) {
 			return restapi.localDatetime(t);
 		},
-		localDatetimeLong(s, e) {
+		localDatetimeLong: function(s, e) {
 			return restapi.getDate(s) + restapi.getTime(s) +"～"+ restapi.getTime(e);
 		},
 		// item 編集

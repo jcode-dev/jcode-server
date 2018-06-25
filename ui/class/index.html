@@ -39,46 +39,11 @@
 								</div>
 								<div class="message-body">
 									会員番号：${user.number}<br />
-									<h2 class="subtitle"><ruby>${user.fullname}<rt>${user.furigana}</rt></ruby><font size="3">さん、</font>ようこそ</h2>
+									ニックネーム： ${user.name}<br />
+									名前： <ruby>${user.fullname}<rt>${user.furigana}</rt></ruby><br />
 
 									ボランティア保険加入：${user.insurance2018}<br />
 									マイクロビット貸出：${user.microbitLending}<br />
-								</div>
-							</div>
-						</article>
-
-						<article class="message is-primary">
-							<div class="content">
-								<div class="message-header">
-									プログラミング
-								</div>
-								<div class="message-body">
-
-									<ul class="menu-list">
-
-										<li>
-											<a href="http://kita.j-code.org/kitaku/2017/02/07/touchtyping/" target="_blank">キーボード（タッチタイピングの<ruby>練習<rt>れんしゅう</rt></ruby>）</a>
-										</li>
-
-										<template v-if="user.cdosection">
-											<li>
-												<a v-bind:href="'https://studio.code.org/sections/' + user.cdosection" target="_blank"><ruby>CODE.ORG<rt>コード ドット オルグ</rt></ruby>をはじめる</a>
-											</li>
-										</template>
-										<template v-else>
-											<li>
-												<a href="https://code.org" target="_blank"><ruby>CODE.ORG<rt>コード ドット オルグ</rt></ruby>をはじめる</a>
-											</li>
-										</template>
-
-										<li>
-											<a href="https://makecode.microbit.org" target="_blank"><ruby>micro:bit<rt>マイクロビット</rt></ruby>をはじめる</a>
-										</li>
-
-									</ul>
-
-									<a class="button is-info" href="http://j-code.org/ui/home/2018.05.27.html">きょうのプログラミング教室へ</a>
-
 								</div>
 							</div>
 						</article>
@@ -114,6 +79,12 @@
 										<li>
 											<a v-bind:href="'/go/profile' + nexturl">名前や連絡先の管理</a>
 										</li>
+										<li>
+											<a href="http://j-code.org/ui/home/2018.05.27.html">【資料】2018.05.27 ボランティア講習@赤羽文化センター</a>
+										</li>
+										<li>
+											<a href="http://j-code.org/ui/home/2018.06.02.html">【資料】2018.06.02 ボランティア講習@滝野川文化センター</a>
+										</li>
 									</ul>
 								</div>
 							</div>
@@ -133,7 +104,13 @@
 											<a v-bind:href="'/go' + nexturl">サインイン画面にもどる</a>
 										</li>
 										<li>
-											<a href="./admin-index.html">管理者画面</a>
+											<a href="/ui/user/group.html">グループユーザー管理</a>
+										</li>
+										<li>
+											<a href="/ui/admin/event.html">管理者画面</a>
+										</li>
+										<li>
+											<a href="/ui/class/userlist.html">管理者画面2</a>
 										</li>
 									</ul>
 								</div>
@@ -144,7 +121,7 @@
 			</div>
 		</div>
 	</div>
-	
+	<script>window.Promise || document.write('<script src="//www.promisejs.org/polyfills/promise-7.0.4.min.js"><\/script>');</script>
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 	<script src="/ui/js/restapi.js"></script>
@@ -170,9 +147,10 @@ const app = new Vue({
 		// ユーザー情報
 		whoami: function() {
 			var user = this.user;
+			var that = this;
 			console.log("whoami", this.nexturl);
-			restapi.get("user/whoami/").then((response) => {
-				this.user = response.data;
+			restapi.get("user/whoami/").then(function(response){
+				that.user = response.data;
 			}).catch(function(err){
 				console.log("whoami:", err);
 				user._id = null;
@@ -180,15 +158,17 @@ const app = new Vue({
 		},
 		// イベント一覧
 		getEvents: function() {
-			restapi.get("event/").then((response) => {
-				this.events = response.data;
+			var that = this;
+			restapi.get("event/").then(function(response){
+				that.events = response.data;
 			});
 		},
 		// イベント情報
 		getEvent: function(id) {
-			restapi.get("event/"+id).then((response) => {
-				this.event = response.data;
-				this.showEvent = true;
+			var that = this;
+			restapi.get("event/"+id).then(function(response){
+				that.event = response.data;
+				that.showEvent = true;
 			});
 		},
 		// サインアウト

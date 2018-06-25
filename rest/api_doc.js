@@ -9,7 +9,7 @@ const addroute = require('./resource-router');
 const restapi =require('./restapi');
 
 	var read = '_id name';
-	var edit = 'name';
+	var edit = 'name memberId';
 
 // create and export a Router, mount it anywhere via .use()
 

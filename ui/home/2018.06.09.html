@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>プログラミング教育研究所</title>
+    <link rel='stylesheet' id='dashicons-css'  href='/ui/css/dashicons.min.css?ver=4.7.4' type='text/css' media='all' />
+    <link rel='stylesheet' id='admin-bar-css'  href='/ui/css/admin-bar.min.css?ver=4.7.4' type='text/css' media='all' />
+    <link rel='stylesheet' id='twentyseventeen-style-css'  href='/ui/css/style.css?ver=4.7.4' type='text/css' media='all' />
+</head>
+<body>
+	<div id="app" class="wrap">
+		<p>
+		   <a href="http://J-CODE.ORG/">Programming Education Laboratory</a>
+		</p>
+		<h1>
+			2018.06.09 中央公園文化センター
+			</h1>
+			
+		<img src="illust1814_thumb.gif" />
+
+		<section class="widget widget_recent_entries" id="recent-posts-2">
+			<h2 class="widget-title">${user.name}</h2>
+			<ul>
+
+				<h4>プログラミング</h4>
+				<li>
+					<a v-bind:href="'https://studio.code.org/sections/' + user.cdosection" target="_blank"><ruby>CODE.ORG<rt>コード ドット オルグ</rt></ruby>をはじめる</a>
+				</li>
+				<li>
+					<a href="https://makecode.microbit.org" target="_blank"><ruby>micro:bit<rt>マイクロビット</rt></ruby>をはじめる</a>
+				</li>
+				<h4></h4>
+
+
+				<h4>帰るまえのアンケート</h4>
+				<li>
+					<a href="https://j-code.org/go/students01/?id=5b09c805b5c546de98f3a359"
+					 target="_blank">帰るまえのアンケートに答える</a>
+				</li>
+
+			</ul>
+		</section>
+	</div><!-- .wrap -->
+    <footer id="colophon" class="site-footer" role="contentinfo">
+    	<div class="wrap">
+            <div class="site-info">
+            	<a href="https://J-CODE.ORG/" rel="home">NPO法人プログラミング教育研究所</a>
+            </div><!-- .site-info -->
+    	</div><!-- .wrap -->
+    </footer><!-- #colophon -->
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="/ui/js/restapi.js"></script>
+	<script>
+
+const app = new Vue({
+	delimiters: ['${', '}'],
+	el: '#app',
+	data: {
+		user: {},
+	},
+	mounted: function() {
+		this.whoami();
+	},
+	methods: {
+		// ユーザー情報
+		whoami: function() {
+			var that = this;
+			restapi.get("user/whoami/").then((response) => {
+				console.log("user");
+				that.user = response.data;
+			}).catch(function(err){
+				console.log("err");
+				that.user = {};
+			});
+		},
+	}
+})
+
+	</script>
+
+</body>
+</html>

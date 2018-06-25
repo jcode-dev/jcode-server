@@ -124,6 +124,7 @@
 		</div>
 	</div>
 	
+	<script>window.Promise || document.write('<script src="//www.promisejs.org/polyfills/promise-7.0.4.min.js"><\/script>');</script>
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 	<script src="/ui/js/restapi.js"></script>
@@ -131,6 +132,28 @@
 	
 	
 	"use strict";
+
+if (!Array.prototype.find) {
+  Array.prototype.find = function(predicate) {
+    if (this === null) {
+      throw new TypeError('Array.prototype.find called on null or undefined');
+    }
+    if (typeof predicate !== 'function') {
+      throw new TypeError('predicate must be a function');
+    }
+    var list = Object(this);
+    var length = list.length >>> 0;
+    var thisArg = arguments[1];
+    var value;
+    for (var i = 0; i < length; i++) {
+      value = list[i];
+      if (predicate.call(thisArg, value, i, list)) {
+        return value;
+      }
+    }
+    return undefined;
+  };
+}
 
 const showerror = function(error) {
 	console.log("error:",error);
@@ -207,7 +230,7 @@ const app = new Vue({
 		// アカウント情報
 		whoami: function() {
 			var that = this;
-			restapi.get("user/whoami/").then((response) => {
+			restapi.get("user/whoami/?_="+Date.now()).then(function(response) {
 				that.user = response.data;
 				console.log("contact:", response);
 			}).catch(function(err){
@@ -220,7 +243,7 @@ const app = new Vue({
 		// ユーザー情報
 		getUsers: function() {
 			var that = this;
-			restapi.get("user/").then((response) => {
+			restapi.get("user/").then(function(response) {
 				that.users = response.data;
 				console.log("users", that.users);
 			}).catch(function(err){
@@ -230,11 +253,15 @@ const app = new Vue({
 		},
 		// joins
 		getJoins: function(id) {
-			restapi.get("join/?gid="+id).then((response) => {
-				this.joins = response.data;
+			console.log("joins!",id);
+			var that = this;
+			restapi.get("join/?gid="+id+"&_="+Date.now()).then(function(response) {
+				console.log("joins!",response.data);
+				that.joins = response.data;
 			}).catch(function(err){
-				this.joins = [];
-				this.showerror(err);
+				console.log("joins!",err);
+				that.joins = [];
+				that.showerror(err);
 			});
 		},
 		// 役割
@@ -248,43 +275,46 @@ const app = new Vue({
 		},
 		// イベント情報
 		getEvent: function(id) {
-			restapi.get("event/"+id).then((response) => {
+			var that = this;
+			restapi.get("event/"+id).then(function(response) {
 				var event = response.data;
 				event.startDate = restapi.getDate(event.startDatetime);
 				event.startTime = restapi.getTime(event.startDatetime);
 				event.endTime = restapi.getTime(event.endDatetime);
-				this.event = event;
-				this.getJoins(event._id);
-				this.studentAllow = event.studentPublic && this.checkDeadline(event.startDatetime, event.studentBefore);
+				that.event = event;
+				that.getJoins(event._id);
+				that.studentAllow = event.studentPublic && that.checkDeadline(event.startDatetime, event.studentBefore);
 			});
 		},
 		// 参加申込
 		attend: function(user) {
+			var that = this;
 			var event = this.event;
 			restapi.post("join/", {
 				name: user.fullname + ' ' + restapi.getShortDate(event.startDatetime),
 				mainrole: user.mainrole,
 				memberId: user._id,
-				groupId: event._id }).then((response) => {
-					restapi.get("event/statusupdate/"+event._id).then((response) => {
+				groupId: event._id }).then(function(response) {
+					restapi.get("event/statusupdate/"+event._id).then(function(response) {
 						console.log("Join:", response);
-						this.redraw();
+						that.redraw();
 					});
 			}).catch(function(err){
-				this.redraw();
+				that.redraw();
 			});
 		},
 		// 参加キャンセル
 		leave: function(join) {
+			var that = this;
 			var id = join.groupId;
-			restapi.delete("join/"+join._id).then((response) => {
-				restapi.get("event/statusupdate/"+id).then((response) => {
+			restapi.delete("join/"+join._id).then(function(response) {
+				restapi.get("event/statusupdate/"+id).then(function(response) {
 					console.log("leave:", response);
-					this.redraw();
+					that.redraw();
 				});
 			}).catch(function(err){
 				console.log("leave err:", err);
-				this.redraw();
+				that.redraw();
 			});
 		},
 	}

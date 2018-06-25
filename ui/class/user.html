@@ -28,6 +28,9 @@
 									正式氏名： ${user.fullname}<br />
 									email： ${user.email}<br />
 									<button click v-on:click="adminSinout()">サインアウト</button>
+
+									<a href="/go/profile/ui/class/">ユーザープロファイル編集</a>
+
 								</div>
 							</div>
 						</article>
@@ -49,12 +52,13 @@
 									</tr>
 									<tr v-for="item in items">
 										<td><input v-model="item.check" class="checkbox" type="checkbox">${item._id}</td>
-										<td>${item.name}</td>
+										<td><input v-model="item.name" class="input" type="text"></td>
 										<td>${item.__t}</td>
-										<td>${item.ownerId}</td>
-										<td>${item.memberId}</td>
-										<td>${item.groupId}</td>
+										<td><input v-model="item.ownerId" class="input" type="text"></td>
+										<td><input v-model="item.memberId" class="input" type="text"></td>
+										<td><input v-model="item.groupId" class="input" type="text"></td>
 										<td>
+											<button class="button is-info" v-on:click="updateItem(item)">更新</button>
 											<button v-if="(user._id !== item._id)||(items.length == 1)" class="button is-danger" v-on:click="deleteItem(item._id)">削除</button>
 										</td>
 									</tr>
@@ -137,6 +141,12 @@ const app = new Vue({
 				that.items = response.data;
 			}).catch(function(err){
 				that.items = [];
+			});
+		},
+		// 更新
+		updateItem: function(item) {
+			restapi.post("doc/"+item._id, item).then((response) => {
+				//this.get_items();
 			});
 		},
 		// 削除

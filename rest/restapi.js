@@ -89,6 +89,9 @@ restapi.findUser = function(router, model, schema) {
 			if (req.query.number) {
 				find.number = req.query.number;
 			}
+			if (req.query.mainrole) {
+				find.mainrole = req.query.mainrole;
+			}
 		} else {
 			find.ownerId = req.user._id;
 		}
@@ -180,12 +183,19 @@ function getFields(body, fields) {
 }
 
 // 参加申込の検索
+// 自分が申し込んだか、参加するイベント限定
 restapi.findJoin = function(router, model) {
 	router.get('/', authJwt(), function(req, res) {
 		var params = req.query;
-		var find =isRoot(req.user) ? {} : {ownerId: req.user._id};
+		var find =isRoot(req.user) ? {} : {$or:[{ownerId: req.user._id},{memberId: req.user._id}]};
 		if (params.gid) {
 			find.groupId = params.gid;
+		}
+		if (params.mid) {
+			find.memberId = params.mid;
+		}
+		if (params.status) {
+			find.status = params.status;
 		}
 		console.log("findJoin:", model.modelName, find);
 
@@ -343,7 +353,7 @@ restapi.update = function(model, fields = 'name') {
 		var id = req.params['_id'];
 		var updateFields = getFields(req.body, fields);
 		console.log("update:", model.modelName, id, updateFields);
-		if (isRoot(req.user)) {
+		if (isRoot(req.user) || id == req.user._id) {
 			model.findByIdAndUpdate(id, { $set:updateFields }, toRes(res));
 		} else {
 			model.findOneAndUpdate({_id: req.params['_id'], ownerId: req.user._id}, { $set:updateFields }, toRes(res));
@@ -406,6 +416,36 @@ restapi.reset = function(model) {
 			});
 		});
 	}, restapi.autho.public];
+}
+
+
+// パスワードリセットして、確認用メールを送信
+restapi.reset2 = function(router, model) {
+	router.post('/reset2', authJwt(), function(req, res) {
+		var email = req.body.email;
+		model.find({ email: email }, function(err, result) {
+			console.log("reset:",result);
+			if (err || !result || result.length != 1) {
+				 return res.status(401).send("エラー：このメールアドレスには送信できません。");
+			}
+			var user = result[0];
+			var password = "7" + Math.ceil(Math.random()*100000);
+			mailer(email, '会員番号とパスワードのお知らせ',
+			 path.join(__dirname, "./resetpass2.txt"), {subject:'会員番号とパスワードのお知らせ', 
+			 	password: password,
+			 	name: user.fullname,
+			 	number: user.number,
+			 	});
+			 model.findById(user._id, function (err, user) {
+			  if (err) return res.status(401).send("エラー");
+			  user.set({ password: password });
+			  user.save(function (err, updatedUser) {
+			    if (err) return res.status(401).send("エラー");
+			    res.status(200).send("OK");
+			  });
+			});
+		});
+	});
 }
 
 // メール送信
@@ -512,10 +552,19 @@ restapi.nsignin = function(model) {
 // サインイン(管理者用)
 restapi.signinAdmin = function(router, model) {
 	router.post('/signinadmin', authJwt(), function(req, res) {
-		var email = req.body.email;
-		console.log("signinadmin:", email);
+
+		var id = req.body.id;
+		console.log("signinadmin:", id);
 		if (isRoot(req.user)) {
-			model.findOne({ email: email }).exec(function(err, result) {
+			model.findById(id, function(err, result) {
+				if (err || !result) {
+					return res.status(401).send("エラー：メールアドレスとパスワードが異なる可能性があります。");
+				}
+				var token = generateAccessToken(result._id);
+				res.status(200).send(token);
+			});
+		} else {
+			model.findOne({ _id: id, ownerId: req.user._id }).exec(function(err, result) {
 				if (err || !result) {
 					return res.status(401).send("エラー：メールアドレスとパスワードが異なる可能性があります。");
 				}
@@ -529,6 +578,7 @@ restapi.signinAdmin = function(router, model) {
 // ログイン情報
 restapi.whoami = function(router, model, fields = '_id name') {
 	router.get('/whoami', authJwt(), function(req, res) {
+		console.log("whoami", req.user);
 		var updateFields = getFields(req.user, fields);
 		console.log("whoami", updateFields);
 		res.status(200).send(updateFields);

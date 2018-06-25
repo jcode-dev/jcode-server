@@ -62,20 +62,26 @@ app.use('/api/event', require('./rest/api_event'));
 app.use('/api/doc', require('./rest/api_doc'));
 app.use('/api/join', require('./rest/api_join'));
 app.use('/api/staffs01', require('./rest/api_staffs01')); // Staffアンケートv1
+app.use('/api/staffs02', require('./rest/api_staffs02')); // Staffアンケートv1
 app.use('/api/students01', require('./rest/api_students01')); // Staffアンケートv1
 app.use('/api/email', require('./rest/api_email'));
 app.use('/api/print', require('./rest/api_print'));
 // クライアント＝ユーザーインタフェース
 app.use('/ui', express.static(path.join(__dirname, './ui')));
 // サインイン＆リダイレクト
-var go = require('./routes/go');
-app.use('/go', go.router);
+app.use('/go', require('./routes/go'));
 
 // ログイン
 app.use(passport.initialize());
 app.post('/signin',
-  passport.authenticate('local', {
-                                   failureRedirect: '/ui/signin' }), go.redirect
+  passport.authenticate('local',
+  {failureRedirect: '/ui/signin' }),
+	function(req, res) {
+		// 認証に施工すると、この関数が呼び出される。
+		// 認証されたユーザーは `req.user` に含まれている。
+		console.log("redirect:");
+		//res.redirect(go.successRedirect);
+	}
 );
 
 

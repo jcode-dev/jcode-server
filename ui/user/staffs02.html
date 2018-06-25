@@ -59,26 +59,28 @@
 						イベント：${event.name}
 					</div>
 
-					<h3 class="is-size-6"><ruby>何年生<rt>なんねんせい</rt></ruby>ですか？</h3>
-					<div class="field is-narrow"><ruby>学年<rt>がくねん</rt></ruby>
-						<select class="select" v-model="item.grade" required>
-							<option value="小1">小1</option>
-							<option value="小2">小2</option>
-							<option value="小3">小3</option>
-							<option value="小4">小4</option>
-							<option value="小5">小5</option>
-							<option value="小6">小6</option>
-							<option value="中1">中1</option>
-							<option value="中2">中2</option>
-							<option value="中3">中3</option>
-							<option value="-">小中学生以外</option>
-						</select>
-					</div>
+<h3 class="is-size-6">おおよその年齢は？</h3>
 
-					<h3 class="is-size-6"><ruby>今日<rt>きょう</rt></ruby>は、<ruby>楽<rt>たの</rt></ruby>しかったですか？</h3>
+<div class="field">年齢
+	<select class="select" v-model="item.age_class" required>
+		<option value="10代">10代</option>
+		<option value="20代">20代</option>
+		<option value="30代">30代</option>
+		<option value="40代">40代</option>
+		<option value="50代">50代</option>
+		<option value="60代">60代</option>
+		<option value="70代">70代</option>
+		<option value="80代">80代</option>
+		<option value="90代">90代</option>
+	</select>
+</div>
+
+
+
+					<h3 class="is-size-6">【全体評価】楽しく学習ができた。全体としてとても良かった。</h3>
 					<div class="control">
 						<label class="radio">
-							そうでもない
+							改善点がある
 						</label>
 						<label class="radio">
 							1<br /><input type="radio" name="q1" value="1" v-model="item.q_fun" class="radio" required>
@@ -96,14 +98,14 @@
 							5<br /><input type="radio" name="q1" value="5" v-model="item.q_fun" class="radio">
 						</label>
 						<label class="radio">
-							すごく<ruby>楽<rt>たの</rt></ruby>しかった
+							完ぺきだった
 						</label>
 					</div>
 
-					<h3 class="is-size-6">すごく<ruby>頭<rt>あたま</rt></ruby>をつかったなー、と<ruby>思<rt>おも</rt></ruby>いますか？</h3>
+					<h3 class="is-size-6">【教材】適切な難度で、興味のわく使いやすい教材だった。</h3>
 					<div class="control">
 						<label class="radio">
-							そうでもない
+							改善点がある
 						</label>
 						<label class="radio">
 							1<br /><input type="radio" name="q2" value="1" v-model="item.q_brain" class="radio" required>
@@ -121,14 +123,14 @@
 							5<br /><input type="radio" name="q2" value="5" v-model="item.q_brain" class="radio">
 						</label>
 						<label class="radio">
-							とてもそう<ruby>思<rt>おも</rt></ruby>う
+							完ぺきだった
 						</label>
 					</div>
 
-					<h3 class="is-size-6"><ruby>先生<rt>せんせい</rt></ruby>の<ruby>話<rt>はなし</rt></ruby>は わかりやすかった ですか？</h3>
+					<h3 class="is-size-6">【司会進行】わかりやすい説明、適切な進行だった。</h3>
 					<div class="control">
 						<label class="radio">
-							そうでもない
+							改善点がある
 						</label>
 						<label class="radio">
 							1<br /><input type="radio" name="q3" value="1" v-model="item.q_teacher" class="radio" required>
@@ -146,14 +148,14 @@
 							5<br /><input type="radio" name="q3" value="5" v-model="item.q_teacher" class="radio">
 						</label>
 						<label class="radio">
-							とても<ruby>良く<rt>よく</rt></ruby>わかった
+							完ぺきだった
 						</label>
 					</div>
 
-					<h3 class="is-size-6">また、プログラミングをやりたいですか？</h3>
+					<h3 class="is-size-6">【今後】次回教室も同じ教材、進行で良いですか</h3>
 					<div class="control">
 						<label class="radio">
-							そうでもない
+							改善点がある
 						</label>
 						<label class="radio">
 							1<br /><input type="radio" name="q4" value="1" v-model="item.q_again" class="radio" required>
@@ -171,12 +173,12 @@
 							5<br /><input type="radio" name="q4" value="5" v-model="item.q_again" class="radio">
 						</label>
 						<label class="radio">
-							すっごくやりたい
+							変更点は見当たらない
 						</label>
 					</div>
 
 					<div class="field">
-							<label class="label">やってみて、どうでしたか？<ruby>思<rt>おも</rt></ruby>ったことを<ruby>何<rt>なん</rt></ruby>でもかいてください。</label>
+							<label class="label">良かった点、改善点、ご意見・ご感想など</label>
 								<textarea class="textarea" v-model="item.memo"></textarea>
 					</div>
 
@@ -186,7 +188,7 @@
 						<div class="field-body">
 							<div class="field">
 								<div class="control">
-									<input class="button is-primary" type="submit" value="とうろく">
+									<input class="button is-primary" type="submit" value="登録">
 								</div>
 							</div>
 						</div>
@@ -243,8 +245,8 @@ const app = new Vue({
 		getItem: function(id) {
 			var that = this;
 			this.item = {};
-			console.log("students01/"+id);
-			restapi.get("students01/"+id).then(function(response) {
+			console.log("staffs02/"+id);
+			restapi.get("staffs02/"+id).then(function(response) {
 				that.item = response.data;
 				console.log("get", this.item);
 			}).catch(function(err){
@@ -257,7 +259,7 @@ const app = new Vue({
 			var item = this.item;
 			item.groupId = this.event._id;
 			console.log(item);
-			restapi.post("students01/", item);
+			restapi.post("staffs02/", item);
 			location.href = "{{{nexturl}}}";
 		},
 	}

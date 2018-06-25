@@ -51,9 +51,9 @@
 			</div>
 		</div>
 	</div>
-	
+	<script>window.Promise || document.write('<script src="//www.promisejs.org/polyfills/promise-7.0.4.min.js"><\/script>');</script>
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="/ui/js/vue.min.js"></script>
 	<script src="/ui/js/restapi.js"></script>
 	<script>
 
@@ -83,34 +83,37 @@ const app = new Vue({
 	methods: {
 		// ユーザー情報
 		whoami: function() {
+			var that = this;
 			console.log("redrawAll", this.nexturl);
-			restapi.get("user/whoami/").then((response) => {
-				this.user = response.data;
-				this.signedin = true;
+			restapi.get("user/whoami/").then(function(response) {
+				that.user = response.data;
+				that.signedin = true;
 			}).catch(function(err){
 				console.log("whoami:", err);
-				this.user = {name: 'ゲスト'};
-				this.signedin = false;
+				that.user = {name: 'ゲスト'};
+				that.signedin = false;
 			});
 		},
 		// イベント一覧
 		getEvents: function() {
-			restapi.get("event/").then((response) => {
-				this.events = response.data;
+			var that = this;
+			restapi.get("event/").then(function(response) {
+				that.events = response.data;
 			});
 		},
 		// イベント情報
 		getEvent: function(id) {
-			restapi.get("event/"+id).then((response) => {
-				this.event = response.data;
-				this.showEvent = true;
+			var that = this;
+			restapi.get("event/"+id).then(function(response) {
+				that.event = response.data;
+				that.showEvent = true;
 			});
 		},
 		// サインアウト
 		adminSinout: function() {
-			this.signedin = false;
+			that.signedin = false;
 			restapi.popToken();
-			this.whoami();
+			that.whoami();
 		},
 	}
 })

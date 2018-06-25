@@ -5,10 +5,20 @@
 
         <link rel="stylesheet" type="text/css" href="../iconselect/css/lib/control/iconselect.css" >
         <script type="text/javascript" src="../iconselect/lib/control/iconselect.js"></script>
-        
         <script type="text/javascript" src="../iconselect/lib/iscroll.js"></script>
-        
         <script>
+
+
+					copyToClipboard = function(str) {
+					  const el = document.createElement('textarea');
+					  el.value = str;
+					  document.body.appendChild(el);
+					  el.select();
+					  document.execCommand('copy');
+					  document.body.removeChild(el);
+					};
+
+
             
         var iconSelect;
         var selectedText;
@@ -18,7 +28,9 @@
            selectedText = document.getElementById('selected-text');
             
             document.getElementById('my-icon-select').addEventListener('changed', function(e){
-               selectedText.value = iconSelect.getSelectedValue();
+               var str = iconSelect.getSelectedValue();
+               selectedText.value = str;
+               copyToClipboard(str);
             });
 
             iconSelect = new IconSelect("my-icon-select", 

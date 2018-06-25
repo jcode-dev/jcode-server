@@ -51,12 +51,17 @@
 
 						<template v-if="joins.length">
 							申込総数：${joins.length}<br />
+							選択数：${selectedNumber}<br />
 
 							<p>
 								チェックされたものを
-								<button click v-on:click.prevent="copyJoins()">名簿用コピー</button>
+								<button click v-on:click.prevent="copyJoins()">受付名簿コピー</button>
+								<button click v-on:click.prevent="copyUsers()">保険加入コピー</button><br />
+								<button click v-on:click.prevent="meiboCdo()">Cord.org用名簿</button><br />
 								<button click v-on:click.prevent="businesscards1()">名刺1枚</button>
 								<button click v-on:click.prevent="businesscards()">名刺2枚</button>
+								<button click v-on:click.prevent="certificates()">賞状</button>
+								<button click v-on:click.prevent="certificatesE()">空賞状</button>
 
 								<select class="select" v-model="action">
 									<option value="attend">参加者追加</option>
@@ -66,6 +71,7 @@
 									<option value="microbit">マイクロビット</option>
 								</select>
 								<a class="button is-info" click v-on:click.prevent="getJoins(eventId)">読込し直し</a>
+								<a class="button is-info" click v-on:click.prevent="getHistory()">gHistory</a>
 								<br />
 
 								<template v-if="action=='attend'">
@@ -73,6 +79,7 @@
 								</template>
 								<template v-if="action=='password'">
 									<a class="button is-info" v-on:click.prevent="copyPassword()">パスワードをランダムに</a>
+									<a class="button is-info" v-on:click.prevent="copyPasstel()">パスワードを電話下4桁に</a>
 									<a class="button is-danger" v-on:click.prevent="updatePassword()">パスワードを書きこみ更新</a>
 								</template>
 								<template v-if="action=='cdo'">
@@ -87,7 +94,6 @@
 									<a class="button is-danger" v-on:click.prevent="updateMicrobit()">マイクロビット 更新</a>
 								</template>
 								<br />
-								<a class="button is-danger" v-on:click.prevent="updateStatus()">ステータス 更新</a>
 							</p>
 							${errmsg}
 
@@ -103,8 +109,12 @@
 							<table class="table is-striped">
 								<tbody>
 									<tr>
+										<th>?</th>
 										<th>番号</th>
+										<th>ニックネーム</th>
 										<th>名前</th>
+										<th>住所</th>
+										<th>保険</th>
 
 										<template v-if="action=='password'">
 											<th>パスワード</th>
@@ -114,18 +124,43 @@
 											<th>CODE.ORG画像</th>
 										</template>
 										<template v-if="action=='insurance'">
-											<th>保険</th>
+											<th>他保険</th>
 										</template>
 										<template v-if="action=='microbit'">
 											<th>マイクロビット</th>
 										</template>
 
-										<th>ステータス</th>
+										<th>
+										ステータス<br />
+											？<select class="select" v-model="selectStatus" v-on:change="changeSelectStatus()">
+												<option value="PENDING">PENDING</option>
+												<option value="APPROVED">APPROVED</option>
+												<option value="CANCEL">CANCEL</option>
+												<option value="REJECTED">REJECTED</option>
+											</select>検索<br />
+											＝<select class="select" v-model="selectStatus" v-on:change="changeSetStatus()">
+												<option value="PENDING">PENDING</option>
+												<option value="APPROVED">APPROVED</option>
+												<option value="CANCEL">CANCEL</option>
+												<option value="REJECTED">REJECTED</option>
+											</select>設定<br />
+										</th>
 										<th>役割</th>
+										<th>
+										回目<br />
+										<input v-model="times" class="input" type="text" v-on:change="changeTimes()"><br />
+										</th>
+										<th>履歴</th>
 									</tr>
 									<tr v-for="join in joins">
-										<td><input v-model="join.check" class="checkbox" type="checkbox">${join.memberId.number}</td>
+									
+									<td><input v-model="join.check" class="checkbox" type="checkbox"></td>
+									<template v-if="join.memberId">
+										<td>${join.memberId.number}</td>
+										<td>${join.memberId.name}</td>
 										<td><ruby>${join.memberId.fullname}<rt>${join.memberId.furigana}</rt></ruby></td>
+										<td>${join.memberId.address1}</td>
+										<td>${join.memberId.hadInsurance}</td>
 
 										<template v-if="action=='password'">
 											<td><input v-model="join.memberId.newpass" type="text"></td>
@@ -143,8 +178,8 @@
 										<template v-if="action=='microbit'">
 											<td><input v-model="join.memberId.microbitLending" type="text"></td>
 										</template>
-										<td>${join.status}
-												<select class="select" v-model="join.status">
+										<td>
+											<select class="select" v-model="join.status">
 												<option value="PENDING">PENDING</option>
 												<option value="APPROVED">APPROVED</option>
 												<option value="CANCEL">CANCEL</option>
@@ -154,8 +189,20 @@
 										<td>
 											${join.memberId.mainrole}
 											${join.memberId.grade}
-											<button class="button" v-on:click.prevent="adminSinin(join.memberId.email)">編集</button>
+											<a class="button is-info" v-on:click.prevent="updateStatus(join)">s更新</a>
+											<button class="button" v-on:click.prevent="adminSinin(join.memberId._id)">編集</button>
+											<button class="button" v-on:click.prevent="adminSinin(join.ownerId)">親編集</button>
 										</td>
+										<td>
+											${join.history.length}
+										</td>
+										<td>
+											<template v-for="item in join.history">
+												${item.name}<br />
+											</template>
+
+										</td>
+									</template>
 									</tr>
 								</tbody>
 							</table>
@@ -164,7 +211,7 @@
 						<template v-if="users.length">
 							ユーザー数：${users.length}<br />
 							<p>
-								チェックされたものを <button click v-on:click.prevent="copyUsers()">名簿用コピー</button><br />
+
 							</p>
 							<div class="field is-horizontal">
 								<div class="field-label is-normal">
@@ -217,61 +264,9 @@
 										<td>${user.tel}</td>
 										<td>${user.hadInsurance}</td>
 										<td>
-											<button class="button" v-on:click.prevent="adminSinin(user.email)">編集</button>
+											<button class="button" v-on:click.prevent="adminSinin(user._id)">編集</button>
 
 										</td>
-									</tr>
-								</tbody>
-							</table>
-						</template>
-
-						<template v-if="0">
-							アンケート回答総数：${surveys.length}<br />
-
-							<table class="table is-striped">
-								<tbody>
-									<tr>
-										<th>check</th>
-										<th>名前</th>
-										<th>役員候補</th>
-										<th>プログラミング</th>
-										<th>曜日</th>
-										<th>回数</th>
-										<th>年齢</th>
-										<th>メモ</th>
-									</tr>
-									<tr v-for="survey in surveys">
-										<td>
-											<input v-model="survey.check" class="checkbox" type="checkbox">
-											<template v-if="(survey.memberId && survey.memberId._id)">
-												${survey.memberId.number}
-											</template>
-										</td>
-										<td>
-											<template v-if="(survey.memberId && survey.memberId._id)">
-												<ruby>${survey.memberId.fullname}<rt>${survey.memberId.furigana}</rt></ruby>
-											</template>
-										</td>
-										<td>${ survey.q_exec }</td>
-										<td>${ survey.q_program }</td>
-										<td>
-										
-											<label class="checkbox">
-												<br /><input type="checkbox" v-model="survey.week_day" class="checkbox">平日
-											</label>
-											<label class="checkbox">
-												<br /><input type="checkbox" v-model="survey.sat_am" class="checkbox">土曜 午前
-												<br /><input type="checkbox" v-model="survey.sat_pm" class="checkbox">土曜 午後
-											</label>
-											<label class="checkbox">
-												<br /><input type="checkbox" v-model="survey.sun_am" class="checkbox">日曜 午前
-												<br /><input type="checkbox" v-model="survey.sun_pm" class="checkbox">日曜 午後
-											</label>
-
-										</td>
-										<td>${ survey.q_time }</td>
-										<td>${ survey.age_class }</td>
-										<td width=600>${ survey.memo }</td>
 									</tr>
 								</tbody>
 							</table>
@@ -280,7 +275,6 @@
 						<template v-if="surveys.length">
 							アンケート回答総数：${surveys.length}<br />
 							 <button click v-on:click.prevent="copySurveys()">子どもコピー</button><br />
-							 <button click v-on:click.prevent="copySurveys2()">大人コピー</button><br />
 
 							<table class="table is-striped">
 								<tbody>
@@ -317,6 +311,59 @@
 							</table>
 						</template>
 
+						<template v-if="surveys2.length">
+							アンケート回答総数：${surveys2.length}<br />
+							 <button click v-on:click.prevent="copySurveys2()">大人コピー</button><br />
+
+							<table class="table is-striped">
+								<tbody>
+									<tr>
+										<th>check</th>
+										<th>名前</th>
+										<th>役員候補</th>
+										<th>プログラミング</th>
+										<th>曜日</th>
+										<th>回数</th>
+										<th>年齢</th>
+										<th>メモ</th>
+									</tr>
+									<tr v-for="survey in surveys2">
+										<td>
+											<input v-model="survey.check" class="checkbox" type="checkbox">
+											<template v-if="(survey.memberId && survey.memberId._id)">
+												${survey.memberId.number}
+											</template>
+										</td>
+										<td>
+											<template v-if="(survey.memberId && survey.memberId._id)">
+												<ruby>${survey.memberId.fullname}<rt>${survey.memberId.furigana}</rt></ruby>
+											</template>
+										</td>
+										<td>${ survey.q_exec }</td>
+										<td>${ survey.q_program }</td>
+										<td>
+										
+											<label class="checkbox">
+												<br /><input type="checkbox" v-model="survey.week_day" class="checkbox">平日
+											</label>
+											<label class="checkbox">
+												<br /><input type="checkbox" v-model="survey.sat_am" class="checkbox">土曜 午前
+												<br /><input type="checkbox" v-model="survey.sat_pm" class="checkbox">土曜 午後
+											</label>
+											<label class="checkbox">
+												<br /><input type="checkbox" v-model="survey.sun_am" class="checkbox">日曜 午前
+												<br /><input type="checkbox" v-model="survey.sun_pm" class="checkbox">日曜 午後
+											</label>
+
+										</td>
+										<td>${ survey.q_time }</td>
+										<td>${ survey.age_class }</td>
+										<td width=600>${ survey.memo }</td>
+									</tr>
+								</tbody>
+							</table>
+						</template>
+
 				</div>
 			</div>
 		</div>
@@ -336,6 +383,13 @@ function copyTel(tel) {
 	tel = tel.replace(/^(03|\d{3})(\d{3,4})(\d{4})$/, '$1-$2-$3');
 	return tel;
 }
+//csv用に文字列整形
+function getCsvString(s) {
+	if (!s) {
+		return "";
+	}
+	return '"'+s+'"';
+}
 
 const app = new Vue({
 	delimiters: ['${', '}'],
@@ -351,11 +405,15 @@ const app = new Vue({
 		event:{},
 		joins: [],
 		surveys: [],
+		surveys2: [],
 		allCheck: false,
 		action: "",
 		newValue:"",
 		eventId: "",
 		errmsg:"",
+		selectStatus:"",
+		selectedNumber: 0,
+		times: "",
 	},
 	mounted: function() {
 		this.nexturl = location.pathname + location.search;
@@ -382,19 +440,6 @@ const app = new Vue({
 			}
 			restapi.copyToClipboard(str);
 		},
-		// 名簿用コピー
-		copyUsers: function() {
-
-			this.copyMeibo(this.users, function(u) {
-				var dc = '"';
-				var dl = "\t";
-				var er = "\n";
-				var s = "";
-				var tel = copyTel(u.tel);
-				s = u.number+dl + u.furigana+dl + u.fullname+dl + u.zipcode+dl + u.address1+dl + (u.address2?u.address2:'')+dl + tel+dl + (!! u.hadInsurance)+dl +  u.email+dl +er;
-				return s;
-			});
-		},
 		// アンケートのコピー
 		copySurveys: function() {
 
@@ -420,7 +465,7 @@ const app = new Vue({
 		copySurveys2: function() {
 
 			var str = "";
-			this.surveys.forEach(function(survey) {
+			this.surveys2.forEach(function(survey) {
 				var dc = '"';
 				var u = survey.memberId;
 				var dl = "\t";
@@ -437,8 +482,8 @@ const app = new Vue({
 			restapi.copyToClipboard(str);
 		},
 		// サインイン(管理者用)
-		adminSinin: function(email, password = "") {
-			restapi.post("user/signinadmin", {email:email, password: password}).then((response) => {
+		adminSinin: function(id) {
+			restapi.post("user/signinadmin", {id:id}).then((response) => {
 				restapi.pushToken(response.data);
 				window.open('/ui/class/user.html?id=xx', '_blank');
 			});
@@ -448,6 +493,7 @@ const app = new Vue({
 			this.joins = [];
 			this.users = [];
 			this.surveys = [];
+			this.surveys2 = [];
 			if (this.currentModel === "joins") {
 				this.getJoins(this.eventId);
 			} else if (this.currentModel === "users") {
@@ -458,16 +504,50 @@ const app = new Vue({
 				this.getSurveys2(this.eventId);
 			}
 		},
-		// 名簿用コピー
-		copyJoins: function() {
+		// 保険加入用コピー
+		copyUsers: function() {
 			this.copyMeibo(this.joins, function(join) {
 				var u = join.memberId;
-				return u.number+"\t"+u.fullname+"\t"+u.furigana+"\t"+u.email+"\n";
+				var dl = "\t";
+				var er = "\n";
+				return u.number+dl + u.furigana+dl + u.fullname+dl + u.zipcode+dl + getCsvString(u.address1)+dl
+				 + getCsvString(u.address2)+dl + getCsvString(copyTel(u.tel))+dl + (!! u.hadInsurance)+dl +  u.email+dl +er;
 			});
 		},
-		//パスワードランダムに
+		// Code.org用名簿コピー
+		meiboCdo: function() {
+			var str = "";
+			for (let join of this.joins) {
+				if (join.check) {
+					let user = join.memberId;
+					str += user.number+"\t"+(user.name || "")+"\n";
+				}
+			}
+			restapi.copyToClipboard(str);
+		},
+		// 受付名簿用コピー
+		copyJoins: function() {
+			function cb(join) {
+				var u = join.memberId;
+				return u.number+"\t"+u.fullname+"\t"+u.furigana+"\t"+join.status+"\t"+
+					join.history.length+"\t"+
+					u.grade+"\t"+ (u.email?u.email:(join.parent.email?join.parent.email:""))+"\t"+
+					(u.cdosection || "")+"\t"+ (u.cdopassword || "")+"\t"+
+					(u.name || "")+"\t"+
+					(u.sno || "")+"\t"+
+					 "\n";
+			}
+			var users = this.joins;
+			var str = "Number\t Name\t Furigana\t Staus\t 回目\t Grade\t email\t SECTION\t pass\n";
+			for (let user of users) {
+				if (user.check) {
+					str += cb(user);
+				}
+			}
+			restapi.copyToClipboard(str);
+		},
+		//パスワードランダムまたは指定文字列に
 		copyPassword: function() {
-			console.log("aaaa");
 			for(let i in this.joins) {
 				var join  = this.joins[i];
 				if (join.check) {
@@ -475,6 +555,21 @@ const app = new Vue({
 						join.memberId.newpass = this.newValue;
 					} else {
 						join.memberId.newpass = ("0000" + Math.ceil(Math.random()*10000)).substr(-3,3);
+					}
+					Vue.set(this.joins, i, join)
+				}
+			}
+		},
+		//パスワードを電話番号の下4桁
+		copyPasstel: function() {
+			console.log("aaaa");
+			for(let i in this.joins) {
+				var join  = this.joins[i];
+				if (join.check) {
+					if (join.memberId && join.memberId.tel) {
+						join.memberId.newpass = join.memberId.tel.substr(-4,4);
+					} else {
+						join.memberId.newpass = "";
 					}
 					Vue.set(this.joins, i, join)
 				}
@@ -527,6 +622,17 @@ const app = new Vue({
 				}
 			}
 		},
+
+		//過去の出席情報を得る
+		getHistory: function() {
+			this.joins.forEach(function(join) {
+				var user = join.memberId;
+				restapi.get("join/?mid="+user._id+"&status=APPROVED").then((response) => {
+					join.history = response.data;
+				})
+			});
+		},
+
 		//保険2018
 		updateInsurance: function() {
 			for (join of this.joins) {
@@ -551,6 +657,14 @@ const app = new Vue({
 				}
 			}
 		},
+		// ステータス更新
+		updateStatus: function(join) {
+			restapi.post("join/"+join._id, {status: join.status}).then((response) => {
+				console.log(response);
+				this.errmsg = response.statusText;
+			})
+		},
+/*
 		//ステータス
 		updateStatus: function() {
 			this.errmsg = "";
@@ -563,6 +677,7 @@ const app = new Vue({
 				}
 			}
 		},
+*/
 		// 名刺印刷（名前とパスワードカードの2まい）
 		businesscards: function() {
 			var users = [];
@@ -595,8 +710,9 @@ const app = new Vue({
 			for (join of this.joins) {
 				if (join.check) {
 					var user = join.memberId;
-					users.push({number: user.number, furigana: user.furigana, fullname: user.fullname,
-					 address1: "NPO法人プログラミング教育研究所",address2:"HTTP://J-CODE.ORG", cdopassword: user.cdopassword})
+					users.push({number: user.number, furigana: user.furigana, fullname: (user.fullname || user.groupname), newpass: user.newpass, groupname: user.groupname, sno: user.sno,
+					 address1: "NPO法人プログラミング教育研究所",address2:"HTTP://J-CODE.ORG",
+					  cdopassword: user.cdopassword})
 				}
 			}
 			axios({
@@ -613,17 +729,98 @@ const app = new Vue({
 			  link.click();
 			});
 		},
+		// 賞状
+		certificates: function() {
+			var users = [];
+			for (join of this.joins) {
+				if (join.check) {
+					var user = join.memberId;
+					users.push({name: user.name, number: user.number})
+					//users.push({name: user.name})
+				}
+			}
+			axios({
+			  url: '/api/print/certificates',
+			  method: 'POST',
+			  responseType: 'blob', // important
+			  data: {users: users}, 
+			}).then(function(response) {
+			  const url = window.URL.createObjectURL(new Blob([response.data]));
+			  const link = document.createElement('a');
+			  link.href = url;
+			  link.setAttribute('download', 'certificates.pdf');
+			  document.body.appendChild(link);
+			  link.click();
+			});
+		},
+		// 空賞状
+		certificatesE: function() {
+			var users = [];
+			users.push({})
+			users.push({})
+			axios({
+			  url: '/api/print/certificates',
+			  method: 'POST',
+			  responseType: 'blob', // important
+			  data: {users: users}, 
+			}).then(function(response) {
+			  const url = window.URL.createObjectURL(new Blob([response.data]));
+			  const link = document.createElement('a');
+			  link.href = url;
+			  link.setAttribute('download', 'certificates.pdf');
+			  document.body.appendChild(link);
+			  link.click();
+			});
+		},
 		changeUserCheck: function(){
 			var check = this.allCheck;
 			for (join of this.users) {
 				join.check = check;
 			}
 		},
+		// 選択数
+		updateChecks: function(){
+			var n = 0;
+			for (join of this.joins) {
+				if (join.check) {
+					n++;
+				}
+			}
+			this.selectedNumber = n;
+		},
+		// ステータスで選択
+		changeSelectStatus: function(){
+			for (join of this.joins) {
+				join.check = (join.status == this.selectStatus);
+			}
+			this.updateChecks();
+		},
+		// 回目で選択
+		changeTimes: function(){
+			for (join of this.joins) {
+				join.check = (join.history.length == this.times);
+			}
+			this.updateChecks();
+		},
+		// ステータスを一括変更
+		changeSetStatus: function(){
+			var status = this.selectStatus;
+			this.joins.forEach(function(join) {
+				if (join.check) {
+					restapi.post("join/"+join._id, {status: status}).then((response) => {
+						join.status = status;
+					})
+				}
+			});
+			this.updateChecks();
+		},
+		// 全選択チェック
 		changeAllCheck: function(){
 			var check = this.allCheck;
 			for (join of this.joins) {
 				join.check = check;
 			}
+			this.updateChecks();
 		},
 		// ユーザー情報
 		whoami: function() {
@@ -654,7 +851,7 @@ const app = new Vue({
 				arr.sort(function(a, b){
 					return a.memberId.number -b.memberId.number
 				});
-				this.surveys = arr;
+				this.surveys2 = arr;
 			});
 		},
 		// ユーザー覧
@@ -668,7 +865,22 @@ const app = new Vue({
 			restapi.get("join/?gid="+id).then((response) => {
 				var arr = response.data;
 				arr.sort(function(a, b){
-					return a.memberId.number -b.memberId.number
+					if (a.memberId && b.memberId) {
+						return a.memberId.number -b.memberId.number
+					} else {
+						return 0;
+					}
+				});
+				// 親編集
+				// 親のメールアドレスを得る
+				arr.forEach(function(join) {
+					join.parent = {};
+					join.history = [];
+				});
+				arr.forEach(function(join) {
+					restapi.get("user/"+join.ownerId).then(function(response){
+						join.parent = response.data;
+					});
 				});
 				this.joins = arr;
 			});

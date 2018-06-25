@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>プログラミング教育研究所</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+	<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+	<link rel='stylesheet' id='dashicons-css'  href='/ui/css/dashicons.min.css?ver=4.7.4' type='text/css' media='all' />
+	<link rel='stylesheet' id='admin-bar-css'  href='/ui/css/admin-bar.min.css?ver=4.7.4' type='text/css' media='all' />
+	<link rel='stylesheet' id='twentyseventeen-style-css'  href='/ui/css/style.css?ver=4.7.4' type='text/css' media='all' />
+</head>
+<body>
+	<div class="wrap">
+		<nav class="navbar" role="navigation" aria-label="main navigation">
+			<div class="navbar-brand">
+				<a class="navbar-item is-size-3-desktop" href="https://j-code.org">
+					プログラミング教育研究所
+				</a>
+			</div>
+			<div class="navbar-start">
+				<a class="navbar-item" href="/ui/class/">
+				  保護者・ボランティア画面へ
+				</a>
+			</div>
+			<div class="navbar-end">
+				<a class="navbar-item" href="/go/ui/">
+				  サインイン
+				</a>
+			</div>
+		</nav>
+	</div>
+	<div id="app" class="wrap">
+
+		<img src="/ui/img/illust1814_thumb.gif" />
+
+		<section class="widget widget_recent_entries" id="recent-posts-2">
+			<h2 class="widget-title">会員番号：${user.number}<br /></h2>
+			<ul>
+
+				<li>
+					ニックネーム： ${user.name} <br />
+					<a href="/go/sname/ui" class="button">ニックネームを へんこうする</a>
+				</li>
+
+				<h4>プログラミング</h4>
+					<template v-if="user.cdosection">
+						<li>
+							<a v-bind:href="'https://studio.code.org/sections/' + user.cdosection" target="_blank"><ruby>CODE.ORG<rt>コード ドット オルグ</rt></ruby>をはじめる</a>
+						</li>
+					</template>
+					<template v-else>
+						<li>
+							<a href="https://code.org" target="_blank"><ruby>CODE.ORG<rt>コード ドット オルグ</rt></ruby>をはじめる</a>
+						</li>
+					</template>
+					<li>
+						<a href="https://makecode.microbit.org" target="_blank"><ruby>micro:bit<rt>マイクロビット</rt></ruby>をはじめる</a>
+					</li>
+
+				<h4><ruby>練習<rt>れんしゅう</rt></ruby></h4>
+					<li>
+						<a href="http://kita.j-code.org/kitaku/2017/02/07/touchtyping/" target="_blank">キーボード（タッチタイピングの<ruby>練習<rt>れんしゅう</rt></ruby>）</a>
+					</li>
+
+				<h4><ruby>帰<rt>かえ</rt></ruby>るまえのアンケート</h4>
+				<li>
+					<a href="/ui/class/studentsurvey.html"><ruby>帰<rt>かえ</rt></ruby>るまえのアンケートに<ruby>答<rt>こた</rt></ruby>える
+					</a>
+				</li>
+
+				<h4>おわり</h4>
+				<li>
+					<button class="button is-warning" v-on:click="signout()">サインアウト</button>
+				</li>
+
+			</ul>
+		</section>
+	</div><!-- .wrap -->
+    <footer id="colophon" class="site-footer" role="contentinfo">
+    	<div class="wrap">
+            <div class="site-info">
+            	<a href="https://J-CODE.ORG/" rel="home">NPO法人プログラミング教育研究所</a>
+            </div><!-- .site-info -->
+    	</div><!-- .wrap -->
+    </footer><!-- #colophon -->
+	<script>window.Promise || document.write('<script src="//www.promisejs.org/polyfills/promise-7.0.4.min.js"><\/script>');</script>
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="/ui/js/vue.min.js"></script>
+	<script src="/ui/js/restapi.js"></script>
+	<script>
+
+const app = new Vue({
+	delimiters: ['${', '}'],
+	el: '#app',
+	data: {
+		user: {},
+	},
+	mounted: function() {
+		// Query文字列を見る
+		var v = restapi.getUrlVars();
+		var id  = v && v.id ? v.id : null;
+		this.whoami();
+	},
+	methods: {
+		// ユーザー情報
+		whoami: function() {
+			var that = this;
+			restapi.get("user/whoami/").then(function(response) {
+				console.log("user");
+				that.user = response.data;
+			}).catch(function(err){
+				console.log("err");
+				that.user = {};
+			});
+		},
+		// サインアウト
+		signout: function() {
+			restapi.popToken();
+			location.href = "/go/ui/";
+		},
+	}
+})
+
+	</script>
+
+</body>
+</html>

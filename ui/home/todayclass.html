@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>プログラミング教育研究所</title>
+    <link rel='stylesheet' id='dashicons-css'  href='/ui/css/dashicons.min.css?ver=4.7.4' type='text/css' media='all' />
+    <link rel='stylesheet' id='admin-bar-css'  href='/ui/css/admin-bar.min.css?ver=4.7.4' type='text/css' media='all' />
+    <link rel='stylesheet' id='twentyseventeen-style-css'  href='/ui/css/style.css?ver=4.7.4' type='text/css' media='all' />
+</head>
+<body>
+	<div id="app" class="wrap">
+		<p>
+		   <a href="http://J-CODE.ORG/">Programming Education Laboratory</a>
+		</p>
+		<h1>${event.name}	</h1>
+			
+		<img src="illust1814_thumb.gif" />
+
+		<section class="widget widget_recent_entries" id="recent-posts-2">
+			<h2 class="widget-title">${user.number} ${user.name}</h2>
+			<ul>
+
+				<h4>プログラミング</h4>
+					<template v-if="user.cdosection">
+						<li>
+							<a v-bind:href="'https://studio.code.org/sections/' + user.cdosection" target="_blank"><ruby>CODE.ORG<rt>コード ドット オルグ</rt></ruby>をはじめる</a>
+						</li>
+					</template>
+					<template v-else>
+						<li>
+							<a href="https://code.org" target="_blank"><ruby>CODE.ORG<rt>コード ドット オルグ</rt></ruby>をはじめる</a>
+						</li>
+					</template>
+					<li>
+						<a href="https://makecode.microbit.org" target="_blank"><ruby>micro:bit<rt>マイクロビット</rt></ruby>をはじめる</a>
+					</li>
+
+
+
+				<h4><ruby>帰<rt>かえ</rt></ruby>るまえのアンケート</h4>
+				<li>
+					<a v-bind:href="'/go/students01/?id='+event._id"
+					 target="_blank"><ruby>帰<rt>かえ</rt></ruby>るまえのアンケートに<ruby>答<rt>こた</rt></ruby>える</a>
+				</li>
+
+				<h4>おわり</h4>
+				<li>
+					<a href="/go/ui/class/" >サインアウトへ</a>
+				</li>
+
+			</ul>
+		</section>
+	</div><!-- .wrap -->
+    <footer id="colophon" class="site-footer" role="contentinfo">
+    	<div class="wrap">
+            <div class="site-info">
+            	<a href="https://J-CODE.ORG/" rel="home">NPO法人プログラミング教育研究所</a>
+            </div><!-- .site-info -->
+    	</div><!-- .wrap -->
+    </footer><!-- #colophon -->
+	<script>window.Promise || document.write('<script src="//www.promisejs.org/polyfills/promise-7.0.4.min.js"><\/script>');</script>
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="/ui/js/vue.js"></script>
+	<script src="/ui/js/restapi.js"></script>
+	<script>
+
+const app = new Vue({
+	delimiters: ['${', '}'],
+	el: '#app',
+	data: {
+		user: {},
+		event: {},
+	},
+	mounted: function() {
+		// Query文字列を見る
+		var v = restapi.getUrlVars();
+		var id  = v && v.id ? v.id : null;
+		this.getEvent(id);
+		this.whoami();
+	},
+	methods: {
+		// イベント情報
+		getEvent: function(id) {
+			var that = this;
+			restapi.get("event/"+id).then(function(response) {
+				var event = response.data;
+				event.startDate = restapi.getDate(event.startDatetime);
+				event.startTime = restapi.getTime(event.startDatetime);
+				event.endTime = restapi.getTime(event.endDatetime);
+				that.event = event;
+			});
+		},
+		// ユーザー情報
+		whoami: function() {
+			var that = this;
+			restapi.get("user/whoami/").then(function(response) {
+				console.log("user");
+				that.user = response.data;
+			}).catch(function(err){
+				console.log("err");
+				that.user = {};
+			});
+		},
+	}
+})
+
+	</script>
+
+</body>
+</html>

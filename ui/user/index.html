@@ -33,6 +33,7 @@
 <body>
 
 	<div id="app">
+
 		<template v-if="user._id">
 
 			<article class="message is-primary">
@@ -84,7 +85,7 @@
 							<template v-if="signinMode == 'number'">
 								<form v-on:submit.prevent="signinNumber(user)">
 									<p>
-										<ruby>会員番号<rt>かいいんばんごう</rt></ruby></label>とパスワードでサインインしてください。<br />
+										<ruby>会員番号<rt>かいいんばんごう</rt></ruby>とパスワードでサインインしてください。<br />
 									</p>
 									<div class="field">
 										<label class="label">会員番号</label>
@@ -107,6 +108,10 @@
 									  </div>
 									</div>
 								</form>
+								<p class="help"></p>
+								<p>
+								パスワードだけが分からない場合は<a href="/go/password{{{nexturl}}}">ここをクリック</a>します。
+								</p>
 							</template>
 
 							<template v-if="signinMode == 'email'">
@@ -139,17 +144,14 @@
 									</div>
 								</form>
 							</template>
-
 						</div>
-						<p>
-						パスワードだけが分からない場合は<a href="/go/password{{{nexturl}}}">ここをクリック</a>します。
-						</p>
-						<p>
-						あらたに会員登録をする場合は、<a href="/go/newuser{{nexturl}}">ここをクリック</a>します。
-						</p>
-						<P>
-						※自分のメールアドレスを持っていない人は、会員登録ができません。保護者や先生に、かわりに登録してもらってください。
-						</P>
+						<div class="box">
+							<h2>はじめての人は会員登録（初回のみ）が必要です。</h2>
+								<a class="button is-info" href="/go/newuser{{nexturl}}">会員登録へ</a>
+							<P>
+							※自分のメールアドレスを持っていない人は、会員登録ができません。保護者や先生に、かわりに登録してもらってください。
+							</P>
+						</div>
 
 					</div>
 				</div>
@@ -157,8 +159,9 @@
 
 		</template>
 	</div>
+	<script>window.Promise || document.write('<script src="//www.promisejs.org/polyfills/promise-7.0.4.min.js"><\/script>');</script>
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="/ui/js/vue.min.js"></script>
 	<script src="/ui/js/restapi.js"></script>
 	<script>
 const app = new Vue({
@@ -175,37 +178,45 @@ const app = new Vue({
 	methods: {
 		// ユーザー情報
 		whoami: function() {
-			restapi.get("user/whoami/").then((response) => {
-				this.user = response.data;
-			}).catch((error) => {
-				this.user = {};
+			var that = this;
+			restapi.get("user/whoami/?_="+Date.now()).then(function(response) {
+				that.user = response.data;
+			}).catch(function(error) {
+				that.user = {};
 			})
 		},
 		// サインイン
 		signinNumber: function (user) {
-
-			axios.post(location.protocol+"//"+location.host+"/api/user/nsignin", user).then((response) => {
+			var that = this;
+			restapi.post("user/nsignin", user).then(function(response) {
 				var token = response.data;
 				restapi.pushToken(token);
-				location.href = "{{{nexturl}}}"; // リダイレクト
-
-			}).catch((error) => {
+				restapi.get("user/whoami/?_="+Date.now()).then(function(response) {
+					that.user = response.data;
+					console.log(that.user.mainrole, that.user.name, that.user.grade);
+					if (that.user.mainrole == 'STUDENT' && (! that.user.name || ! that.user.grade)) {
+						location.href = "/go/sname{{{nexturl}}}"; // リダイレクト
+					} else {
+						location.href = "{{{nexturl}}}"; // リダイレクト
+					}
+				})
+			}).catch(function(error) {
 				console.log("err:", error.response);
-				this.errmsg = error.response.data;
+				that.errmsg = error.response.data;
 				restapi.popToken();
 			});
 		},
 		// サインイン
 		signinEmail: function (user) {
-
-			axios.post(location.protocol+"//"+location.host+"/api/user/signin", user).then((response) => {
+			var that = this;
+			restapi.post("user/signin", user).then(function(response) {
 				var token = response.data;
 				restapi.pushToken(token);
 				location.href = "{{{nexturl}}}"; // リダイレクト
 
-			}).catch((error) => {
+			}).catch(function(error) {
 				console.log("err:", error.response);
-				this.errmsg = error.response.data;
+				that.errmsg = error.response.data;
 				restapi.popToken();
 			});
 		},

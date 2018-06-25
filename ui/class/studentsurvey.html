@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>プログラミング教育研究所</title>
+    <link rel='stylesheet' id='dashicons-css'  href='/ui/css/dashicons.min.css?ver=4.7.4' type='text/css' media='all' />
+    <link rel='stylesheet' id='admin-bar-css'  href='/ui/css/admin-bar.min.css?ver=4.7.4' type='text/css' media='all' />
+    <link rel='stylesheet' id='twentyseventeen-style-css'  href='/ui/css/style.css?ver=4.7.4' type='text/css' media='all' />
+</head>
+<body>
+	<div id="app" class="wrap">
+		<p>
+		   <a href="http://J-CODE.ORG/">Programming Education Laboratory</a>
+		</p>
+		<h1>
+			アンケート<br />
+			今日の教室を選んでください
+		</h1>
+		<img src="/ui/img/illust1814_thumb.gif" />
+
+		<section class="widget widget_recent_entries" id="recent-posts-2">
+			<h2 class="widget-title">
+				${user.number}
+				${user.name}
+				${user.mainrole}<br />
+			</h2>
+			<template v-if="user.mainrole=='STAFF'">
+				<ul>
+					<h4>スタッフアンケート</h4>
+					<li v-for="join in joins">
+						<a v-bind:href="'/go/staffs02/ui/?id='+join.groupId">
+							${join.eventname}（${join.name}）
+						</a>
+					</li>
+				</ul>
+			</template>
+			<template v-else>
+				<ul>
+					<h4>アンケートに<ruby>答<rt>こた</rt></ruby>える教室は？</h4>
+					<li v-for="join in joins">
+						<a v-bind:href="'/go/students01/ui/?id='+join.groupId">
+							${join.eventname}（${join.name}）
+						</a>
+					</li>
+				</ul>
+			</template>
+
+		</section>
+	</div><!-- .wrap -->
+    <footer id="colophon" class="site-footer" role="contentinfo">
+    	<div class="wrap">
+            <div class="site-info">
+            	<a href="https://J-CODE.ORG/" rel="home">NPO法人プログラミング教育研究所</a>
+            </div><!-- .site-info -->
+    	</div><!-- .wrap -->
+    </footer><!-- #colophon -->
+	<script>window.Promise || document.write('<script src="//www.promisejs.org/polyfills/promise-7.0.4.min.js"><\/script>');</script>
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="/ui/js/vue.js"></script>
+	<script src="/ui/js/restapi.js"></script>
+	<script>
+
+const app = new Vue({
+	delimiters: ['${', '}'],
+	el: '#app',
+	data: {
+		user: {},
+		joins: [],
+	},
+	mounted: function() {
+		this.whoami();
+	},
+	methods: {
+		// ユーザー情報
+		whoami: function() {
+			var that = this;
+			restapi.get("user/whoami/").then(function(response) {
+				that.user = response.data;
+				that.myevents();
+			}).catch(function(err){
+				console.log("err");
+				that.user = {};
+			});
+		},
+		// 参加クラス一覧
+		myevents: function() {
+			var that = this;
+			restapi.get("join/?mid="+that.user._id+"&status=APPROVED").then(function(response) {
+				var joins = response.data;
+				console.log("joins");
+				joins.forEach(function(join){
+					join.eventname = "abc";
+
+					restapi.get("event/"+join.groupId).then(function(response) {
+						var event = response.data;
+						event.startDate = restapi.getDate(event.startDatetime);
+						event.startTime = restapi.getTime(event.startDatetime);
+						event.endTime = restapi.getTime(event.endDatetime);
+						join.eventname = event.name;
+					});
+				});
+				that.joins = joins;
+			});
+		},
+	}
+})
+
+	</script>
+
+</body>
+</html>

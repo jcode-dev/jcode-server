@@ -20,10 +20,8 @@
 							<div class="message-header">
 
 								<select v-model="selected" @change="get_items">
-									<option value="doc" selected>すべて</option>
-									<option value="event">イベント</option>
-									<option value="user">ユーザー情報</option>
-									<option value="join">参加申込</option>
+									<option value="FUTURE" selected>今後のイベント</option>
+									<option value="ALL">すべてのイベント</option>
 								</select>
 						  	<input class="button is-primary" v-on:click.prevent="createEvent" value="新規イベント">
 						  	<input class="button is-primary" v-on:click.prevent="create_item" value="新規コピー">
@@ -33,18 +31,11 @@
 								<table class="table is-striped">
 									<tbody>
 										<tr>
-											<th>
-											〇
-											</th>
-											<th>
-												日付
-											</th>
-											<th>
-												名称
-											</th>
-											<th>
-												アクション
-											</th>
+											<th>〇</th>
+											<th>日付</th>
+											<th>対象</th>
+											<th>名称</th>
+											<th>アクション</th>
 										</tr>
 
 										<tr v-for="item in items">
@@ -54,11 +45,13 @@
 											<td>
 												${localDatetime(item.startDatetime)}
 											</td>
+											<td>
+												${item.mainrole}
+											</td>
 											<td  v-on:click.prevent="edit_item(item._id)">
 												${item.name}
 											</td>
 											<td v-if="adminUi">
-												<button class="button is-danger" v-on:click.prevent="delete_item(item)"><i class="far fa-trash-alt"></i>削除</button><br />
 												<a v-bind:href="'../class/admin.html?id=' + item._id"><i class="fas fa-sign-in-alt"></i>管理画面</a>
 											</td>
 										</tr>
@@ -104,10 +97,11 @@
 									<label class="label">説明</label>
 									<textarea class="textarea" v-model="item.description"></textarea>
 
-								<select v-model="item.mainrole">
-									<option value="STAFF">STAFF</option>
-									<option value="STUDENT">STUDENT</option>
-								</select>
+									<label class="label">対象</label>
+									<select v-model="item.mainrole">
+										<option value="STAFF">STAFF</option>
+										<option value="STUDENT">STUDENT</option>
+									</select>
 
 									<label class="label">何日前に締切</label>
 									<input v-model="item.studentBefore" class="input" type="Number">
@@ -128,38 +122,17 @@
 
 <button click v-on:click.prevent="copy()">コピー</button>
 
-							<table class="table is-striped">
-								<tbody>
-									<tr>
-										<th>参加者</th>
-										<th>ステータス</th>
-										<th>アクション</th>
-									</tr>
-									<tr v-for="join in joins">
-										<td>
-										<input v-model="join.check" class="checkbox" type="checkbox">
-										${join.name}</td>
-										<td>${join.status}<td>
-											${join.memberId.fullname}
-											${join.memberId.grade}
-											${join.memberId.mainrole}
-													<button click v-on:click.prevent="leave(join)">取消</button>
-										</td>
-									</tr>
-								</tbody>
-							</table>
 
 				</div>
 			</div>
 		</div>
 	</div>
-	
+	<script>window.Promise || document.write('<script src="//www.promisejs.org/polyfills/promise-7.0.4.min.js"><\/script>');</script>
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="/ui/js/vue.min.js"></script>
 	<script src="/ui/js/restapi.js"></script>
 	<script>
-	
-	
+
 	"use strict";
 
 const showerror = function(error) {
@@ -172,13 +145,12 @@ const app = new Vue({
 	delimiters: ['${', '}'],
 	el: '#app',
 	data: {
-		selected:'event',
+		selected:'FUTURE',
 		items: [],
 		_id: "",
 		item:{},
 		users:[],
 		user:{},
-		joins: [],
 		nexturl: "",
 		local: restapi.local,
 		adminUi: true,
@@ -202,42 +174,45 @@ const app = new Vue({
 			var event = this.item;
 			//console.log("ATTEND:", event);
 			//console.log(user);
+			var that = this;
 			restapi.post("join/", {
 				name: user.fullname + ' ' + restapi.getShortDate(event.startDatetime),
 				memberId: user._id,
-				groupId: event._id }).then((response) => {
+				groupId: event._id }).then(function(response) {
 					console.log("Join:", response);
-					this.get_items(); // 一覧表示
-					this.redrawItem();
+					that.get_items(); // 一覧表示
+					that.redrawItem();
 			}).catch(function(err){
 				showerror(err);
 			});
 		},
 		// 参加キャンセル
 		leave: function(join) {
-			restapi.delete("join/"+join._id).then((response) => {
+			var that = this;
+			restapi.delete("join/"+join._id).then(function(response) {
 				console.log("leave:", response);
-				this.get_items(); // 一覧表示
-				this.redrawItem();
+				that.get_items(); // 一覧表示
+				that.redrawItem();
 			}).catch(function(err){
 				console.log("leave err:", err);
 				showerror(err);
-				this.redrawItem();
+				that.redrawItem();
 			});
 		},
 		// SUBMIT ボタン
 		submitItem: function() {
 			var item = this.item;
+			var that = this;
 			console.log("submitItem !!!", item);
 			if (item._id) { // 更新
-				restapi.post('event/'+ item._id, item).then((response) => {
+				restapi.post('event/'+ item._id, item).then(function(response) {
 					console.log("item:", response);
-					this.get_items(); // 一覧表示
+					that.get_items(); // 一覧表示
 				});
 			} else { // 新規
-				restapi.post('event/', item).then((response) => {
+				restapi.post('event/', item).then(function(response) {
 					console.log("item:", response);
-					this.get_items(); // 一覧表示
+					that.get_items(); // 一覧表示
 				});
 			}
 		},
@@ -247,7 +222,7 @@ const app = new Vue({
 			console.log("SIGNIN", this.nexturl);
 
 			var that = this;
-			restapi.get("user/whoami/").then((response) => {
+			restapi.get("user/whoami/").then(function(response) {
 				that.user = response.data;
 				console.log("contact:", response);
 			}).catch(function(err){
@@ -260,7 +235,7 @@ const app = new Vue({
 		// ユーザー情報
 		getUsers: function() {
 			var that = this;
-			restapi.get("user/").then((response) => {
+			restapi.get("user/").then(function(response) {
 				that.users = response.data;
 				console.log("users", that.users);
 			}).catch(function(err){
@@ -271,25 +246,26 @@ const app = new Vue({
 		// イベントの一覧表示
 		get_items: function() {
 			var that = this;
-			restapi.get("event/?role=ALL&period=ALL").then((response) => {
+			restapi.get("event/?role=ALL&period="+this.selected).then(function(response) {
 				that.items = response.data;
-				if (!this._id) {
-						this._id = this.items[0]._id;
+				if (!that._id) {
+						that._id = that.items[0]._id;
 				}
-				this.redrawItem();
+				that.redrawItem();
 			}).catch(function(err){
 				that.items = [];
 				showerror(err);
 			});
 
 		},
-		localDatetime(t) {
+		localDatetime: function(t) {
 			return restapi.localDatetime(t);
 		},
 		// 右画面のデータ書き直し
 		redrawItem: function() {
 			var item = {};
-			restapi.get('event/'+ this._id).then((response) => {
+			var that = this;
+			restapi.get('event/'+ this._id).then(function(response) {
 				var item = response.data;
 				if (item.__t === 'Event') {
 					item.startDate = restapi.getDate(item.startDatetime);
@@ -299,17 +275,17 @@ const app = new Vue({
 					item.startDatetime = restapi.localDatetime(item.startDatetime);
 					item.endDatetime = restapi.localDatetime(item.endDatetime);
 
-					restapi.get("join/?gid="+item._id).then((response) => {
-						this.item = item;
-						this.joins = response.data;
+					restapi.get("join/?gid="+item._id).then(function(response) {
+						that.item = item;
+						that.joins = response.data;
 
 					}).catch(function(err){
-						thism.joins = [];
+						that.joins = [];
 						showerror(err);
-						this.item = item;
+						that.item = item;
 					});
 				} else {
-					this.item = item;
+					that.item = item;
 				}
 				//this.getUsers();
 			});
@@ -322,11 +298,12 @@ const app = new Vue({
 		// 削除(管理者用)
 		delete_item: function(item) {
 			console.log("delete:", item);
-			restapi.delete(this.selected + "/" + item._id).then((response) => {
+			var that = this;
+			restapi.delete("event/" + item._id).then(function(response) {
 				console.log("item:", response);
-				this.get_items(); // 一覧表示
-				this._id = null;
-				this.redrawItem();
+				that.get_items(); // 一覧表示
+				that._id = null;
+				that.redrawItem();
 			});
 		},
 		// 新規作成(管理者用)
@@ -336,20 +313,21 @@ const app = new Vue({
 		// イベント登録・更新
 		submitEvent: function(item) {
 			this.waiting = true;
+			var that = this;
 			console.log("EVENT:", item);
 			if (item._id) {
-				restapi.post('event/'+item._id, item).then((response) => {
-					this.waiting = false
-					this.get_items(); // 書き直し
+				restapi.post('event/'+item._id, item).then(function(response) {
+					that.waiting = false
+					that.get_items(); // 書き直し
 				}).catch(function(err){
-					this.waiting = false
+					that.waiting = false
 				})
 			} else {
-				restapi.post('event/', item).then((response) => {
-					this.waiting = false
-					this.get_items(); // 書き直し
+				restapi.post('event/', item).then(function(response) {
+					that.waiting = false
+					that.get_items(); // 書き直し
 				}).catch(function(err){
-					this.waiting = false
+					that.waiting = false
 				})
 			}
 		},
@@ -359,17 +337,11 @@ const app = new Vue({
 		},
 		// サインイン(一般用)
 		signin: function(user) {
-			restapi.post("user/signin", {email:user.email, password: user.password}).then((response) => {
-				this.signinDialog = false;
+			var that = this;
+			restapi.post("user/signin", {email:user.email, password: user.password}).then(function(response) {
+				that.signinDialog = false;
 				restapi.pushToken(response.data);
-				this.redrawAll();
-			});
-		},
-		// サインイン(管理者用)
-		adminSinin: function(email, password = "") {
-			restapi.post("user/signinadmin", {email:email, password: password}).then((response) => {
-				restapi.pushToken(response.data);
-				this.redrawAll();
+				that.redrawAll();
 			});
 		},
 		// サインアウト(管理者用)

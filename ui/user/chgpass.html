@@ -54,9 +54,9 @@
 				</div>
 			</article>
 	</div>
-
+	<script>window.Promise || document.write('<script src="//www.promisejs.org/polyfills/promise-7.0.4.min.js"><\/script>');</script>
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="/ui/js/vue.min.js"></script>
 	<script src="/ui/js/restapi.js"></script>
 	<script>
 const app = new Vue({
@@ -72,18 +72,21 @@ const app = new Vue({
 	methods: {
 		whoami: function() {
 			console.log("redrawAll", this.nexturl);
-			restapi.get("user/whoami/").then((response) => {
-				this.user = response.data;
+			var that = this;
+			restapi.get("user/whoami/?_="+Date.now()).then(function(response) {
+				that.user = response.data;
 			});
 		},
 		// サインイン
 		chgpass: function (user) {
+			console.log(user);
 			if (user.password === user.password2) {
+				var that = this;
 				// 新しいアカウントを作成
-				restapi.post("user/password/"+user._id, {password: user.password}).then((response) => {
-				location.href = "{{{nexturl}}}";
-				}).catch((error) => {
-					this.errormsg = error.response.data;
+				restapi.post("user/password/"+user._id, {password: user.password}).then(function(response) {
+					location.href = "{{{nexturl}}}";
+				}).catch(function(error) {
+					that.errormsg = error.response.data;
 				});
 			} else {
 				this.errormsg = "エラー：2つのパスワードが異なります。同じものを2回入れてください。";

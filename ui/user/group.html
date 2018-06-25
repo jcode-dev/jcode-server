@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Hello pel</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+	<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+	<style>
+
+	.message {
+		margin: 1.5rem;
+	}
+	.frame {
+		margin: 1.5rem;
+	}
+	.morespace {
+		margin: 0 1rem;
+	}
+	</style>
+
+	
+</head>
+<body>
+	<div id="app">
+
+	<article class="message is-primary">
+		<div class="content">
+			<div class="message-header">
+				グループの管理
+			</div>
+			<div class="message-body">
+
+				<form v-on:submit.prevent="submitItem(item)">
+
+					<div class="field">
+						<h1>会員番号：${item.number}</h1>
+					</div>
+
+					<div class="field">
+						メール：${item.email}
+					</div>
+
+					<div class="field is-horizontal">
+						<div class="field-label is-normal">
+							<label class="label">ふりがな</label>
+						</div>
+						<div class="field-body">
+							<div class="field is-narrow">
+								<input v-model="item.furigana" class="input" type="text" required autocomplete="name">
+							</div>
+						</div>
+					</div>
+
+					<div class="field is-horizontal">
+						<div class="field-label is-normal">
+							<label class="label">名前</label>
+						</div>
+						<div class="field-body">
+							<div class="field is-narrow">
+								<input v-model="item.fullname" class="input" type="text" required autocomplete="name">
+							</div>
+						</div>
+					</div>
+
+					<div class="field is-horizontal">
+						<div class="field-label is-normal">
+							<label class="label">ニックネーム</label>
+						</div>
+						<div class="field-body">
+							<div class="field is-narrow">
+								<input v-model="item.name" class="input" type="text" autocomplete="name">
+							</div>
+						</div>
+					</div>
+
+						<div class="field is-horizontal">
+							<div class="field-label is-normal">
+								<label class="label">学年</label>
+							</div>
+							<div class="field-body">
+								<div class="field is-narrow">
+									<select class="select" v-model="item.grade">
+										<option value="小1">小1</option>
+										<option value="小2">小2</option>
+										<option value="小3">小3</option>
+										<option value="小4">小4</option>
+										<option value="小5">小5</option>
+										<option value="小6">小6</option>
+										<option value="中1">中1</option>
+										<option value="中2">中2</option>
+										<option value="中3">中3</option>
+										<option value="-">小中学生以外</option>
+									</select>
+								</div>
+							</div>
+						</div>
+
+						<div class="box">
+							<b>あなたが管理する児童生徒</b><br />
+							人数：${users.length}<br />
+							選択：${selectedNumber}<br />
+							成功：${successNumber}<br />
+
+							<table class="table is-striped">
+								<tbody>
+									<tr>
+										<th>
+											<input v-model="allCheck" class="checkbox" type="checkbox" v-on:change="changeAllCheck()">
+											会員番号
+										</th>
+										<th>グループ<br />
+											<select class="select" v-model="selectGroup" v-on:change="changeGroup()">
+												<option v-for="group in groups" v-bind:value="group">${group}</option>
+											</select><br />
+											<input v-model="groupname" class="input is-info" type="text" autocomplete="name" v-on:change="changeGroupname()">
+											<button class="button is-danger" v-on:click.prevent="writeGroupname()">書込</button>
+										</th>
+										<th>ニックネーム</th>
+										<th>
+										学年
+										<select class="select" v-model="grade" v-on:change="writeGrade()">
+											<option value="小1">小1</option>
+											<option value="小2">小2</option>
+											<option value="小3">小3</option>
+											<option value="小4">小4</option>
+											<option value="小5">小5</option>
+											<option value="小6">小6</option>
+											<option value="中1">中1</option>
+											<option value="中2">中2</option>
+											<option value="中3">中3</option>
+											<option value="-">小中学生以外</option>
+										</select>
+										</th>
+										<th>
+										出席番号<br />
+											<button class="button is-info" v-on:click.prevent="changeSno()">連番</button>
+											<button class="button is-danger" v-on:click.prevent="writeSno()">書込</button>
+										</th>
+										<th>編集</th>
+									</tr>
+									<tr v-for="user in users" v-if="item._id != user._id">
+
+										<td>
+										<input v-model="user.check" class="checkbox" type="checkbox">
+										${user.number}
+										</td>
+										<td>
+											<input v-model="user.groupname" class="input" type="text" autocomplete="name">
+										</td>
+										<td>
+											<input v-model="user.name" class="input" type="text" autocomplete="name">
+										</td>
+										<td>
+											<select class="select" v-model="user.grade">
+												<option value="小1">小1</option>
+												<option value="小2">小2</option>
+												<option value="小3">小3</option>
+												<option value="小4">小4</option>
+												<option value="小5">小5</option>
+												<option value="小6">小6</option>
+												<option value="中1">中1</option>
+												<option value="中2">中2</option>
+												<option value="中3">中3</option>
+												<option value="-">小中学生以外</option>
+											</select>
+										</td>
+										<td>
+											<input v-model="user.sno" class="input" type="text" autocomplete="name">
+										</td>
+										<td>
+											<button class="button" v-on:click.prevent="adminSinin(user._id)">サインイン</button>
+										</td>
+									</tr>
+
+									<input v-model="addNumber" class="input" type="number" >
+									<button class="button is-info is-small" v-on:click.prevent="addNumberUser()">児童を ${addNumber} 名追加</button>
+
+								</tbody>
+							</table>
+
+							<p class="help">
+							※「登録して次へ」をクリックすると、児童生徒は後から削除ができませんので気を付けてください。
+							</p>
+
+						</div>
+					<div class="field">
+							<label class="label">通信欄（メモ）</label>
+								<textarea class="textarea" v-model="item.memo"></textarea>
+					</div>
+
+					<div class="field is-horizontal">
+						<div class="field-label is-normal">
+						</div>
+						<div class="field-body">
+							<div class="field">
+								<div class="control">
+									<input class="button is-primary" type="submit" value="登録">
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</form>
+				<button class="button is-warning" v-on:click="signout()">サインアウト</button>
+
+
+			</div>
+		</div>
+	</article>
+	</div>
+
+	<script>window.Promise || document.write('<script src="//www.promisejs.org/polyfills/promise-7.0.4.min.js"><\/script>');</script>
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="/ui/js/restapi.js"></script>
+	<script>
+const app = new Vue({
+	delimiters: ['${', '}'],
+	el: '#app',
+	data: {
+		newusers:[],
+		mailDone: false,
+		errormsg: "",
+		item: {},
+		orgusers: [],
+		users: [],
+		selectedNumber: 0,
+		successNumber: 0,
+		allCheck: false,
+		groupname: "",
+		groups: [],
+		selectGroup:"",
+		addNumber: 0,
+		grade: "",
+	},
+	mounted: function() {
+		this.whoami();
+		this.getUsers();
+	},
+	methods: {
+		changeStudentName: function(user) {
+			if (!user.name) {
+				user.name = user.furigana;
+			}
+		},
+		// 選択数
+		updateChecks: function(){
+			var n = 0;
+			for (user of this.users) {
+				if (user.check) {
+					n++;
+				}
+			}
+			this.selectedNumber = n;
+			this.successNumber = 0;
+		},
+		// グループ名を変更
+		changeGroupname: function(){
+			var groupname = this.groupname;
+			this.users.forEach(function(user) {
+				if (user.check) {
+					user.groupname = groupname;
+				}
+			});
+		},
+		// 変更を書き込み
+		writeGroupname: function(){
+			var that = this;
+			this.successNumber = 0;
+			this.users.forEach(function(user) {
+				if (user.check) {
+					restapi.post("user/"+user._id, {groupname: user.groupname}).then((response) => {
+						that.successNumber++;
+					})
+				}
+			});
+		},
+		// 変更を書き込み
+		writeGrade: function(){
+			var that = this;
+			var grade = this.grade;
+			this.successNumber = 0;
+			this.users.forEach(function(user) {
+				if (user.check) {
+					restapi.post("user/"+user._id, {grade: grade}).then((response) => {
+						user.grade = grade;
+						that.successNumber++;
+					})
+				}
+			});
+		},
+		// 連番
+		changeSno: function(){
+			var n = 1;
+			for (user of this.users) {
+				if (user.check) {
+					user.sno = n++;
+				}
+			}
+		},
+		// 連番を書き込み
+		writeSno: function(){
+			var that = this;
+			this.successNumber = 0;
+			this.users.forEach(function(user) {
+				if (user.check) {
+					restapi.post("user/"+user._id, {sno: user.sno}).then((response) => {
+						that.successNumber++;
+					})
+				}
+			});
+		},
+		// 全選択チェック
+		changeGroup: function(){
+			this.users = [];
+			for (user of this.orgusers) {
+				if (user.groupname === this.selectGroup) {
+					this.users.push(user);
+				}
+			}
+			this.updateChecks();
+		},
+		// 全選択チェック
+		changeAllCheck: function(){
+			var check = this.allCheck;
+			for (user of this.users) {
+				user.check = check;
+			}
+			this.updateChecks();
+		},
+		// 自分が管理するユーザー情報
+		getUsers: function() {
+			var that = this;
+			restapi.get("user/").then(function(response){
+				// 番号順にソート
+				var arr = response.data;
+				arr.sort(function(a, b){
+					return a.number -b.number
+				});
+				that.orgusers = arr;
+				// グループ名を列挙し、全グループ表示
+				that.groups = [];
+				that.users = [];
+				for (user of that.orgusers) {
+					that.users.push(user);
+					var index = that.groups.indexOf(user.groupname);
+					if (index == -1) {
+						that.groups.push(user.groupname);
+					}
+				}
+				console.log("groups", that.groups);
+			}).catch(function(err){
+				that.users = [];
+			});
+		},
+		// 自分の情報
+		whoami: function() {
+			var that = this;
+			restapi.get("user/whoami/?_="+Date.now()).then(function(response){
+				that.item = response.data;
+				console.log("whoami:", that.item);
+			}).catch(function(err){
+				that.item = {};
+			});
+		},
+		// サインアウト
+		signout: function() {
+			restapi.popToken();
+			location.href = "/go/ui/user/group.html";
+		},
+		// サインイン(管理者用)
+		adminSinin: function(id) {
+			restapi.post("user/signinadmin", {id:id}).then((response) => {
+				restapi.pushToken(response.data);
+				window.open('/ui/user/group.html', '_blank');
+			});
+		},
+		// 登録して次へ
+		submitItem: function (user) {
+			var that = this;
+			restapi.post("user/"+user._id, user).then(function(response){
+				console.log("OK:");
+			}).catch(function(error) {
+				console.log("error:", error );
+				//this.errormsg = error.response.data;
+			});
+		},
+		
+		// 子どもを追加
+		addNumberUser: function () {
+			var number = this.addNumber;
+			var that = this;
+			for (i = 0; i < number; i++) {
+				var child = {};
+				child.mainrole = child.mainrole || 'STUDENT';
+				restapi.post("user/", child).then(function(response){
+					console.log( child );
+				})
+			}
+		},
+		// 登録して次へ
+		submitItem22: function (user) {
+			//user.name = user.name || user.fullname;
+			var that = this;
+			restapi.post("user/"+user._id, user).then(function(response){
+				// 子どもを追加
+				that.newusers.forEach( function( child ) {
+					console.log( child );
+					//child.name = child.name || child.furigana;
+					child.mainrole = child.mainrole || 'STUDENT';
+						restapi.post("user/", child).then(function(response){
+							console.log( child );
+					})
+				});
+				// 子どもの編集を保存
+				that.users.forEach( function( child ) {
+					if (child._id != user._id) {
+						console.log( child );
+						//child.name = child.name || child.furigana;
+						child.mainrole = child.mainrole || 'STUDENT';
+
+							restapi.post("user/"+child._id, child).then(function(response){
+								console.log( child );
+							});
+
+					}
+				});
+				//location.href = "{{{nexturl}}}";
+			}).catch(function(error) {
+				console.log("error:", error );
+				//this.errormsg = error.response.data;
+			});
+		},
+	}
+})
+	</script>
+</body>
+</html>

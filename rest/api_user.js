@@ -8,13 +8,14 @@ const addroute = require('./resource-router');
 const restapi =require('./restapi');
 
 const read = '_id number email ';
-const edit = 'mainrole name furigana fullname grade zipcode address1 address2 tel hadInsurance memo cdosection cdopassword microbitLending insurance2018';
+const edit = 'mainrole name furigana fullname grade sno zipcode address1 address2 tel hadInsurance memo cdosection cdopassword microbitLending insurance2018 groupname';
 
 	restapi.signinAdmin(router, model);
 	restapi.whoami(router, model, read+edit);
 	restapi.read(router, model, read+edit),
 	restapi.password(router, model);
 	restapi.findUser(router, model, read+edit),
+	restapi.reset2(router, model);
 
 addroute(router, [
 	restapi.children(model),

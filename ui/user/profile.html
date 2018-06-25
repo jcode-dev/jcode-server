@@ -34,7 +34,8 @@
 				<form v-on:submit.prevent="submitItem(item)">
 
 					<div class="field">
-						会員番号：${item.number}
+						<h1>会員番号：${item.number}</h1>
+						※会員番号は、次回のサインインで必要になりますので控えておいてください。
 					</div>
 
 					<div class="field">
@@ -117,6 +118,19 @@
 							</div>
 						</div>
 					</template>
+					<template v-else>
+						<div class="field is-horizontal">
+							<div class="field-label is-normal">
+								<label class="label">電話番号</label>
+							</div>
+							<div class="field-body">
+								<div class="field is-narrow">
+									<input v-model="item.tel" class="input" type="text" required autocomplete="tel-local">
+								</div>
+							</div>
+						</div>
+					</template>
+
 
 					<template v-if="item.mainrole === 'STAFF'">
 
@@ -155,17 +169,6 @@
 							</div>
 						</div>
 
-						<div class="field is-horizontal">
-							<div class="field-label is-normal">
-								<label class="label">電話番号</label>
-							</div>
-							<div class="field-body">
-								<div class="field is-narrow">
-									<input v-model="item.tel" class="input" type="text" required autocomplete="tel-local">
-								</div>
-							</div>
-						</div>
-
 						<div class="field">
 
 								<div class="field is-nomail">
@@ -190,20 +193,8 @@
 										<th>学年</th>
 										<th>編集</th>
 									</tr>
-									<tr v-for="user in users">
+									<tr v-for="user in users" v-if="item._id != user._id">
 
-										<template v-if="item._id != user._id">
-											<template v-if="!user.check">
-												<td>${user.number}</td>
-												<td>${user.furigana}</td>
-												<td>${user.fullname}</td>
-												<td>${user.name}</td>
-												<td>${user.grade}</td>
-												<td>
-													<input v-model="user.check" class="checkbox is-large is-info" type="checkbox">編集
-												</td>
-											</template>
-											<template v-if="user.check">
 												<td>${user.number}</td>
 												<td>
 													<input v-model="user.furigana" class="input" type="text" required autocomplete="name">
@@ -230,8 +221,6 @@
 												</td>
 												<td>
 												</td>
-											</template>
-										</template>
 									</tr>
 									<tr v-for="newuser in newusers">
 										<td></td>
@@ -310,6 +299,7 @@
 	</article>
 	</div>
 
+	<script>window.Promise || document.write('<script src="//www.promisejs.org/polyfills/promise-7.0.4.min.js"><\/script>');</script>
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 	<script src="/ui/js/restapi.js"></script>
@@ -337,7 +327,7 @@ const app = new Vue({
 		// 自分が管理するユーザー情報
 		getUsers: function() {
 			var that = this;
-			restapi.get("user/").then((response) => {
+			restapi.get("user/").then(function(response){
 				that.users = response.data;
 				console.log("users", that.users);
 			}).catch(function(err){
@@ -347,7 +337,7 @@ const app = new Vue({
 		// 自分の情報
 		whoami: function() {
 			var that = this;
-			restapi.get("user/whoami/").then((response) => {
+			restapi.get("user/whoami/?_="+Date.now()).then(function(response){
 				that.item = response.data;
 				console.log("whoami:", that.item);
 			}).catch(function(err){
@@ -357,32 +347,34 @@ const app = new Vue({
 		// 登録して次へ
 		submitItem: function (user) {
 			user.name = user.name || user.fullname;
-			restapi.post("user/"+user._id, user).then((response) => {
-//				children.each(update(user));
+			var that = this;
+			restapi.post("user/"+user._id, user).then(function(response){
 				// 子どもを追加
-				this.newusers.forEach( function( child ) {
+				that.newusers.forEach( function( child ) {
 					console.log( child );
 					child.name = child.name || child.furigana;
 					child.mainrole = child.mainrole || 'STUDENT';
 					if (child.name) {
-						restapi.post("user/", child).then((response) => {
+						restapi.post("user/", child).then(function(response){
 							console.log( child );
 						});
 					}
 				});
 				// 子どもの編集を保存
-				this.users.forEach( function( child ) {
-					console.log( child );
-					child.name = child.name || child.furigana;
-					child.mainrole = child.mainrole || 'STUDENT';
-					if (child.check && child.name) {
-						restapi.post("user/"+child._id, child).then((response) => {
-							console.log( child );
-						});
+				that.users.forEach( function( child ) {
+					if (child._id != user._id) {
+						console.log( child );
+						child.name = child.name || child.furigana;
+						child.mainrole = child.mainrole || 'STUDENT';
+						if (child.name) {
+							restapi.post("user/"+child._id, child).then(function(response){
+								console.log( child );
+							});
+						}
 					}
 				});
 				location.href = "{{{nexturl}}}";
-			}).catch((error) => {
+			}).catch(function(error) {
 				console.log("error:", error );
 				//this.errormsg = error.response.data;
 			});

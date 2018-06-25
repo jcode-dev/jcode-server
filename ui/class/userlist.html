@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>プログラミング教育研究所</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+	<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+	<style>
+	.button {
+		margin: 0.5rem;
+	}
+	</style>
+</head>
+<body>
+	<div id="app">
+
+		<div class="tile is-ancestor">
+			<div class="tile is-parent">
+				<div class="tile is-child box">
+
+							ユーザー数：${users.length}<br />
+							<p>
+
+							</p>
+							<div class="field is-horizontal">
+								<div class="field-label is-normal">
+									<label class="label">アクション</label>
+								</div>
+								<div class="field-body">
+									<div class="field is-narrow">
+										<select class="select" v-model="mainrole" v-on:change="getUsers()">
+											<option value="STAFF">STAFF</option>
+											<option value="PARENT">PARENT</option>
+											<option value="STUDENT">STUDENT</option>
+										</select>
+									</div>
+								</div>
+							</div>
+
+							<form v-on:submit.prevent="submitUsers">
+								<div class="field is-horizontal">
+									<div class="field-label is-normal">
+										<label class="label">パスワード</label>
+									</div>
+									<div class="field-body">
+										<div class="field is-narrow">
+											<input v-model="newValue" class="input" type="text">
+										</div>
+									</div>
+								</div>
+								<div class="control">
+									<input class="button is-primary" type="submit" value="更新">
+								</div>
+							</form>
+
+							<a class="button" type="button" v-on:click="sendPassword()">パスワードを送信</a>
+
+
+							<input v-model="allCheck" class="checkbox" type="checkbox" v-on:change="changeUserCheck()">すべて
+
+							<table class="table is-striped">
+								<tbody>
+									<tr>
+										<th>番号</th>
+										<th>名前</th>
+										<th>email</th>
+										<th>住所</th>
+										<th>TEL</th>
+										<th>他の保険</th>
+										<th>アクション</th>
+									</tr>
+									<tr v-for="user in users">
+										<td><input v-model="user.check" class="checkbox" type="checkbox">${user.number}</td>
+										<td><ruby>${user.fullname}<rt>${user.furigana}</rt></ruby></td>
+										<td>${user.email}</td>
+										<td>${user.zipcode} ${user.address1}<br />${user.address2}</td>
+										<td>${user.tel}</td>
+										<td>${user.hadInsurance}</td>
+										<td>
+											<button class="button" v-on:click.prevent="adminSinin(user._id)">編集</button>
+
+										</td>
+									</tr>
+								</tbody>
+							</table>
+
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="/ui/js/restapi.js"></script>
+	<script>
+
+// 電話番号の整形
+function copyTel(tel) {
+	if (!tel) {
+		return "";
+	}
+	tel = tel.replace(/[━.*‐.*―.*－.*\-.*ー.*\-]/gi,'');
+	tel = tel.replace(/^(03|\d{3})(\d{3,4})(\d{4})$/, '$1-$2-$3');
+	return tel;
+}
+//csv用に文字列整形
+function getCsvString(s) {
+	if (!s) {
+		return "";
+	}
+	return '"'+s+'"';
+}
+
+const app = new Vue({
+	delimiters: ['${', '}'],
+	el: '#app',
+	data: {
+		currentModel:"joins",
+		signedin: false,
+		nexturl: "",
+		go_profile: "",
+		user: {},
+		events: [],
+		event:{},
+		joins: [],
+		surveys: [],
+		surveys2: [],
+		allCheck: false,
+		action: "",
+		newValue:"",
+		eventId: "",
+		errmsg:"",
+		users: [],
+		mainrole:"STAFF",
+	},
+	mounted: function() {
+		this.nexturl = location.pathname + location.search;
+		// Query文字列を見る
+		var v = restapi.getUrlVars();
+		this.mainrole = v.mainrole || 'STAFF';
+		this.getUsers();
+	},
+	methods: {
+		// ユーザー覧
+		getUsers: function() {
+			restapi.get("user/?mainrole="+this.mainrole).then((response) => {
+				this.users = response.data;
+			});
+		},
+		// パスワードのリセットとメール送信
+		sendPassword: function() {
+			for (user of this.users) {
+				if (user.check) {
+					restapi.post("user/reset2", user).then(function(response) {
+						console.log(user.email);
+					});
+				}
+			}
+		},
+		// 名簿用コピー（エクセルに貼り付ける用）
+		copyMeibo: function(users, cb) {
+			var str = "";
+			for (let user of users) {
+				if (user.check) {
+					str += cb(user);
+				}
+			}
+			restapi.copyToClipboard(str);
+		},
+		// アンケートのコピー
+		copySurveys: function() {
+
+			var str = "";
+			this.surveys.forEach(function(survey) {
+				var dc = '"';
+				var u = survey.memberId;
+				var dl = "\t";
+				var er = "\n";
+				var s = u.number+dl + u.furigana+dl + u.fullname+dl
+					+ survey.grade +dl
+					+ survey.q_fun +dl
+					+ survey.q_brain +dl
+					+ survey.q_teacher +dl
+					+ survey.q_again +dl
+					+ (survey.memo ? dc + survey.memo.trim() +dc : "")
+					+er;
+				str += s;
+			});
+			restapi.copyToClipboard(str);
+		},
+		// アンケートのコピー
+		copySurveys2: function() {
+
+			var str = "";
+			this.surveys2.forEach(function(survey) {
+				var dc = '"';
+				var u = survey.memberId;
+				var dl = "\t";
+				var er = "\n";
+				var s = u.number+dl + u.furigana+dl + u.fullname+dl
+					+ survey.age_class +dl
+					+ survey.q_exec +dl
+					+ survey.q_program +dl
+					+ survey.q_time +dl
+					+ (survey.memo ? dc + survey.memo.trim() +dc : "")
+					+er;
+				str += s;
+			});
+			restapi.copyToClipboard(str);
+		},
+		// サインイン(管理者用)
+		adminSinin: function(id) {
+			restapi.post("user/signinadmin", {id:id}).then((response) => {
+				restapi.pushToken(response.data);
+				window.open('/ui/class/user.html?id=xx', '_blank');
+			});
+		},
+		// 表示モード切替
+		changeModel: function() {
+			this.joins = [];
+			this.users = [];
+			this.surveys = [];
+			this.surveys2 = [];
+			if (this.currentModel === "joins") {
+				this.getJoins(this.eventId);
+			} else if (this.currentModel === "users") {
+				this.getUsers(this.eventId);
+			} else if (this.currentModel === "surveys") {
+				this.getSurveys(this.eventId);
+			} else if (this.currentModel === "surveys2") {
+				this.getSurveys2(this.eventId);
+			}
+		},
+		// 保険加入用コピー
+		copyUsers: function() {
+			this.copyMeibo(this.joins, function(join) {
+				var u = join.memberId;
+				var dl = "\t";
+				var er = "\n";
+				return u.number+dl + u.furigana+dl + u.fullname+dl + u.zipcode+dl + getCsvString(u.address1)+dl
+				 + getCsvString(u.address2)+dl + getCsvString(copyTel(u.tel))+dl + (!! u.hadInsurance)+dl +  u.email+dl +er;
+			});
+		},
+		// 受付名簿用コピー
+		copyJoins: function() {
+			this.copyMeibo(this.joins, function(join) {
+				var u = join.memberId;
+				return u.number+"\t"+u.fullname+"\t"+u.furigana+"\t"+u.email+"\n";
+			});
+		},
+		//パスワードランダムまたは指定文字列に
+		copyPassword: function() {
+			for(let i in this.joins) {
+				var join  = this.joins[i];
+				if (join.check) {
+					if (this.newValue) {
+						join.memberId.newpass = this.newValue;
+					} else {
+						join.memberId.newpass = ("0000" + Math.ceil(Math.random()*10000)).substr(-3,3);
+					}
+					Vue.set(this.joins, i, join)
+				}
+			}
+		},
+		//パスワードを電話番号の下4桁
+		copyPasstel: function() {
+			console.log("aaaa");
+			for(let i in this.joins) {
+				var join  = this.joins[i];
+				if (join.check) {
+					if (join.memberId && join.memberId.tel) {
+						join.memberId.newpass = join.memberId.tel.substr(-4,4);
+					} else {
+						join.memberId.newpass = "";
+					}
+					Vue.set(this.joins, i, join)
+				}
+			}
+		},
+		//パスワード書込み
+		updatePassword: function() {
+			for (join of this.joins) {
+				if (join.check) {
+					restapi.post("user/password/"+join.memberId._id, {password: join.memberId.newpass}).then((response) => {
+						this.errmsg = response.statusText;
+						console.log(response);
+					})
+				}
+			}
+		},
+		//CODE.ORGセクションコピー
+		copyCdo: function() {
+			for(let i in this.joins) {
+				var join  = this.joins[i];
+				if (join.check) {
+					join.memberId.cdosection = this.newValue;
+					Vue.set(this.joins, i, join)
+				}
+			}
+		},
+		//メンバー追加
+		attendMember: function() {
+			var event = this.event;
+			restapi.get("user/?number="+this.newValue).then((response)=> {
+				var user = response.data[0];
+				console.log("USER!!!!!!!", user);
+				restapi.post("join/", {
+					name: user.fullname + ' ' + restapi.getShortDate(event.startDatetime),
+					mainrole: user.mainrole,
+					memberId: user._id,
+					groupId: event._id
+					}).then((response) => {
+				})
+			})
+		},
+		//ユーザー情報(CODE.ORG)書き変え
+		updateCdo: function() {
+			for (join of this.joins) {
+				if (join.check) {
+					var user = join.memberId;
+					restapi.post("user/"+user._id, {cdosection: user.cdosection, cdopassword: user.cdopassword}).then((response) => {
+						this.errmsg = response.statusText;
+					})
+				}
+			}
+		},
+		//保険2018
+		updateInsurance: function() {
+			for (join of this.joins) {
+				if (join.check) {
+					var user = join.memberId;
+					restapi.post("user/"+user._id, {insurance2018: user.insurance2018}).then((response) => {
+						console.log(response);
+						this.errmsg = response.statusText;
+					})
+				}
+			}
+		},
+		//マイクロビット
+		updateMicrobit: function() {
+			for (join of this.joins) {
+				if (join.check) {
+					var user = join.memberId;
+					restapi.post("user/"+user._id, {microbitLending: user.microbitLending}).then((response) => {
+						console.log(response);
+						this.errmsg = response.statusText;
+					})
+				}
+			}
+		},
+		// ステータス更新
+		updateStatus: function(join) {
+			restapi.post("join/"+join._id, {status: join.status}).then((response) => {
+				console.log(response);
+				this.errmsg = response.statusText;
+			})
+		},
+/*
+		//ステータス
+		updateStatus: function() {
+			this.errmsg = "";
+			for (join of this.joins) {
+				if (join.check) {
+					restapi.post("join/"+join._id, {status: join.status}).then((response) => {
+						console.log(response);
+						this.errmsg = response.statusText;
+					})
+				}
+			}
+		},
+*/
+		// 名刺印刷（名前とパスワードカードの2まい）
+		businesscards: function() {
+			var users = [];
+			for (join of this.joins) {
+				if (join.check) {
+					var user = join.memberId;
+					users.push({number: user.number, furigana: user.furigana, fullname: user.fullname,
+					 address1: "NPO法人プログラミング教育研究所",address2:"HTTP://J-CODE.ORG", cdopassword: user.cdopassword})
+					users.push({number: user.newpass,
+					 address1: "コードドットオルグ",address2:"https://studio.code.org/sections/"+user.cdosection, cdopassword: user.cdopassword})
+				}
+			}
+			axios({
+			  url: '/api/print/businesscards',
+			  method: 'POST',
+			  responseType: 'blob', // important
+			  data: {users: users}, 
+			}).then((response) => {
+			  const url = window.URL.createObjectURL(new Blob([response.data]));
+			  const link = document.createElement('a');
+			  link.href = url;
+			  link.setAttribute('download', 'file.pdf');
+			  document.body.appendChild(link);
+			  link.click();
+			});
+		},
+		// 名刺印刷（名前のみ1枚）
+		businesscards1: function() {
+			var users = [];
+			for (join of this.joins) {
+				if (join.check) {
+					var user = join.memberId;
+					users.push({number: user.number, furigana: user.furigana, fullname: user.fullname,
+					 address1: "NPO法人プログラミング教育研究所",address2:"HTTP://J-CODE.ORG", cdopassword: user.cdopassword})
+				}
+			}
+			axios({
+			  url: '/api/print/businesscards',
+			  method: 'POST',
+			  responseType: 'blob', // important
+			  data: {users: users}, 
+			}).then((response) => {
+			  const url = window.URL.createObjectURL(new Blob([response.data]));
+			  const link = document.createElement('a');
+			  link.href = url;
+			  link.setAttribute('download', 'file.pdf');
+			  document.body.appendChild(link);
+			  link.click();
+			});
+		},
+		changeUserCheck: function(){
+			var check = this.allCheck;
+			for (join of this.users) {
+				join.check = check;
+			}
+		},
+		changeAllCheck: function(){
+			var check = this.allCheck;
+			for (join of this.joins) {
+				join.check = check;
+			}
+		},
+		// ユーザー情報
+		whoami: function() {
+			console.log("redrawAll", this.nexturl);
+			restapi.get("user/whoami/").then((response) => {
+				this.user = response.data;
+				this.signedin = true;
+			}).catch(function(err){
+				console.log("whoami:", err);
+				this.user = {name: 'ゲスト'};
+				this.signedin = false;
+			});
+		},
+		// アンケート一覧
+		getSurveys: function(id) {
+			restapi.get("students01/list/"+id).then((response) => {
+				var arr = response.data;
+				arr.sort(function(a, b){
+					return a.memberId.number -b.memberId.number
+				});
+				this.surveys = arr;
+			});
+		},
+		// アンケート一覧
+		getSurveys2: function(id) {
+			restapi.get("staffs01/list/"+id).then((response) => {
+				var arr = response.data;
+				arr.sort(function(a, b){
+					return a.memberId.number -b.memberId.number
+				});
+				this.surveys2 = arr;
+			});
+		},
+		// 参加者一覧
+		getJoins: function(id) {
+			restapi.get("join/?gid="+id).then((response) => {
+				var arr = response.data;
+				arr.sort(function(a, b){
+					if (a.memberId && b.memberId) {
+						return a.memberId.number -b.memberId.number
+					} else {
+						return 0;
+					}
+				});
+				this.joins = arr;
+			});
+		},
+		// イベント情報
+		getEvent: function(id) {
+			restapi.get("event/"+id).then((response) => {
+				var event = response.data;
+				event.startDate = restapi.getDate(event.startDatetime);
+				event.startTime = restapi.getTime(event.startDatetime);
+				event.endTime = restapi.getTime(event.endDatetime);
+				this.event = event;
+			});
+		},
+		// サインアウト
+		adminSinout: function() {
+			this.signedin = false;
+			restapi.popToken();
+			this.whoami();
+		},
+	}
+})
+
+	</script>
+
+</body>
+</html>

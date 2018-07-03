@@ -100,7 +100,7 @@
 						</label>
 					</div>
 
-					<h3 class="is-size-6">すごく<ruby>頭<rt>あたま</rt></ruby>をつかったなー、と<ruby>思<rt>おも</rt></ruby>いますか？</h3>
+					<h3 class="is-size-6">いろいろ<ruby>考<rt>かんが</rt>えて、すごく<ruby>頭<rt>あたま</rt></ruby>をつかったな、と<ruby>思<rt>おも</rt></ruby>いますか？</h3>
 					<div class="control">
 						<label class="radio">
 							そうでもない
@@ -257,7 +257,11 @@ const app = new Vue({
 			var item = this.item;
 			item.groupId = this.event._id;
 			console.log(item);
-			restapi.post("students01/", item);
+			if (this.user._id) {
+				restapi.post("students01/", item);
+			} else {
+				restapi.post("students01/public", item);
+			}
 			location.href = "{{{nexturl}}}";
 		},
 	}

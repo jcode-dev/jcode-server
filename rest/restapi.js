@@ -136,6 +136,9 @@ restapi.findPublic = function(router, model) {
 		if (role && role != 'ALL') {
 			find.mainrole = role;
 		}
+		if (role == "STUDENT") {
+			 find.studentPublic = true;
+		}
 		var period = req.query.period || 'FUTURE'; // PAST, ALL
 		if (period == 'ALL') {
 		} else if (period == 'FUTURE') {
@@ -258,20 +261,13 @@ restapi.eventStatusUpdate = function(router, event, join) {
 		console.log("aggregate", id);
 
 			join.find({groupId: id}, function (err, joins) {
-/*
-				var role = {};
-				role['STUDENT'] = 0;
-				role['STAFF'] = 0;
+				var n = 0;
 				for (var j of joins) {
-					if (j.mainrole in role) {
-						role[j.mainrole]++;
+					if (j.status == 'APPROVED' || j.status == 'PENDING') {
+						n++;
 					}
 				}
-				console.log(role['STUDENT'], role['STAFF']);
-				result.staffApplicant = role['STAFF'];
-				result.studentApplicant = role['STUDENT'];
-*/
-				result.studentApplicant = joins.length;
+				result.studentApplicant = n;
 				result.save(function(err){
 					res.status(200).send(err);
 				});
@@ -323,6 +319,13 @@ restapi.updateSurvey = function(router, model) {
 		});
 		//console.log(r);
 		//return res.status(200).send("OK");
+	})
+}
+// アンケート書込パブリック公開関数
+restapi.updateSurveyPublic = function(router, model) {
+	router.post('/public', function(req, res) {
+		console.log("updateSurveyPublic", req.body);
+		model.create(req.body, toRes(res));
 	})
 }
 

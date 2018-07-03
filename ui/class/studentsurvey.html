@@ -40,7 +40,7 @@
 					<h4>アンケートに<ruby>答<rt>こた</rt></ruby>える教室は？</h4>
 					<li v-for="join in joins">
 						<a v-bind:href="'/go/students01/ui/?id='+join.groupId">
-							${join.eventname}（${join.name}）
+							${join.eventname}
 						</a>
 					</li>
 				</ul>
@@ -81,27 +81,33 @@ const app = new Vue({
 			}).catch(function(err){
 				console.log("err");
 				that.user = {};
+				that.myevents();
 			});
 		},
 		// 参加クラス一覧
 		myevents: function() {
-			var that = this;
-			restapi.get("join/?mid="+that.user._id+"&status=APPROVED").then(function(response) {
-				var joins = response.data;
-				console.log("joins");
-				joins.forEach(function(join){
-					join.eventname = "abc";
+			if (this.user._id) { // サインイン中
+				var that = this;
+				restapi.get("join/?mid="+that.user._id+"&status=APPROVED").then(function(response) {
+					var joins = response.data;
+					console.log("joins");
+					joins.forEach(function(join){
+						join.eventname = "abc";
 
-					restapi.get("event/"+join.groupId).then(function(response) {
-						var event = response.data;
-						event.startDate = restapi.getDate(event.startDatetime);
-						event.startTime = restapi.getTime(event.startDatetime);
-						event.endTime = restapi.getTime(event.endDatetime);
-						join.eventname = event.name;
+						restapi.get("event/"+join.groupId).then(function(response) {
+							var event = response.data;
+							event.startDate = restapi.getDate(event.startDatetime);
+							event.startTime = restapi.getTime(event.startDatetime);
+							event.endTime = restapi.getTime(event.endDatetime);
+							join.eventname = event.name;
+						});
 					});
+					that.joins = joins;
 				});
-				that.joins = joins;
-			});
+			} else {
+				this.joins = [];
+				this.joins.push({groupId: "5b30e916d5f077184fc997e7", eventname:" 桐ヶ丘中学校6/28"});
+			}
 		},
 	}
 })

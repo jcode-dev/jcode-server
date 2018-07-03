@@ -13,6 +13,7 @@ var eventSchema = new Schema({
 	mainrole: String, // 誰向けのイベントか？ PARENT, STUDENT, STAFF
 
 	studentBefore: Number, // 生徒の応募期日（何日前まで）0=受付終了
+	studentLimit: Number, // 生徒の最大受付数（0=無制限）
 	studentMax: Number, // 生徒の定員
 	studentApplicant: Number, // 生徒の応募数
 	studentPublic: Boolean, // 一般生徒に公開するイベントか？

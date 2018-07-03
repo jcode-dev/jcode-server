@@ -207,9 +207,9 @@ const app = new Vue({
 		},
 		// 表示するか？
 		checkUser: function(user) {
-			if (user.mainrole == 'PARENT')
-				return false;
-			if (user.mainrole == 'STUDENT' && !this.studentAllow)
+			//if (user.mainrole == 'PARENT')
+			//	return false;
+			if (user.mainrole != 'STUDENT' || !this.studentAllow)
 				return false;
 			var found = this.joins.find(function(join) {
 				return join.memberId._id == user._id;
@@ -283,7 +283,8 @@ const app = new Vue({
 				event.endTime = restapi.getTime(event.endDatetime);
 				that.event = event;
 				that.getJoins(event._id);
-				that.studentAllow = event.studentPublic && that.checkDeadline(event.startDatetime, event.studentBefore);
+				that.studentAllow = event.studentPublic && that.checkDeadline(event.startDatetime, event.studentBefore)
+				 && (!event.studentLimit || event.studentApplicant < event.studentLimit);
 			});
 		},
 		// 参加申込

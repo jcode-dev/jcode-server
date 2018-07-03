@@ -105,10 +105,12 @@
 
 									<label class="label">何日前に締切</label>
 									<input v-model="item.studentBefore" class="input" type="Number">
-									<label class="label">定員</label>
-									<input v-model="item.studentMax" class="input" type="Number">
+									<label class="label">申込を停止する人数</label>
+									<input v-model="item.studentLimit" class="input" type="Number">
 									<label class="label">申込数</label>
 									<input v-model="item.studentApplicant" class="input" type="Number">
+									<label class="label">定員</label>
+									<input v-model="item.studentMax" class="input" type="Number">
 
 									<input v-model="item.studentPublic" class="checkbox" type="checkbox">公開イベント
 

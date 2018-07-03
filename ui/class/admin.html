@@ -446,10 +446,10 @@ const app = new Vue({
 			var str = "";
 			this.surveys.forEach(function(survey) {
 				var dc = '"';
-				var u = survey.memberId;
+				var u = survey.memberId || {};
 				var dl = "\t";
 				var er = "\n";
-				var s = u.number+dl + u.furigana+dl + u.fullname+dl
+				var s = (u.number || "")+dl + (u.furigana || "")+dl + (u.fullname || "")+dl
 					+ survey.grade +dl
 					+ survey.q_fun +dl
 					+ survey.q_brain +dl
@@ -839,7 +839,10 @@ const app = new Vue({
 			restapi.get("students01/list/"+id).then((response) => {
 				var arr = response.data;
 				arr.sort(function(a, b){
-					return a.memberId.number -b.memberId.number
+					if (a.memberId && b.memberId) {
+						return a.memberId.number -b.memberId.number
+					}
+					return 0;
 				});
 				this.surveys = arr;
 			});

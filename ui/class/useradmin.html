@@ -14,59 +14,23 @@
 		<div class="tile is-ancestor">
 			<div class="tile is-parent">
 				<div class="tile is-child box">
-
-						<article class="message is-primary">
-							<div class="content">
-								<div class="message-header">
-									ユーザー
-								</div>
-								<div class="message-body">
-									ID： ${user._id}<br />
-									番号： ${user.number}<br />
-									名前： ${user.name}<br />
-									ふりがな： ${user.furigana}<br />
-									正式氏名： ${user.fullname}<br />
-									ownerId： ${user.ownerId}<br />
-									email： ${user.email}<br />
-									<button click v-on:click="adminSinout()">サインアウト</button>
-
-									<a href="/go/profile/ui/class/">ユーザープロファイル編集</a>
-
-								</div>
+					<article class="message is-primary">
+						<div class="content">
+							<div class="message-header">
+								ユーザー
 							</div>
-						</article>
-
-						<template v-if="items.length">
-							総数：${items.length}<br />
-
-							<input v-model="allCheck" class="checkbox" type="checkbox" v-on:change="changeAllCheck()">すべて
-
-							<table class="table is-striped">
-								<tbody>
-									<tr>
-										<th>_id</th>
-										<th>名前</th>
-										<th>__t</th>
-										<th>ownerId</th>
-										<th>memberId</th>
-										<th>groupId</th>
-									</tr>
-									<tr v-for="item in items">
-										<td><input v-model="item.check" class="checkbox" type="checkbox">${item._id}</td>
-										<td><input v-model="item.name" class="input" type="text"></td>
-										<td>${item.__t}</td>
-										<td><input v-model="item.ownerId" class="input" type="text"></td>
-										<td><input v-model="item.memberId" class="input" type="text"></td>
-										<td><input v-model="item.groupId" class="input" type="text"></td>
-										<td>
-											<button class="button is-info" v-on:click="updateItem(item)">更新</button>
-											<button v-if="(user._id !== item._id)||(items.length == 1)" class="button is-danger" v-on:click="deleteItem(item._id)">削除</button>
-										</td>
-									</tr>
-								</tbody>
-							</table>
-						</template>
-
+							<div class="message-body">
+								ID： ${child._id}<br />
+								番号： ${child.number}<br />
+								名前： ${child.name}<br />
+								ふりがな： ${child.furigana}<br />
+								正式氏名： ${child.fullname}<br />
+								ownerId： <input v-model="child.ownerId" class="input" type="text"><br />
+								email： <input v-model="child.email" class="input" type="text"><br />
+								<button class="button" v-on:click="updateUser(child)">更新</button><br />
+							</div>
+						</div>
+					</article>
 				</div>
 			</div>
 		</div>
@@ -84,8 +48,7 @@ const app = new Vue({
 		signedin: false,
 		nexturl: "",
 		go_profile: "",
-		users: [],
-		user: {},
+		child: {},
 		items: [],
 		allCheck: false,
 		action: "",
@@ -99,10 +62,26 @@ const app = new Vue({
 		if (! id) {
 			return;
 		}
-		this.whoami();
-		this.get_items();
+		//this.whoami();
+		//this.get_items();
+		this.getUser(id);
 	},
 	methods: {
+		// 一覧表示
+		getUser: function(id) {
+			var that = this;
+			restapi.get("user/"+id).then((response) => {
+				that.child = response.data;
+			}).catch(function(err){
+				that.child = {};
+			});
+		},
+		// 更新
+		updateUser: function(child) {
+			restapi.post("user/admin/"+child._id, child).then((response) => {
+				//this.get_items();
+			});
+		},
 		deleteUser: function() {
 			console.log("delete user", this.user._id);
 		},

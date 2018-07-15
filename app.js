@@ -26,7 +26,6 @@ mongoose.connect(config.mongodb, {}, function(error) {
     console.log (error); // Check error in initial connection. There is no 2nd param to the callback.
   }
  });
-var passport = require('./passport');
 
 console.log ("start express app"); 
 var app = express();
@@ -72,15 +71,29 @@ app.use('/ui', express.static(path.join(__dirname, './ui')));
 app.use('/go', require('./routes/go'));
 
 // ログイン
+var passport = require('./passport');
+var expressSession = require('express-session');
+
+app.use(expressSession(
+  {
+    secret: 'myssSecretKey',
+    resave: true,
+    saveUninitialized: true
+  }));
 app.use(passport.initialize());
-app.post('/signin',
+app.use(passport.session());
+app.get('/login', function(req, res){
+	console.log("isAuthenticated!!!!:", req.isAuthenticated());
+	console.log("user!!!!:", req.user);
+	res.sendFile(path.join(__dirname, './passport/login.html'));
+});
+app.post('/login',
   passport.authenticate('local',
-  {failureRedirect: '/ui/signin' }),
+  {failureRedirect: '/go/ui/' }),
 	function(req, res) {
 		// 認証に施工すると、この関数が呼び出される。
 		// 認証されたユーザーは `req.user` に含まれている。
-		console.log("redirect:");
-		//res.redirect(go.successRedirect);
+		res.redirect('/ui/');
 	}
 );
 

@@ -59,7 +59,7 @@
 								<button click v-on:click.prevent="copyUsers()">保険加入コピー</button><br />
 								<button click v-on:click.prevent="meiboCdo()">Cord.org用名簿</button><br />
 								<button click v-on:click.prevent="businesscards1()">名刺1枚</button>
-								<button click v-on:click.prevent="businesscards()">名刺2枚</button>
+								<button click v-on:click.prevent="businesscards2()">ニックネーム名刺</button>
 								<button click v-on:click.prevent="certificates()">賞状</button>
 								<button click v-on:click.prevent="certificatesE()">空賞状</button>
 
@@ -529,9 +529,10 @@ const app = new Vue({
 		copyJoins: function() {
 			function cb(join) {
 				var u = join.memberId;
+				console.log(u.fullname, u.email, join.parent.email);
 				return u.number+"\t"+u.fullname+"\t"+u.furigana+"\t"+join.status+"\t"+
 					join.history.length+"\t"+
-					u.grade+"\t"+ (u.email?u.email:(join.parent.email?join.parent.email:""))+"\t"+
+					u.grade+"\t"+ ((u.email && u.email.length > 4) ?u.email:(join.parent.email?join.parent.email:""))+"\t"+
 					(u.cdosection || "")+"\t"+ (u.cdopassword || "")+"\t"+
 					(u.name || "")+"\t"+
 					(u.sno || "")+"\t"+
@@ -725,6 +726,31 @@ const app = new Vue({
 			  const link = document.createElement('a');
 			  link.href = url;
 			  link.setAttribute('download', 'file.pdf');
+			  document.body.appendChild(link);
+			  link.click();
+			});
+		},
+		// 名刺印刷（ニックネーム1枚）
+		businesscards2: function() {
+			var users = [];
+			for (join of this.joins) {
+				if (join.check) {
+					var user = join.memberId;
+					users.push({number: user.number, furigana: '', fullname: (user.name || user.groupname), newpass: user.newpass, groupname: user.groupname, sno: user.sno,
+					 address1: "NPO法人プログラミング教育研究所",address2:"HTTP://J-CODE.ORG",
+					  cdopassword: user.cdopassword})
+				}
+			}
+			axios({
+			  url: '/api/print/businesscards',
+			  method: 'POST',
+			  responseType: 'blob', // important
+			  data: {users: users}, 
+			}).then((response) => {
+			  const url = window.URL.createObjectURL(new Blob([response.data]));
+			  const link = document.createElement('a');
+			  link.href = url;
+			  link.setAttribute('download', 'meishi.pdf');
 			  document.body.appendChild(link);
 			  link.click();
 			});

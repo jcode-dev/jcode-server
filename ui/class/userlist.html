@@ -78,9 +78,12 @@
 										<td>${user.tel}</td>
 										<td>${user.hadInsurance}</td>
 										<td>
-											<button class="button" v-on:click.prevent="adminSinin(user._id)">編集</button>
-
+											<button class="button" v-on:click.prevent="adminSinin(user._id)">SignIn</button>
 										</td>
+										<td>
+											<button class="button" v-on:click.prevent="adminEdit(user._id)">編集</button>
+										</td>
+
 									</tr>
 								</tbody>
 							</table>
@@ -215,6 +218,10 @@ const app = new Vue({
 				restapi.pushToken(response.data);
 				window.open('/ui/class/user.html?id=xx', '_blank');
 			});
+		},
+		// 編集(管理者用)
+		adminEdit: function(id) {
+			window.open('/ui/class/useradmin.html?id='+id, '_blank');
 		},
 		// 表示モード切替
 		changeModel: function() {

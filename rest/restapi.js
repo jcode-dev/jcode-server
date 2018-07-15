@@ -363,6 +363,17 @@ restapi.update = function(model, fields = 'name') {
 		}
 	}];
 }
+restapi.adminUpdate = function(model, fields = 'name') {
+	return ['/admin/:_id/', 'post', function(req, res) {
+		console.log("ADMIN UPDATE!!!!!");
+		var id = req.params['_id'];
+		var updateFields = getFields(req.body, fields);
+		console.log("update:", model.modelName, id, updateFields);
+		if (isRoot(req.user)) {
+			model.findByIdAndUpdate(id, { $set:updateFields }, toRes(res));
+		}
+	}];
+}
 
 restapi.remove = function(model) {
 	return ['/:_id/', 'delete', function(req, res) {

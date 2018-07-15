@@ -9,7 +9,7 @@ const restapi =require('./restapi');
 
 const read = '_id number email ';
 const edit = 'mainrole name furigana fullname grade sno zipcode address1 address2 tel hadInsurance memo cdosection cdopassword microbitLending insurance2018 groupname';
-
+const admin = ' ownerId email'
 	restapi.signinAdmin(router, model);
 	restapi.whoami(router, model, read+edit);
 	restapi.read(router, model, read+edit),
@@ -27,6 +27,7 @@ addroute(router, [
 	restapi.schema(model, edit),
 
 	restapi.update(model, edit),
+	restapi.adminUpdate(model, edit+admin),
 	restapi.remove(model),
 	restapi.create(model),
 ]);

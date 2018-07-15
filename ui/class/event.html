@@ -49,6 +49,7 @@
 									
 									定員：${event.studentMax} 名<br />
 									申込：${event.studentApplicant} 名<br />
+									対象：${event.mainrole} <br />
 									<span class="help">${deadline(event.startDatetime, event.studentBefore)}</span><br />
 								</div>
 
@@ -207,9 +208,9 @@ const app = new Vue({
 		},
 		// 表示するか？
 		checkUser: function(user) {
-			//if (user.mainrole == 'PARENT')
-			//	return false;
-			if (user.mainrole != 'STUDENT' || !this.studentAllow)
+			if (user.mainrole != this.event.mainrole)
+				return false;
+			if (!this.studentAllow)
 				return false;
 			var found = this.joins.find(function(join) {
 				return join.memberId._id == user._id;

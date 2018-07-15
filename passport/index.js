@@ -8,13 +8,14 @@ var passport = require('passport');
 var LocalStrategy   = require('passport-local').Strategy;
 var bCrypt = require('bcrypt-nodejs');
 
+
 // Passport needs to be able to serialize and deserialize users to support persistent login sessions
 passport.serializeUser(function(user, done) {
 	done(null, user._id);
 });
 
 passport.deserializeUser(function(id, done) {
-	User.model.findById(id, function (err, user) {
+	User.findById(id, function (err, user) {
 		done(err, user);
 	});
 });
@@ -25,7 +26,7 @@ var isValidPassword = function(user, password){
 
 // Local Strategy
 passport.use(new LocalStrategy({
-	usernameField: 'email',
+	usernameField: 'username',
 	passwordField: 'password'
 }, function(email, password, done) {
 		//console.log('findOne: ', username);
